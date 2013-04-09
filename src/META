@@ -1,0 +1,11 @@
+# OASIS_START
+# DO NOT EDIT (digest: ccafcace190a5cca51e418e4f2859f49)
+version = "0.1"
+description = "OCaml statistics library"
+archive(byte) = "statistics.cma"
+archive(byte, plugin) = "statistics.cma"
+archive(native) = "statistics.cmxa"
+archive(native, plugin) = "statistics.cmxs"
+exists_if = "statistics.cma"
+# OASIS_STOP
+

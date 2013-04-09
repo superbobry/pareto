@@ -1,0 +1,5 @@
+(* OASIS_START *)
+(* DO NOT EDIT (digest: c9bc33cd0667f99b20029df767505f88) *)
+Authors of statistics
+Sergei Lebedev <superbobry@gmail.com>
+(* OASIS_STOP *)

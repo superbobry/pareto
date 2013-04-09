@@ -1,0 +1,13 @@
+OASISFormat: 0.3
+Name:        statistics
+Version:     0.1
+Synopsis:    OCaml statistics library
+Authors:     Sergei Lebedev <superbobry@gmail.com>
+License:     MIT
+Plugins:     META (0.3), StdFiles (0.3), DevFiles (0.3)
+
+Library statistics
+  Path:       src
+  BuildTools: ocamlbuild
+  Modules:    Statistics
+  CSources:   math_stubs.c
