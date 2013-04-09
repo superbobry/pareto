@@ -8,7 +8,7 @@ type t = {
 let create ~mean ~sd =
   if sd > 0.
   then { normal_mean = mean; normal_sd = sd }
-  else error "Normal_distribution.create: standard deviation must be positive"
+  else failwith "Normal_distribution.create: standard deviation must be positive"
 
 let standard = create ~mean:0. ~sd:1.
 
