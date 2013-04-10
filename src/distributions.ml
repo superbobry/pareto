@@ -1,6 +1,6 @@
 open Internal
 
-module Normal = struct
+module Gaussian = struct
   type t = {
     normal_mean : float;
     normal_sd   : float;
@@ -9,7 +9,7 @@ module Normal = struct
   let create ~mean ~sd =
     if sd > 0.
     then { normal_mean = mean; normal_sd = sd }
-    else failwith "Normal_distribution.create: standard deviation must be positive"
+    else failwith "Gaussian.create: standard deviation must be positive"
 
   let standard = create ~mean:0. ~sd:1.
 
@@ -55,7 +55,7 @@ module Exponential = struct
   let create ~rate =
     if rate > 0.
     then { exp_rate = rate }
-    else failwith "Exponential_distribution.create: rate must be positive"
+    else failwith "Exponential.create: rate must be positive"
 
   let cumulative_probability { exp_rate } = Cdf.exponential_P ~mu:exp_rate
 
@@ -74,7 +74,7 @@ module Poisson = struct
   let create ~rate =
     if rate > 0.
     then { poisson_rate = rate }
-    else failwith "Poisson_distribution.create: rate must be positive"
+    else failwith "Poisson.create: rate must be positive"
 
   let cumulative_probability { poisson_rate } =
     Cdf.poisson_P ~mu:poisson_rate
@@ -84,4 +84,29 @@ module Poisson = struct
 
   let mean { poisson_rate } = poisson_rate
   and variance { poisson_rate } = poisson_rate
+end
+
+module Binomial = struct
+  type t = {
+    binomial_trials : int;
+    binomial_p      : float
+  }
+
+  let create ~trials ~p =
+    if trials < 0
+    then failwith "Binomial.create: number of trials must be non negative"
+    else if p > 1.0 || p < 0.
+    then failwith "Binomial.create: probability must be in range [0, 1]"
+    else { binomial_trials = trials; binomial_p = p }
+
+  let cumulative_probability { binomial_trials; binomial_p } =
+    Cdf.binomial_P ~n:binomial_trials ~p:binomial_p
+
+  let probability { binomial_trials; binomial_p } ~k =
+    Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p k
+
+  let mean { binomial_trials; binomial_p } =
+    float_of_int binomial_trials *. binomial_p
+  and variance { binomial_trials; binomial_p } =
+    float_of_int binomial_trials *. binomial_p *. (1. -. binomial_p)
 end

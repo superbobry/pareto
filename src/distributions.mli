@@ -1,6 +1,6 @@
 open Internal
 
-module Normal : sig
+module Gaussian : sig
   include ContinuousDistribution
 
   val create   : mean:float -> sd:float -> t
@@ -23,4 +23,10 @@ module Poisson : sig
   include DiscreteDistribution
 
   val create : rate:float -> t
+end
+
+module Binomial : sig
+  include DiscreteDistribution
+
+  val create : trials:int -> p:float -> t
 end
