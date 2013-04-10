@@ -5,9 +5,12 @@ Synopsis:    OCaml statistics library
 Authors:     Sergei Lebedev <superbobry@gmail.com>
 License:     MIT
 Plugins:     META (0.3), StdFiles (0.3), DevFiles (0.3)
+BuildTools:  ocamlbuild
 
 Library statistics
-  Path:       src
-  BuildTools: ocamlbuild
-  Modules:    Statistics
-  CSources:   math_stubs.c
+  Path:         src
+  BuildDepends: gsl
+  Modules:      Statistics
+  CSources:     math_stubs.c
+  NativeOpt:    -w @a
+  ByteOpt:      -w @a

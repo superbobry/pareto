@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 1a203751116305da975192a94e2a6213) *)
+(* DO NOT EDIT (digest: 352aa89761d0aead069b5726b0a8dfbc) *)
 module OASISGettext = struct
 (* # 21 "/Users/superbobry/.opam/system/build/oasis.0.3.0/src/oasis/OASISGettext.ml" *)
 
@@ -479,13 +479,27 @@ let package_default =
   {
      MyOCamlbuildBase.lib_ocaml = [("statistics", ["src"])];
      lib_c = [("statistics", "src", [])];
-     flags = [];
+     flags =
+       [
+          (["oasis_library_statistics_byte"; "ocaml"; "link"; "byte"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_library_statistics_native"; "ocaml"; "link"; "native"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_library_statistics_byte"; "ocaml"; "ocamldep"; "byte"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_library_statistics_native"; "ocaml"; "ocamldep"; "native"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_library_statistics_byte"; "ocaml"; "compile"; "byte"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_library_statistics_native"; "ocaml"; "compile"; "native"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])])
+       ];
      includes = [];
      }
   ;;
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 490 "myocamlbuild.ml"
+# 504 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

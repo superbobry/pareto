@@ -20,5 +20,5 @@ let density { normal_mean; normal_sd } ~x =
           (2. *. normal_sd *. normal_sd)) /.
     Constants.m_sqrt_2_pi *. normal_sd
 
-let mean { normal_mean } = normal_mean
-and variance { normal_sd } = normal_sd *. normal_sd
+let mean { normal_mean; _ } = normal_mean
+and variance { normal_sd; _ } = normal_sd *. normal_sd

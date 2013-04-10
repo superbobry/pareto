@@ -1,5 +1,3 @@
-open Internal
-
 type t = {
   uniform_lower : float;
   uniform_upper : float
