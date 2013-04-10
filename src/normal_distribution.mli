@@ -1,8 +1,6 @@
 open Internal
 
-type t
-
-include ContinuousDistribution with type t := t
+include ContinuousDistribution
 
 val create   : mean:float -> sd:float -> t
 val standard : t
