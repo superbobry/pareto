@@ -1,7 +1,7 @@
 # OASIS_START
-# DO NOT EDIT (digest: 6242b89711b420724cdeb6275edce54f)
+# DO NOT EDIT (digest: a739037d6ba34dd48e9b07c9f5999a89)
 version = "0.1"
-description = "OCaml statistics library"
+description = "GSL powered OCaml statistics library"
 requires = "gsl"
 archive(byte) = "statistics.cma"
 archive(byte, plugin) = "statistics.cma"
