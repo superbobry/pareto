@@ -30,3 +30,9 @@ module Binomial : sig
 
   val create : trials:int -> p:float -> t
 end
+
+module ChiSquared : sig
+  include ContinuousDistribution
+
+  val create : df:int -> t
+end

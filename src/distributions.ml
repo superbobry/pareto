@@ -2,27 +2,29 @@ open Internal
 
 module Gaussian = struct
   type t = {
-    normal_mean : float;
-    normal_sd   : float;
+    gaussian_mean : float;
+    gaussian_sd   : float;
   }
 
   let create ~mean ~sd =
     if sd > 0.
-    then { normal_mean = mean; normal_sd = sd }
+    then { gaussian_mean = mean; gaussian_sd = sd }
     else failwith "Gaussian.create: standard deviation must be positive"
 
   let standard = create ~mean:0. ~sd:1.
 
-  let cumulative_probability { normal_mean; normal_sd } ~x =
-    Cdf.gaussian_P ~sigma:normal_sd ~x:(x -. normal_mean)
+  let cumulative_probability { gaussian_mean; gaussian_sd } ~x =
+    Cdf.gaussian_P ~sigma:gaussian_sd ~x:(x -. gaussian_mean)
 
-  let density { normal_mean; normal_sd } ~x =
-    Randist.gaussian_pdf ~sigma:normal_sd (x -. normal_mean)
-  and quantile { normal_mean; normal_sd } ~p =
-    Cdf.gaussian_Pinv ~sigma:normal_sd ~p +. normal_mean
+  let density { gaussian_mean; gaussian_sd } ~x =
+    Randist.gaussian_pdf ~sigma:gaussian_sd (x -. gaussian_mean)
+  and quantile { gaussian_mean; gaussian_sd } ~p =
+    if p < 0. || p > 1.
+    then failwith "Gaussian.quantile: p must be in range [0, 1]"
+    else Cdf.gaussian_Pinv ~sigma:gaussian_sd ~p +. gaussian_mean
 
-  let mean { normal_mean; _ } = normal_mean
-  and variance { normal_sd; _ } = normal_sd *. normal_sd
+  let mean { gaussian_mean; _ } = gaussian_mean
+  and variance { gaussian_sd; _ } = gaussian_sd *. gaussian_sd
 end
 
 module Uniform = struct
@@ -41,8 +43,10 @@ module Uniform = struct
 
   let density { uniform_lower; uniform_upper } ~x =
     Randist.flat_pdf ~a:uniform_lower ~b:uniform_upper x
-  and quantile { uniform_lower; uniform_upper } =
-    Cdf.flat_Pinv ~a:uniform_lower ~b:uniform_upper
+  and quantile { uniform_lower; uniform_upper } ~p =
+    if p < 0. || p > 1.
+    then failwith "Uniform.quantile: p must be in range [0, 1]"
+    else Cdf.flat_Pinv ~a:uniform_lower ~b:uniform_upper ~p
 
   let mean { uniform_lower; uniform_upper } = 0.5 *. (uniform_lower +. uniform_upper)
   and variance { uniform_lower; uniform_upper } =
@@ -61,8 +65,10 @@ module Exponential = struct
 
   let density { exp_rate } ~x =
     Randist.exponential_pdf ~mu:exp_rate x
-  and quantile { exp_rate } =
-    Cdf.exponential_Pinv ~mu:exp_rate
+  and quantile { exp_rate } ~p =
+    if p < 0. || p > 1.
+    then failwith "Exponential.quantile: p must be in range [0, 1]"
+    else Cdf.exponential_Pinv ~mu:exp_rate ~p
 
   let mean { exp_rate } = 1. /. exp_rate
   and variance { exp_rate } = 1. /. sqrt exp_rate
@@ -106,6 +112,26 @@ module Binomial = struct
     Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p k
 
   let mean { binomial_trials = n; binomial_p = p } = float_of_int n *. p
-  and variance { binomial_trial = n; binomial_p = p } =
+  and variance { binomial_trials = n; binomial_p = p } =
     float_of_int n *. p *. (1. -. p)
+end
+
+module ChiSquared = struct
+  type t = { chisq_df : float }
+
+  let create ~df =
+    if df <= 0
+    then failwith "ChiSquared.create: degrees of freedom must be non negative"
+    else { chisq_df = float_of_int df }
+
+  let cumulative_probability { chisq_df } = Cdf.chisq_P ~nu:chisq_df
+
+  let density { chisq_df } ~x = Randist.chisq_pdf ~nu:chisq_df x
+  and quantile { chisq_df } ~p =
+    if p < 0. || p > 1.
+    then failwith "ChiSquared.quantile: p must be in range [0, 1]"
+    else Cdf.chisq_Pinv ~nu:chisq_df ~p
+
+  let mean { chisq_df; _ } = chisq_df
+  and variance { chisq_df; _ } = 2. *. chisq_df
 end
