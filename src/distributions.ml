@@ -105,8 +105,7 @@ module Binomial = struct
   let probability { binomial_trials; binomial_p } ~k =
     Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p k
 
-  let mean { binomial_trials; binomial_p } =
-    float_of_int binomial_trials *. binomial_p
-  and variance { binomial_trials; binomial_p } =
-    float_of_int binomial_trials *. binomial_p *. (1. -. binomial_p)
+  let mean { binomial_trials = n; binomial_p = p } = float_of_int n *. p
+  and variance { binomial_trial = n; binomial_p = p } =
+    float_of_int n *. p *. (1. -. p)
 end

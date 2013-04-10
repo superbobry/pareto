@@ -1,7 +1,7 @@
 OASISFormat: 0.3
 Name:        statistics
 Version:     0.1
-Synopsis:    OCaml statistics library
+Synopsis:    GSL powered OCaml statistics library
 Authors:     Sergei Lebedev <superbobry@gmail.com>
 License:     MIT
 Plugins:     META (0.3), StdFiles (0.3), DevFiles (0.3)
