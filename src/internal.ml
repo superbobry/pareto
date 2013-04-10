@@ -15,23 +15,19 @@ module type Distribution = sig
 
   include Mean with type t := t
   include Variance with type t := t
-
-  val cumulative_probability : t -> x:float -> float
 end
 
 module type DiscreteDistribution = sig
-  type t
+  include Distribution
 
-  include Distribution with type t := t
-
-  val probability : t -> x:float -> float
+  val cumulative_probability : t -> k:int -> float
+  val probability : t -> k:int -> float
 end
 
 module type ContinuousDistribution = sig
-  type t
+  include Distribution
 
-  include Distribution with type t := t
-
+  val cumulative_probability : t -> x:float -> float
   val density  : t -> x:float -> float
   val quantile : t -> p:float -> float
 end

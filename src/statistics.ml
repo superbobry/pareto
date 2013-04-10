@@ -1,3 +1,1 @@
-module Normal_distribution = Normal_distribution
-module Uniform_distribution = Uniform_distribution
-module Exponential_distribution = Exponential_distribution
+module Distributions = Distributions
