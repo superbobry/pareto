@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 90a20fdf18799ee1cd313c439d4f80e2)
+# DO NOT EDIT (digest: 25a0edc18318adbc25d4195ad1454b6d)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -17,11 +17,7 @@
 "src/statistics.cmxs": use_statistics
 <src/statistics.{cma,cmxa}>: oasis_library_statistics_byte
 <src/*.ml{,i}>: oasis_library_statistics_byte
-"src/math_stubs.c": oasis_library_statistics_byte
 <src/statistics.{cma,cmxa}>: oasis_library_statistics_native
 <src/*.ml{,i}>: oasis_library_statistics_native
-"src/math_stubs.c": oasis_library_statistics_native
-<src/statistics.{cma,cmxa}>: use_libstatistics_stubs
 <src/*.ml{,i}>: pkg_gsl
-"src/math_stubs.c": pkg_gsl
 # OASIS_STOP

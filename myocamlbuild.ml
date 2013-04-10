@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 352aa89761d0aead069b5726b0a8dfbc) *)
+(* DO NOT EDIT (digest: 827412bb831b00edb37cb0d2bc0018e6) *)
 module OASISGettext = struct
 (* # 21 "/Users/superbobry/.opam/system/build/oasis.0.3.0/src/oasis/OASISGettext.ml" *)
 
@@ -478,7 +478,7 @@ open Ocamlbuild_plugin;;
 let package_default =
   {
      MyOCamlbuildBase.lib_ocaml = [("statistics", ["src"])];
-     lib_c = [("statistics", "src", [])];
+     lib_c = [];
      flags =
        [
           (["oasis_library_statistics_byte"; "ocaml"; "link"; "byte"],

@@ -11,6 +11,5 @@ Library statistics
   Path:         src
   BuildDepends: gsl
   Modules:      Statistics
-  CSources:     math_stubs.c
   NativeOpt:    -w @a
   ByteOpt:      -w @a

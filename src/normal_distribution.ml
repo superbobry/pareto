@@ -2,7 +2,7 @@ open Internal
 
 type t = {
   normal_mean : float;
-  normal_sd   : float
+  normal_sd   : float;
 }
 
 let create ~mean ~sd =
@@ -13,12 +13,12 @@ let create ~mean ~sd =
 let standard = create ~mean:0. ~sd:1.
 
 let cumulative_probability { normal_mean; normal_sd } ~x =
-  erfc ((normal_mean -. x) /. Constants.m_sqrt_2_pi *. normal_sd) /. 2.
+  Cdf.gaussian_P ~sigma:normal_sd ~x:(x -. normal_mean)
 
 let density { normal_mean; normal_sd } ~x =
-  exp (-. (normal_mean -. x) *. (normal_mean -. x) /.
-          (2. *. normal_sd *. normal_sd)) /.
-    Constants.m_sqrt_2_pi *. normal_sd
+  Randist.gaussian_pdf ~sigma:normal_sd (x -. normal_mean)
+and quantile { normal_mean; normal_sd } ~p =
+  Cdf.gaussian_Pinv ~sigma:normal_sd ~p +. normal_mean
 
 let mean { normal_mean; _ } = normal_mean
 and variance { normal_sd; _ } = normal_sd *. normal_sd
