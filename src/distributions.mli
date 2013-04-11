@@ -78,7 +78,8 @@ module Cauchy : sig
   include MeanOpt with type t := t
   include VarianceOpt with type t := t
 
-  val create : location:float -> scale:float -> t
+  val create   : location:float -> scale:float -> t
+  val standard : t
 end
 
 module Beta : sig

@@ -232,6 +232,8 @@ module Cauchy = struct
     then failwith "Cauchy.create: scale must be positive"
     else { cauchy_location = location; cauchy_scale = scale }
 
+  let standard = create ~location:0. ~scale:1.
+
   let cumulative_probability { cauchy_location; cauchy_scale } ~x =
     Cdf.cauchy_P ~a:cauchy_scale ~x:(x -. cauchy_location)
 
