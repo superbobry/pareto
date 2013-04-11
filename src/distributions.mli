@@ -72,3 +72,19 @@ module Gamma : sig
 
   val create : shape:float -> scale:float -> t
 end
+
+module Cauchy : sig
+  include ContinuousDistribution
+  include MeanOpt with type t := t
+  include VarianceOpt with type t := t
+
+  val create : location:float -> scale:float -> t
+end
+
+module Beta : sig
+  include ContinuousDistribution
+  include Mean with type t := t
+  include Variance with type t := t
+
+  val create : alpha:float -> beta:float -> t
+end

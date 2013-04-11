@@ -220,3 +220,57 @@ module Gamma = struct
   and variance { gamma_shape; gamma_scale } =
     gamma_shape *. gamma_scale *. gamma_scale
 end
+
+module Cauchy = struct
+  type t = {
+    cauchy_location : float;
+    cauchy_scale    : float
+  }
+
+  let create ~location ~scale =
+    if scale <= 0.
+    then failwith "Cauchy.create: scale must be positive"
+    else { cauchy_location = location; cauchy_scale = scale }
+
+  let cumulative_probability { cauchy_location; cauchy_scale } ~x =
+    Cdf.cauchy_P ~a:cauchy_scale ~x:(x -. cauchy_location)
+
+  let density { cauchy_location; cauchy_scale } ~x =
+    Randist.cauchy_pdf ~a:cauchy_scale (x -. cauchy_location)
+  and quantile { cauchy_location; cauchy_scale } ~p =
+    if p < 0. || p > 1.
+    then failwith "Cauchy.quantile: p must be in range [0, 1]"
+    else Cdf.cauchy_Pinv ~a:cauchy_scale ~p +. cauchy_location
+
+  let mean_opt _d = None
+  and variance_opt _d = None
+end
+
+module Beta = struct
+  type t = {
+    beta_alpha : float;
+    beta_beta  : float
+  }
+
+  let create ~alpha ~beta =
+    if alpha <= 0. || beta <= 0.
+    then failwith "Beta.create: shape parameters must be positive"
+    else { beta_alpha = alpha; beta_beta = beta }
+
+  let cumulative_probability { beta_alpha; beta_beta } =
+    Cdf.beta_P ~a:beta_alpha ~b:beta_beta
+
+  let density { beta_alpha; beta_beta } ~x =
+    Randist.beta_pdf ~a:beta_alpha ~b:beta_beta x
+  and quantile { beta_alpha; beta_beta } ~p =
+    if p < 0. || p > 1.
+    then failwith "Beta.quantile: p must be in range [0, 1]"
+    else Cdf.beta_Pinv ~a:beta_alpha ~b:beta_beta ~p
+
+  let mean { beta_alpha; beta_beta } =
+    beta_alpha /. (beta_alpha +. beta_beta)
+  and variance { beta_alpha; beta_beta } =
+    beta_alpha *. beta_beta /.
+      ((beta_alpha +. beta_beta) *. (beta_alpha +. beta_beta) *.
+         (beta_alpha +. beta_beta +. 1.))
+end
