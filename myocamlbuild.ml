@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 827412bb831b00edb37cb0d2bc0018e6) *)
+(* DO NOT EDIT (digest: c2f2a893587ae2d2039a330fd5fa0590) *)
 module OASISGettext = struct
 (* # 21 "/Users/superbobry/.opam/system/build/oasis.0.3.0/src/oasis/OASISGettext.ml" *)
 
@@ -478,9 +478,24 @@ open Ocamlbuild_plugin;;
 let package_default =
   {
      MyOCamlbuildBase.lib_ocaml = [("statistics", ["src"])];
-     lib_c = [];
+     lib_c = [("statistics", "src", [])];
      flags =
        [
+          (["oasis_library_statistics_ccopt"; "compile"],
+            [
+               (OASISExpr.EBool true,
+                 S
+                   [
+                      A "-ccopt";
+                      A "-O2";
+                      A "-ccopt";
+                      A "-Wall";
+                      A "-ccopt";
+                      A "-pedantic";
+                      A "-ccopt";
+                      A "-Wextra"
+                   ])
+            ]);
           (["oasis_library_statistics_byte"; "ocaml"; "link"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
           (["oasis_library_statistics_native"; "ocaml"; "link"; "native"],
@@ -500,6 +515,6 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 504 "myocamlbuild.ml"
+# 519 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

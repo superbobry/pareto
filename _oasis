@@ -11,5 +11,7 @@ Library statistics
   Path:         src
   BuildDepends: gsl (= 1.11.0)
   Modules:      Statistics
+  CSources:     mlgsl_extra.c
+  CCOpt:        -O2 -Wall -pedantic -Wextra
   NativeOpt:    -w @a
   ByteOpt:      -w @a

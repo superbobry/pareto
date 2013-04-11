@@ -312,7 +312,12 @@ module Hypergeometric = struct
   (** Not yet implemented in ocaml-gsl, see issue
       https://bitbucket.org/mmottl/gsl-ocaml/issue/4/cdf-for-hypergeometric-distribution
       for details. *)
-  let cumulative_probability _d = failwith "not implemented"
+  external hypergeometric_P
+    : k:int -> n1:int -> n2:int -> t:int -> float
+    = "ml_gsl_cdf_hypergeometric_P" "gsl_cdf_hypergeometric_P" "float"
+
+  let cumulative_probability { hyper_m; hyper_t; hyper_k } ~n =
+    hypergeometric_P ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k ~k:n
 
   let probability { hyper_m; hyper_t; hyper_k } ~n =
     Randist.hypergeometric_pdf ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k n
