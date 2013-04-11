@@ -105,3 +105,11 @@ module Hypergeometric : sig
 
   val create : m:int -> t:int -> k:int -> t
 end
+
+module NegativeBinomial : sig
+  include DiscreteDistribution
+  include Mean with type t := t
+  include Variance with type t := t
+
+  val create : failures:int -> p:float -> t
+end

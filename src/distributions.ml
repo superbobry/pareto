@@ -310,8 +310,7 @@ module Hypergeometric = struct
     else { hyper_m = m; hyper_t = t; hyper_k = k }
 
   (** Not yet implemented in ocaml-gsl, see issue
-      https://bitbucket.org/mmottl/gsl-ocaml/issue/4/cdf-for-hypergeometric-distribution
-      for details. *)
+      https://bitbucket.org/mmottl/gsl-ocaml/issue/4 for details. *)
   external hypergeometric_P
     : k:int -> n1:int -> n2:int -> t:int -> float
     = "ml_gsl_cdf_hypergeometric_P" "gsl_cdf_hypergeometric_P" "float"
@@ -329,4 +328,33 @@ module Hypergeometric = struct
     and t = float_of_int hyper_t
     and k = float_of_int hyper_k
     in (k *. m /. t) *. (1. -. m /. t) *. (t -. k) /. (t -. 1.)
+end
+
+module NegativeBinomial = struct
+  type t = {
+    nbinomial_failures : int;
+    nbinomial_p        : float
+  }
+
+  let create ~failures ~p =
+    if failures < 0
+    then failwith ("NegativeBinomial.create: number of failures must " ^
+                   "be non negative")
+    else if p >= 1.0 || p <= 0.
+    then failwith "NegativeBinomial.create: probability must be in range (0, 1)"
+    else { nbinomial_failures = failures; nbinomial_p = p }
+
+  let cumulative_probability { nbinomial_failures; nbinomial_p } ~n =
+    (** Interface inconsistency reported, see
+        https://bitbucket.org/mmottl/gsl-ocaml/issue/5 for details. *)
+    Cdf.negative_binomial_P ~n:(float_of_int nbinomial_failures)
+      ~p:nbinomial_p ~k:n
+
+  let probability { nbinomial_failures; nbinomial_p } ~n =
+    Randist.negative_binomial_pdf ~n:nbinomial_failures ~p:nbinomial_p n
+
+  let mean { nbinomial_failures = r; nbinomial_p = p } =
+    float_of_int r *. p /. (1. -. p)
+  and variance { nbinomial_failures = r; nbinomial_p = p } =
+    float_of_int r *. p *. sqr (1. -. p)
 end
