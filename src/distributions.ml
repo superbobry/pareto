@@ -132,6 +132,91 @@ module ChiSquared = struct
     then failwith "ChiSquared.quantile: p must be in range [0, 1]"
     else Cdf.chisq_Pinv ~nu:chisq_df ~p
 
-  let mean { chisq_df; _ } = chisq_df
-  and variance { chisq_df; _ } = 2. *. chisq_df
+  let mean { chisq_df } = chisq_df
+  and variance { chisq_df } = 2. *. chisq_df
+end
+
+module F = struct
+  type t = {
+    f_df1 : float;
+    f_df2 : float
+  }
+
+  let create ~df1 ~df2 =
+    if df1 <= 0 || df2 <= 0
+    then failwith "F.create: degrees of freedom must be non negative"
+    else { f_df1 = float_of_int df1; f_df2 = float_of_int df2 }
+
+  let cumulative_probability { f_df1; f_df2 } =
+    Cdf.fdist_P ~nu1:f_df1 ~nu2:f_df2
+
+  let density { f_df1; f_df2 } ~x =
+    Randist.fdist_pdf ~nu1:f_df1 ~nu2:f_df2 x
+  and quantile { f_df1; f_df2 } ~p =
+    if p < 0. || p > 1.
+    then failwith "F.quantile: p must be in range [0, 1]"
+    else Cdf.fdist_Pinv ~nu1:f_df1 ~nu2:f_df2 ~p
+
+  let mean_opt { f_df2; _ } =
+    if f_df2 < 2.
+    then None
+    else Some (f_df2 /. (f_df2 -. 2.))
+  and variance_opt { f_df1; f_df2 } =
+    if f_df2 < 4.
+    then None
+    else Some (2. *. f_df2 *. f_df2 *. (f_df1 +. f_df2 -. 2.) /.
+          (f_df1 *. (f_df2 -. 2.) *. (f_df2 -. 2.) *. (f_df2 -. 4.)))
+end
+
+module T = struct
+  type t = { t_df : float }
+
+  let create ~df =
+    if df <= 0.
+    then failwith "T.create: degrees of freedom must be non negative"
+    else { t_df = df }
+
+  let cumulative_probability { t_df } = Cdf.tdist_P ~nu:t_df
+
+  let density { t_df } ~x = Randist.tdist_pdf ~nu:t_df x
+  and quantile { t_df } ~p =
+    if p < 0. || p > 1.
+    then failwith "T.quantile: p must be in range [0, 1]"
+    else Cdf.tdist_Pinv ~nu:t_df ~p
+
+  let mean_opt { t_df } = if t_df > 0. then Some 0. else None
+  and variance_opt { t_df } =
+    if t_df > 2.
+    then Some (t_df /. (t_df -. 2.))
+    else if t_df > 1.
+    then Some infinity
+    else None
+end
+
+module Gamma = struct
+  type t = {
+    gamma_shape : float;
+    gamma_scale : float
+  }
+
+  let create ~shape ~scale =
+    if shape <= 0.
+    then failwith "Gamma.create: shape must be positive"
+    else if scale <= 0.
+    then failwith "Gamma.create: scale must be positive"
+    else { gamma_shape = shape; gamma_scale = scale }
+
+  let cumulative_probability { gamma_shape; gamma_scale } =
+    Cdf.gamma_P ~a:gamma_shape ~b:gamma_scale
+
+  let density { gamma_shape; gamma_scale } ~x =
+    Randist.gamma_pdf ~a:gamma_shape ~b:gamma_scale x
+  and quantile { gamma_shape; gamma_scale } ~p =
+    if p < 0. || p > 1.
+    then failwith "Gamma.quantile: p must be in range [0, 1]"
+    else Cdf.gamma_Pinv ~a:gamma_shape ~b:gamma_scale ~p
+
+  let mean { gamma_shape; gamma_scale } = gamma_shape *. gamma_scale
+  and variance { gamma_shape; gamma_scale } =
+    gamma_shape *. gamma_scale *. gamma_scale
 end

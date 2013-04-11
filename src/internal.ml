@@ -4,28 +4,33 @@ module type Mean = sig
   val mean : t -> float
 end
 
+module type MeanOpt = sig
+  type t
+
+  val mean_opt : t -> float option
+end
+
 module type Variance = sig
   type t
 
   val variance : t -> float
 end
 
-module type Distribution = sig
+module type VarianceOpt = sig
   type t
 
-  include Mean with type t := t
-  include Variance with type t := t
+  val variance_opt : t -> float option
 end
 
 module type DiscreteDistribution = sig
-  include Distribution
+  type t
 
   val cumulative_probability : t -> k:int -> float
   val probability : t -> k:int -> float
 end
 
 module type ContinuousDistribution = sig
-  include Distribution
+  type t
 
   val cumulative_probability : t -> x:float -> float
   val density  : t -> x:float -> float
