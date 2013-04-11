@@ -1,5 +1,5 @@
 OASISFormat: 0.3
-Name:        statistics
+Name:        pareto
 Version:     0.1
 Synopsis:    GSL powered OCaml statistics library
 Authors:     Sergei Lebedev <superbobry@gmail.com>
