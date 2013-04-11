@@ -89,3 +89,19 @@ module Beta : sig
 
   val create : alpha:float -> beta:float -> t
 end
+
+module Geometric : sig
+  include DiscreteDistribution
+  include Mean with type t := t
+  include Variance with type t := t
+
+  val create : p:float -> t
+end
+
+module Hypergeometric : sig
+  include DiscreteDistribution
+  include Mean with type t := t
+  include Variance with type t := t
+
+  val create : m:int -> t:int -> k:int -> t
+end

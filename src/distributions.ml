@@ -24,7 +24,7 @@ module Gaussian = struct
     else Cdf.gaussian_Pinv ~sigma:gaussian_sd ~p +. gaussian_mean
 
   let mean { gaussian_mean; _ } = gaussian_mean
-  and variance { gaussian_sd; _ } = gaussian_sd *. gaussian_sd
+  and variance { gaussian_sd; _ } = sqr gaussian_sd
 end
 
 module Uniform = struct
@@ -50,7 +50,7 @@ module Uniform = struct
 
   let mean { uniform_lower; uniform_upper } = 0.5 *. (uniform_lower +. uniform_upper)
   and variance { uniform_lower; uniform_upper } =
-    (uniform_upper -. uniform_lower) *. (uniform_upper -. uniform_lower) /. 12.
+    sqr (uniform_upper -. uniform_lower) /. 12.
 end
 
 module Exponential = struct
@@ -82,11 +82,11 @@ module Poisson = struct
     then { poisson_rate = rate }
     else failwith "Poisson.create: rate must be positive"
 
-  let cumulative_probability { poisson_rate } =
-    Cdf.poisson_P ~mu:poisson_rate
+  let cumulative_probability { poisson_rate } ~n =
+    Cdf.poisson_P ~mu:poisson_rate ~k:n
 
-  let probability { poisson_rate } ~k =
-    Randist.poisson_pdf ~mu:poisson_rate k
+  let probability { poisson_rate } ~n =
+    Randist.poisson_pdf ~mu:poisson_rate n
 
   let mean { poisson_rate } = poisson_rate
   and variance { poisson_rate } = poisson_rate
@@ -105,11 +105,11 @@ module Binomial = struct
     then failwith "Binomial.create: probability must be in range [0, 1]"
     else { binomial_trials = trials; binomial_p = p }
 
-  let cumulative_probability { binomial_trials; binomial_p } =
-    Cdf.binomial_P ~n:binomial_trials ~p:binomial_p
+  let cumulative_probability { binomial_trials; binomial_p } ~n =
+    Cdf.binomial_P ~n:binomial_trials ~p:binomial_p ~k:n
 
-  let probability { binomial_trials; binomial_p } ~k =
-    Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p k
+  let probability { binomial_trials; binomial_p } ~n =
+    Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p n
 
   let mean { binomial_trials = n; binomial_p = p } = float_of_int n *. p
   and variance { binomial_trials = n; binomial_p = p } =
@@ -164,8 +164,8 @@ module F = struct
   and variance_opt { f_df1; f_df2 } =
     if f_df2 < 4.
     then None
-    else Some (2. *. f_df2 *. f_df2 *. (f_df1 +. f_df2 -. 2.) /.
-          (f_df1 *. (f_df2 -. 2.) *. (f_df2 -. 2.) *. (f_df2 -. 4.)))
+    else Some (2. *. sqr f_df2 *. (f_df1 +. f_df2 -. 2.) /.
+          (f_df1 *. sqr (f_df2 -. 2.) *. (f_df2 -. 4.)))
 end
 
 module T = struct
@@ -217,8 +217,7 @@ module Gamma = struct
     else Cdf.gamma_Pinv ~a:gamma_shape ~b:gamma_scale ~p
 
   let mean { gamma_shape; gamma_scale } = gamma_shape *. gamma_scale
-  and variance { gamma_shape; gamma_scale } =
-    gamma_shape *. gamma_scale *. gamma_scale
+  and variance { gamma_shape; gamma_scale } = gamma_shape *. sqr gamma_scale
 end
 
 module Cauchy = struct
@@ -273,6 +272,56 @@ module Beta = struct
     beta_alpha /. (beta_alpha +. beta_beta)
   and variance { beta_alpha; beta_beta } =
     beta_alpha *. beta_beta /.
-      ((beta_alpha +. beta_beta) *. (beta_alpha +. beta_beta) *.
-         (beta_alpha +. beta_beta +. 1.))
+      (sqr (beta_alpha +. beta_beta) *. (beta_alpha +. beta_beta +. 1.))
+end
+
+module Geometric = struct
+  type t = { geometric_p : float }
+
+  let create ~p =
+    if p > 1.0 || p <= 0.
+    then failwith "Geometric.create: probability must be in range (0, 1]"
+    else { geometric_p = p }
+
+  let cumulative_probability { geometric_p } ~n =
+    Cdf.geometric_P ~p:geometric_p ~k:n
+
+  let probability { geometric_p } ~n =
+    Randist.geometric_pdf ~p:geometric_p n
+
+  let mean { geometric_p } = 1. /. geometric_p
+  and variance { geometric_p } = (1. -. geometric_p) /. sqr geometric_p
+end
+
+module Hypergeometric = struct
+  type t = {
+    hyper_m : int;
+    hyper_t : int;
+    hyper_k : int
+  }
+
+  let create ~m ~t ~k =
+    if t < 0
+    then failwith "Hypergeometric.create: t must be non negative"
+    else if m < 0  || m > t
+    then failwith "Hypergeometric.create: m must be in range [0, t]"
+    else if k <= 0 || k > t
+    then failwith "Hypergeometric.create: k must be in range (0, t]"
+    else { hyper_m = m; hyper_t = t; hyper_k = k }
+
+  (** Not yet implemented in ocaml-gsl, see issue
+      https://bitbucket.org/mmottl/gsl-ocaml/issue/4/cdf-for-hypergeometric-distribution
+      for details. *)
+  let cumulative_probability _d = failwith "not implemented"
+
+  let probability { hyper_m; hyper_t; hyper_k } ~n =
+    Randist.hypergeometric_pdf ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k n
+
+  let mean { hyper_m; hyper_t; hyper_k } =
+    float_of_int (hyper_k * hyper_m) /. float_of_int hyper_t
+  and variance { hyper_m; hyper_t; hyper_k } =
+    let m = float_of_int hyper_m
+    and t = float_of_int hyper_t
+    and k = float_of_int hyper_k
+    in (k *. m /. t) *. (1. -. m /. t) *. (t -. k) /. (t -. 1.)
 end

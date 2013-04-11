@@ -9,7 +9,7 @@ BuildTools:  ocamlbuild
 
 Library statistics
   Path:         src
-  BuildDepends: gsl
+  BuildDepends: gsl (= 1.11.0)
   Modules:      Statistics
   NativeOpt:    -w @a
   ByteOpt:      -w @a

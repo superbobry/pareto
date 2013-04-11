@@ -25,8 +25,8 @@ end
 module type DiscreteDistribution = sig
   type t
 
-  val cumulative_probability : t -> k:int -> float
-  val probability : t -> k:int -> float
+  val cumulative_probability : t -> n:int -> float
+  val probability : t -> n:int -> float
 end
 
 module type ContinuousDistribution = sig
@@ -40,3 +40,5 @@ end
 
 module Randist = Gsl.Randist
 module Cdf = Gsl.Cdf
+
+let sqr x = x *. x
