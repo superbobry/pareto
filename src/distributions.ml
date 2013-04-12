@@ -9,7 +9,7 @@ module Gaussian = struct
   let create ~mean ~sd =
     if sd > 0.
     then { gaussian_mean = mean; gaussian_sd = sd }
-    else failwith "Gaussian.create: standard deviation must be positive"
+    else invalid_arg "Gaussian.create: standard deviation must be positive"
 
   let standard = create ~mean:0. ~sd:1.
 
@@ -20,7 +20,7 @@ module Gaussian = struct
     Randist.gaussian_pdf ~sigma:gaussian_sd (x -. gaussian_mean)
   and quantile { gaussian_mean; gaussian_sd } ~p =
     if p < 0. || p > 1.
-    then failwith "Gaussian.quantile: p must be in range [0, 1]"
+    then invalid_arg "Gaussian.quantile: p must be in range [0, 1]"
     else Cdf.gaussian_Pinv ~sigma:gaussian_sd ~p +. gaussian_mean
 
   let mean { gaussian_mean; _ } = gaussian_mean
@@ -45,7 +45,7 @@ module Uniform = struct
     Randist.flat_pdf ~a:uniform_lower ~b:uniform_upper x
   and quantile { uniform_lower; uniform_upper } ~p =
     if p < 0. || p > 1.
-    then failwith "Uniform.quantile: p must be in range [0, 1]"
+    then invalid_arg "Uniform.quantile: p must be in range [0, 1]"
     else Cdf.flat_Pinv ~a:uniform_lower ~b:uniform_upper ~p
 
   let mean { uniform_lower; uniform_upper } = 0.5 *. (uniform_lower +. uniform_upper)
@@ -59,7 +59,7 @@ module Exponential = struct
   let create ~rate =
     if rate > 0.
     then { exp_rate = rate }
-    else failwith "Exponential.create: rate must be positive"
+    else invalid_arg "Exponential.create: rate must be positive"
 
   let cumulative_probability { exp_rate } = Cdf.exponential_P ~mu:exp_rate
 
@@ -67,7 +67,7 @@ module Exponential = struct
     Randist.exponential_pdf ~mu:exp_rate x
   and quantile { exp_rate } ~p =
     if p < 0. || p > 1.
-    then failwith "Exponential.quantile: p must be in range [0, 1]"
+    then invalid_arg "Exponential.quantile: p must be in range [0, 1]"
     else Cdf.exponential_Pinv ~mu:exp_rate ~p
 
   let mean { exp_rate } = 1. /. exp_rate
@@ -80,7 +80,7 @@ module Poisson = struct
   let create ~rate =
     if rate > 0.
     then { poisson_rate = rate }
-    else failwith "Poisson.create: rate must be positive"
+    else invalid_arg "Poisson.create: rate must be positive"
 
   let cumulative_probability { poisson_rate } ~n =
     Cdf.poisson_P ~mu:poisson_rate ~k:n
@@ -100,9 +100,9 @@ module Binomial = struct
 
   let create ~trials ~p =
     if trials < 0
-    then failwith "Binomial.create: number of trials must be non negative"
+    then invalid_arg "Binomial.create: number of trials must be non negative"
     else if p > 1.0 || p < 0.
-    then failwith "Binomial.create: probability must be in range [0, 1]"
+    then invalid_arg "Binomial.create: probability must be in range [0, 1]"
     else { binomial_trials = trials; binomial_p = p }
 
   let cumulative_probability { binomial_trials; binomial_p } ~n =
@@ -121,7 +121,7 @@ module ChiSquared = struct
 
   let create ~df =
     if df <= 0
-    then failwith "ChiSquared.create: degrees of freedom must be non negative"
+    then invalid_arg "ChiSquared.create: degrees of freedom must be non negative"
     else { chisq_df = float_of_int df }
 
   let cumulative_probability { chisq_df } = Cdf.chisq_P ~nu:chisq_df
@@ -129,7 +129,7 @@ module ChiSquared = struct
   let density { chisq_df } ~x = Randist.chisq_pdf ~nu:chisq_df x
   and quantile { chisq_df } ~p =
     if p < 0. || p > 1.
-    then failwith "ChiSquared.quantile: p must be in range [0, 1]"
+    then invalid_arg "ChiSquared.quantile: p must be in range [0, 1]"
     else Cdf.chisq_Pinv ~nu:chisq_df ~p
 
   let mean { chisq_df } = chisq_df
@@ -144,7 +144,7 @@ module F = struct
 
   let create ~df1 ~df2 =
     if df1 <= 0 || df2 <= 0
-    then failwith "F.create: degrees of freedom must be non negative"
+    then invalid_arg "F.create: degrees of freedom must be non negative"
     else { f_df1 = float_of_int df1; f_df2 = float_of_int df2 }
 
   let cumulative_probability { f_df1; f_df2 } =
@@ -154,7 +154,7 @@ module F = struct
     Randist.fdist_pdf ~nu1:f_df1 ~nu2:f_df2 x
   and quantile { f_df1; f_df2 } ~p =
     if p < 0. || p > 1.
-    then failwith "F.quantile: p must be in range [0, 1]"
+    then invalid_arg "F.quantile: p must be in range [0, 1]"
     else Cdf.fdist_Pinv ~nu1:f_df1 ~nu2:f_df2 ~p
 
   let mean_opt { f_df2; _ } =
@@ -173,7 +173,7 @@ module T = struct
 
   let create ~df =
     if df <= 0.
-    then failwith "T.create: degrees of freedom must be non negative"
+    then invalid_arg "T.create: degrees of freedom must be non negative"
     else { t_df = df }
 
   let cumulative_probability { t_df } = Cdf.tdist_P ~nu:t_df
@@ -181,7 +181,7 @@ module T = struct
   let density { t_df } ~x = Randist.tdist_pdf ~nu:t_df x
   and quantile { t_df } ~p =
     if p < 0. || p > 1.
-    then failwith "T.quantile: p must be in range [0, 1]"
+    then invalid_arg "T.quantile: p must be in range [0, 1]"
     else Cdf.tdist_Pinv ~nu:t_df ~p
 
   let mean_opt { t_df } = if t_df > 0. then Some 0. else None
@@ -201,9 +201,9 @@ module Gamma = struct
 
   let create ~shape ~scale =
     if shape <= 0.
-    then failwith "Gamma.create: shape must be positive"
+    then invalid_arg "Gamma.create: shape must be positive"
     else if scale <= 0.
-    then failwith "Gamma.create: scale must be positive"
+    then invalid_arg "Gamma.create: scale must be positive"
     else { gamma_shape = shape; gamma_scale = scale }
 
   let cumulative_probability { gamma_shape; gamma_scale } =
@@ -213,7 +213,7 @@ module Gamma = struct
     Randist.gamma_pdf ~a:gamma_shape ~b:gamma_scale x
   and quantile { gamma_shape; gamma_scale } ~p =
     if p < 0. || p > 1.
-    then failwith "Gamma.quantile: p must be in range [0, 1]"
+    then invalid_arg "Gamma.quantile: p must be in range [0, 1]"
     else Cdf.gamma_Pinv ~a:gamma_shape ~b:gamma_scale ~p
 
   let mean { gamma_shape; gamma_scale } = gamma_shape *. gamma_scale
@@ -228,7 +228,7 @@ module Cauchy = struct
 
   let create ~location ~scale =
     if scale <= 0.
-    then failwith "Cauchy.create: scale must be positive"
+    then invalid_arg "Cauchy.create: scale must be positive"
     else { cauchy_location = location; cauchy_scale = scale }
 
   let standard = create ~location:0. ~scale:1.
@@ -240,7 +240,7 @@ module Cauchy = struct
     Randist.cauchy_pdf ~a:cauchy_scale (x -. cauchy_location)
   and quantile { cauchy_location; cauchy_scale } ~p =
     if p < 0. || p > 1.
-    then failwith "Cauchy.quantile: p must be in range [0, 1]"
+    then invalid_arg "Cauchy.quantile: p must be in range [0, 1]"
     else Cdf.cauchy_Pinv ~a:cauchy_scale ~p +. cauchy_location
 
   let mean_opt _d = None
@@ -255,7 +255,7 @@ module Beta = struct
 
   let create ~alpha ~beta =
     if alpha <= 0. || beta <= 0.
-    then failwith "Beta.create: shape parameters must be positive"
+    then invalid_arg "Beta.create: shape parameters must be positive"
     else { beta_alpha = alpha; beta_beta = beta }
 
   let cumulative_probability { beta_alpha; beta_beta } =
@@ -265,7 +265,7 @@ module Beta = struct
     Randist.beta_pdf ~a:beta_alpha ~b:beta_beta x
   and quantile { beta_alpha; beta_beta } ~p =
     if p < 0. || p > 1.
-    then failwith "Beta.quantile: p must be in range [0, 1]"
+    then invalid_arg "Beta.quantile: p must be in range [0, 1]"
     else Cdf.beta_Pinv ~a:beta_alpha ~b:beta_beta ~p
 
   let mean { beta_alpha; beta_beta } =
@@ -280,7 +280,7 @@ module Geometric = struct
 
   let create ~p =
     if p > 1.0 || p <= 0.
-    then failwith "Geometric.create: probability must be in range (0, 1]"
+    then invalid_arg "Geometric.create: probability must be in range (0, 1]"
     else { geometric_p = p }
 
   let cumulative_probability { geometric_p } ~n =
@@ -302,11 +302,11 @@ module Hypergeometric = struct
 
   let create ~m ~t ~k =
     if t < 0
-    then failwith "Hypergeometric.create: t must be non negative"
+    then invalid_arg "Hypergeometric.create: t must be non negative"
     else if m < 0  || m > t
-    then failwith "Hypergeometric.create: m must be in range [0, t]"
+    then invalid_arg "Hypergeometric.create: m must be in range [0, t]"
     else if k <= 0 || k > t
-    then failwith "Hypergeometric.create: k must be in range (0, t]"
+    then invalid_arg "Hypergeometric.create: k must be in range (0, t]"
     else { hyper_m = m; hyper_t = t; hyper_k = k }
 
   (** Not yet implemented in ocaml-gsl, see issue
@@ -338,10 +338,10 @@ module NegativeBinomial = struct
 
   let create ~failures ~p =
     if failures < 0
-    then failwith ("NegativeBinomial.create: number of failures must " ^
+    then invalid_arg ("NegativeBinomial.create: number of failures must " ^
                    "be non negative")
     else if p >= 1.0 || p <= 0.
-    then failwith "NegativeBinomial.create: probability must be in range (0, 1)"
+    then invalid_arg "NegativeBinomial.create: probability must be in range (0, 1)"
     else { nbinomial_failures = failures; nbinomial_p = p }
 
   let cumulative_probability { nbinomial_failures; nbinomial_p } ~n =
