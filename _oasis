@@ -7,6 +7,10 @@ License:     MIT
 Plugins:     META (0.3), DevFiles (0.3)
 BuildTools:  ocamlbuild
 
+Flag examples
+  Description: Build examples
+  Default:     false
+
 Library statistics
   Path:         src
   BuildDepends: gsl (= 1.11.0)
@@ -15,3 +19,13 @@ Library statistics
   CCOpt:        -O2 -Wall -pedantic -Wextra
   NativeOpt:    -w @a
   ByteOpt:      -w @a
+
+Executable chisq_test
+  Path:           examples
+  Build$:         flag(examples)
+  Install:        false
+  CompiledObject: best
+  MainIs:         chisq_test.ml
+  BuildDepends:   gsl, statistics
+  NativeOpt:      -w @a
+  ByteOpt:        -w @a

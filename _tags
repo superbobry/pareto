@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 2c7417f92f5bc33d0d97f020464fd47f)
+# DO NOT EDIT (digest: 957cdbb6e292162d17cc65dc2e52e921)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -26,4 +26,13 @@
 <src/statistics.{cma,cmxa}>: use_libstatistics_stubs
 <src/*.ml{,i}>: pkg_gsl
 "src/mlgsl_extra.c": pkg_gsl
+# Executable chisq_test
+<examples/chisq_test.{native,byte}>: oasis_executable_chisq_test_byte
+<examples/*.ml{,i}>: oasis_executable_chisq_test_byte
+<examples/chisq_test.{native,byte}>: oasis_executable_chisq_test_native
+<examples/*.ml{,i}>: oasis_executable_chisq_test_native
+<examples/chisq_test.{native,byte}>: use_statistics
+<examples/chisq_test.{native,byte}>: pkg_gsl
+<examples/*.ml{,i}>: use_statistics
+<examples/*.ml{,i}>: pkg_gsl
 # OASIS_STOP

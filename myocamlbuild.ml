@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: c2f2a893587ae2d2039a330fd5fa0590) *)
+(* DO NOT EDIT (digest: 4926ccdfb645e9a6630b0169cc2fddd3) *)
 module OASISGettext = struct
 (* # 21 "/Users/superbobry/.opam/system/build/oasis.0.3.0/src/oasis/OASISGettext.ml" *)
 
@@ -507,14 +507,36 @@ let package_default =
           (["oasis_library_statistics_byte"; "ocaml"; "compile"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
           (["oasis_library_statistics_native"; "ocaml"; "compile"; "native"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_chisq_test_byte"; "ocaml"; "link"; "byte"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_chisq_test_native"; "ocaml"; "link"; "native"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_chisq_test_byte"; "ocaml"; "ocamldep"; "byte"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          ([
+              "oasis_executable_chisq_test_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_chisq_test_byte"; "ocaml"; "compile"; "byte"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          ([
+              "oasis_executable_chisq_test_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])])
        ];
-     includes = [];
+     includes = [("examples", ["src"])];
      }
   ;;
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 519 "myocamlbuild.ml"
+# 541 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

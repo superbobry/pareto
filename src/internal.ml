@@ -41,4 +41,24 @@ end
 module Randist = Gsl.Randist
 module Cdf = Gsl.Cdf
 
+module Vector = struct
+  include Gsl.Vector
+
+  type t = vector
+
+  let sum v = let acc = ref 0. in
+    for i = 0 to length v - 1 do
+      acc := !acc +. v.{i}
+    done; !acc
+
+  module Infix = struct
+    let (+:) = add
+    let (-:) = sub
+    let (/:) = div
+    let ( *: ) = mul
+  end
+end
+
 let sqr x = x *. x
+
+let invalid_arg s = raise (Invalid_argument s)
