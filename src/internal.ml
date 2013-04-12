@@ -1,3 +1,26 @@
+
+module Rng = Gsl.Rng
+module Randist = Gsl.Randist
+module Cdf = Gsl.Cdf
+
+let default_rng = Rng.(make (default ()))
+
+module Vector = struct
+  include Gsl.Vector
+
+  type t = vector
+
+  let sum v = let acc = ref 0. in
+    for i = 0 to length v - 1 do
+      acc := !acc +. v.{i}
+    done; !acc
+end
+
+let sqr x = x *. x
+
+let invalid_arg s = raise (Invalid_argument s)
+
+
 module type Mean = sig
   type t
 
@@ -22,43 +45,25 @@ module type VarianceOpt = sig
   val variance_opt : t -> float option
 end
 
-module type DiscreteDistribution = sig
+module type Distribution = sig
   type t
+  type elt
+
+  val generate : ?rng:Rng.t -> t -> elt
+  (* val sample   : ?rng:Rng.t -> size:int -> t -> elt array *)
+end
+
+module type DiscreteDistribution = sig
+  include Distribution with type elt := int
 
   val cumulative_probability : t -> n:int -> float
   val probability : t -> n:int -> float
 end
 
 module type ContinuousDistribution = sig
-  type t
+  include Distribution with type elt := float
 
   val cumulative_probability : t -> x:float -> float
   val density  : t -> x:float -> float
   val quantile : t -> p:float -> float
 end
-
-
-module Randist = Gsl.Randist
-module Cdf = Gsl.Cdf
-
-module Vector = struct
-  include Gsl.Vector
-
-  type t = vector
-
-  let sum v = let acc = ref 0. in
-    for i = 0 to length v - 1 do
-      acc := !acc +. v.{i}
-    done; !acc
-
-  module Infix = struct
-    let (+:) = add
-    let (-:) = sub
-    let (/:) = div
-    let ( *: ) = mul
-  end
-end
-
-let sqr x = x *. x
-
-let invalid_arg s = raise (Invalid_argument s)
