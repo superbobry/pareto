@@ -358,3 +358,19 @@ module NegativeBinomial = struct
   and variance { nbinomial_failures = r; nbinomial_p = p } =
     float_of_int r *. p *. sqr (1. -. p)
 end
+
+
+let gaussian = Gaussian.create
+let uniform = Uniform.create
+let exponential = Exponential.create
+let poisson = Poisson.create
+let binomial = Binomial.create
+let chi_squared = ChiSquared.create
+let f = F.create
+let t = T.create
+let gamma = Gamma.create
+let cauchy = Cauchy.create
+let beta = Beta.create
+let geometric = Geometric.create
+let hypergeometric = Hypergeometric.create
+let negative_binomial = NegativeBinomial.create

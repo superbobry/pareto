@@ -113,3 +113,19 @@ module NegativeBinomial : sig
 
   val create : failures:int -> p:float -> t
 end
+
+
+val gaussian : mean:float -> sd:float -> Gaussian.t
+val uniform  : lower:float -> upper:float -> Uniform.t
+val exponential : rate:float -> Exponential.t
+val poisson : rate:float -> Poisson.t
+val binomial : trials:int -> p:float -> Binomial.t
+val chi_squared : df:int -> ChiSquared.t
+val f : df1:int -> df2:int -> F.t
+val t : df:float -> T.t
+val gamma  : shape:float -> scale:float -> Gamma.t
+val cauchy : location:float -> scale:float -> Cauchy.t
+val beta : alpha:float -> beta:float -> Beta.t
+val geometric : p:float -> Geometric.t
+val hypergeometric : m:int -> t:int -> k:int -> Hypergeometric.t
+val negative_binomial : failures:int -> p:float -> NegativeBinomial.t
