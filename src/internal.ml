@@ -26,6 +26,8 @@ module Vector = struct
     done; !acc
 end
 
+module Sample = Gsl.Stats
+
 let sqr x = x *. x
 
 let invalid_arg s = raise (Invalid_argument s)

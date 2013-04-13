@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 4926ccdfb645e9a6630b0169cc2fddd3) *)
+(* DO NOT EDIT (digest: 20497000a5894a7cff70acd645ded3d1) *)
 module OASISGettext = struct
 (* # 21 "/Users/superbobry/.opam/system/build/oasis.0.3.0/src/oasis/OASISGettext.ml" *)
 
@@ -508,27 +508,18 @@ let package_default =
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
           (["oasis_library_statistics_native"; "ocaml"; "compile"; "native"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          (["oasis_executable_chisq_test_byte"; "ocaml"; "link"; "byte"],
+          (["oasis_executable_tests_ex_byte"; "ocaml"; "link"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          (["oasis_executable_chisq_test_native"; "ocaml"; "link"; "native"],
+          (["oasis_executable_tests_ex_native"; "ocaml"; "link"; "native"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          (["oasis_executable_chisq_test_byte"; "ocaml"; "ocamldep"; "byte"],
+          (["oasis_executable_tests_ex_byte"; "ocaml"; "ocamldep"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          ([
-              "oasis_executable_chisq_test_native";
-              "ocaml";
-              "ocamldep";
-              "native"
+          (["oasis_executable_tests_ex_native"; "ocaml"; "ocamldep"; "native"
            ],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          (["oasis_executable_chisq_test_byte"; "ocaml"; "compile"; "byte"],
+          (["oasis_executable_tests_ex_byte"; "ocaml"; "compile"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          ([
-              "oasis_executable_chisq_test_native";
-              "ocaml";
-              "compile";
-              "native"
-           ],
+          (["oasis_executable_tests_ex_native"; "ocaml"; "compile"; "native"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])])
        ];
      includes = [("examples", ["src"])];
@@ -537,6 +528,6 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 541 "myocamlbuild.ml"
+# 532 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

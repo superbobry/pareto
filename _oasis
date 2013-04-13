@@ -20,12 +20,12 @@ Library statistics
   NativeOpt:    -w @a
   ByteOpt:      -w @a
 
-Executable chisq_test
+Executable tests_ex
   Path:           examples
   Build$:         flag(examples)
   Install:        false
   CompiledObject: best
-  MainIs:         chisq_test.ml
+  MainIs:         tests_ex.ml
   BuildDepends:   gsl, statistics
   NativeOpt:      -w @a
   ByteOpt:        -w @a

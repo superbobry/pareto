@@ -1,9 +1,30 @@
 open Internal
 
-type test_type = OneTailed | TwoTailed
-type test_result = Significant | NonSignigicant
+type test_alternative = Less | Greater | TwoSided
 
-(** FIXME(superbobry): add test type argument. *)
-val run_test : ?pvalue:float -> (unit -> (float * float)) -> test_result
 
-val chi_squared : Vector.t -> Vector.t -> ?df:int -> unit -> (float * float)
+module T : sig
+  val one_sample
+    :  float array
+    -> ?mean:float
+    -> ?alternative:test_alternative
+    -> unit
+    -> (float * float)
+
+  val two_sample_independent
+    :  float array
+    -> float array
+    -> ?equal_variance:bool
+    -> ?mean:float
+    -> ?alternative:test_alternative
+    -> unit
+    -> (float * float)
+
+  val two_sample_related
+    :  float array
+    -> float array
+    -> ?mean:float
+    -> ?alternative:test_alternative
+    -> unit
+    -> (float * float)
+end
