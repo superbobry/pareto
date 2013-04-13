@@ -23,11 +23,12 @@ module Gaussian = struct
     then invalid_arg "Gaussian.quantile: p must be in range [0, 1]"
     else Cdf.gaussian_Pinv ~sigma:gaussian_sd ~p +. gaussian_mean
 
-  let generate ?(rng=default_rng) { gaussian_mean; gaussian_sd } =
-    Randist.gaussian ~sigma:gaussian_sd rng +. gaussian_mean
-
   let mean { gaussian_mean; _ } = gaussian_mean
   and variance { gaussian_sd; _ } = sqr gaussian_sd
+
+  let generate ?(rng=default_rng) { gaussian_mean; gaussian_sd } =
+    Randist.gaussian ~sigma:gaussian_sd rng +. gaussian_mean
+  let sample = make_sampler generate
 end
 
 module Uniform = struct
@@ -51,12 +52,13 @@ module Uniform = struct
     then invalid_arg "Uniform.quantile: p must be in range [0, 1]"
     else Cdf.flat_Pinv ~a:uniform_lower ~b:uniform_upper ~p
 
-  let generate ?(rng=default_rng) { uniform_lower; uniform_upper } =
-    Randist.flat ~a:uniform_lower ~b:uniform_upper rng
-
   let mean { uniform_lower; uniform_upper } = 0.5 *. (uniform_lower +. uniform_upper)
   and variance { uniform_lower; uniform_upper } =
     sqr (uniform_upper -. uniform_lower) /. 12.
+
+  let generate ?(rng=default_rng) { uniform_lower; uniform_upper } =
+    Randist.flat ~a:uniform_lower ~b:uniform_upper rng
+  let sample = make_sampler generate
 end
 
 module Exponential = struct
@@ -76,11 +78,12 @@ module Exponential = struct
     then invalid_arg "Exponential.quantile: p must be in range [0, 1]"
     else Cdf.exponential_Pinv ~mu:exp_rate ~p
 
-  let generate ?(rng=default_rng) { exp_rate } =
-    Randist.exponential ~mu:exp_rate rng
-
   let mean { exp_rate } = 1. /. exp_rate
   and variance { exp_rate } = 1. /. sqrt exp_rate
+
+  let generate ?(rng=default_rng) { exp_rate } =
+    Randist.exponential ~mu:exp_rate rng
+  let sample = make_sampler generate
 end
 
 module Poisson = struct
@@ -97,11 +100,12 @@ module Poisson = struct
   let probability { poisson_rate } ~n =
     Randist.poisson_pdf ~mu:poisson_rate n
 
-  let generate ?(rng=default_rng) { poisson_rate } =
-    Randist.poisson ~mu:poisson_rate rng
-
   let mean { poisson_rate } = poisson_rate
   and variance { poisson_rate } = poisson_rate
+
+  let generate ?(rng=default_rng) { poisson_rate } =
+    Randist.poisson ~mu:poisson_rate rng
+  let sample = make_sampler generate
 end
 
 module Binomial = struct
@@ -123,12 +127,13 @@ module Binomial = struct
   let probability { binomial_trials; binomial_p } ~n =
     Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p n
 
-  let generate ?(rng=default_rng) { binomial_trials; binomial_p } =
-    Randist.binomial ~n:binomial_trials ~p:binomial_p rng
-
   let mean { binomial_trials = n; binomial_p = p } = float_of_int n *. p
   and variance { binomial_trials = n; binomial_p = p } =
     float_of_int n *. p *. (1. -. p)
+
+  let generate ?(rng=default_rng) { binomial_trials; binomial_p } =
+    Randist.binomial ~n:binomial_trials ~p:binomial_p rng
+  let sample = make_sampler generate
 end
 
 module ChiSquared = struct
@@ -147,11 +152,12 @@ module ChiSquared = struct
     then invalid_arg "ChiSquared.quantile: p must be in range [0, 1]"
     else Cdf.chisq_Pinv ~nu:chisq_df ~p
 
-  let generate ?(rng=default_rng) { chisq_df } =
-    Randist.chisq ~nu:chisq_df rng
-
   let mean { chisq_df } = chisq_df
   and variance { chisq_df } = 2. *. chisq_df
+
+  let generate ?(rng=default_rng) { chisq_df } =
+    Randist.chisq ~nu:chisq_df rng
+  let sample = make_sampler generate
 end
 
 module F = struct
@@ -175,9 +181,6 @@ module F = struct
     then invalid_arg "F.quantile: p must be in range [0, 1]"
     else Cdf.fdist_Pinv ~nu1:f_df1 ~nu2:f_df2 ~p
 
-  let generate ?(rng=default_rng) { f_df1; f_df2 } =
-    Randist.fdist ~nu1:f_df1 ~nu2:f_df2 rng
-
   let mean_opt { f_df2; _ } =
     if f_df2 < 2.
     then None
@@ -187,6 +190,10 @@ module F = struct
     then None
     else Some (2. *. sqr f_df2 *. (f_df1 +. f_df2 -. 2.) /.
           (f_df1 *. sqr (f_df2 -. 2.) *. (f_df2 -. 4.)))
+
+  let generate ?(rng=default_rng) { f_df1; f_df2 } =
+    Randist.fdist ~nu1:f_df1 ~nu2:f_df2 rng
+  let sample = make_sampler generate
 end
 
 module T = struct
@@ -205,8 +212,6 @@ module T = struct
     then invalid_arg "T.quantile: p must be in range [0, 1]"
     else Cdf.tdist_Pinv ~nu:t_df ~p
 
-  let generate ?(rng=default_rng) { t_df } = Randist.tdist ~nu:t_df rng
-
   let mean_opt { t_df } = if t_df > 0. then Some 0. else None
   and variance_opt { t_df } =
     if t_df > 2.
@@ -214,6 +219,9 @@ module T = struct
     else if t_df > 1.
     then Some infinity
     else None
+
+  let generate ?(rng=default_rng) { t_df } = Randist.tdist ~nu:t_df rng
+  let sample = make_sampler generate
 end
 
 module Gamma = struct
@@ -239,11 +247,12 @@ module Gamma = struct
     then invalid_arg "Gamma.quantile: p must be in range [0, 1]"
     else Cdf.gamma_Pinv ~a:gamma_shape ~b:gamma_scale ~p
 
-  let generate ?(rng=default_rng) { gamma_shape; gamma_scale } =
-    Randist.gamma ~a:gamma_shape ~b:gamma_scale rng
-
   let mean { gamma_shape; gamma_scale } = gamma_shape *. gamma_scale
   and variance { gamma_shape; gamma_scale } = gamma_shape *. sqr gamma_scale
+
+  let generate ?(rng=default_rng) { gamma_shape; gamma_scale } =
+    Randist.gamma ~a:gamma_shape ~b:gamma_scale rng
+  let sample = make_sampler generate
 end
 
 module Cauchy = struct
@@ -269,11 +278,12 @@ module Cauchy = struct
     then invalid_arg "Cauchy.quantile: p must be in range [0, 1]"
     else Cdf.cauchy_Pinv ~a:cauchy_scale ~p +. cauchy_location
 
-  let generate ?(rng=default_rng) { cauchy_location; cauchy_scale } =
-    Randist.cauchy ~a:cauchy_scale rng +. cauchy_location
-
   let mean_opt _d = None
   and variance_opt _d = None
+
+  let generate ?(rng=default_rng) { cauchy_location; cauchy_scale } =
+    Randist.cauchy ~a:cauchy_scale rng +. cauchy_location
+  let sample = make_sampler generate
 end
 
 module Beta = struct
@@ -297,14 +307,15 @@ module Beta = struct
     then invalid_arg "Beta.quantile: p must be in range [0, 1]"
     else Cdf.beta_Pinv ~a:beta_alpha ~b:beta_beta ~p
 
-  let generate ?(rng=default_rng) { beta_alpha; beta_beta } =
-    Randist.beta ~a:beta_alpha ~b:beta_beta rng
-
   let mean { beta_alpha; beta_beta } =
     beta_alpha /. (beta_alpha +. beta_beta)
   and variance { beta_alpha; beta_beta } =
     beta_alpha *. beta_beta /.
       (sqr (beta_alpha +. beta_beta) *. (beta_alpha +. beta_beta +. 1.))
+
+  let generate ?(rng=default_rng) { beta_alpha; beta_beta } =
+    Randist.beta ~a:beta_alpha ~b:beta_beta rng
+  let sample = make_sampler generate
 end
 
 module Geometric = struct
@@ -321,11 +332,12 @@ module Geometric = struct
   let probability { geometric_p } ~n =
     Randist.geometric_pdf ~p:geometric_p n
 
-  let generate ?(rng=default_rng) { geometric_p } =
-    Randist.geometric ~p:geometric_p rng
-
   let mean { geometric_p } = 1. /. geometric_p
   and variance { geometric_p } = (1. -. geometric_p) /. sqr geometric_p
+
+  let generate ?(rng=default_rng) { geometric_p } =
+    Randist.geometric ~p:geometric_p rng
+  let sample = make_sampler generate
 end
 
 module Hypergeometric = struct
@@ -356,9 +368,6 @@ module Hypergeometric = struct
   let probability { hyper_m; hyper_t; hyper_k } ~n =
     Randist.hypergeometric_pdf ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k n
 
-  let generate ?(rng=default_rng) { hyper_m; hyper_t; hyper_k } =
-    Randist.hypergeometric ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k rng
-
   let mean { hyper_m; hyper_t; hyper_k } =
     float_of_int (hyper_k * hyper_m) /. float_of_int hyper_t
   and variance { hyper_m; hyper_t; hyper_k } =
@@ -366,6 +375,10 @@ module Hypergeometric = struct
     and t = float_of_int hyper_t
     and k = float_of_int hyper_k
     in (k *. m /. t) *. (1. -. m /. t) *. (t -. k) /. (t -. 1.)
+
+  let generate ?(rng=default_rng) { hyper_m; hyper_t; hyper_k } =
+    Randist.hypergeometric ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k rng
+  let sample = make_sampler generate
 end
 
 module NegativeBinomial = struct
@@ -391,13 +404,14 @@ module NegativeBinomial = struct
   let probability { nbinomial_failures; nbinomial_p } ~n =
     Randist.negative_binomial_pdf ~n:nbinomial_failures ~p:nbinomial_p n
 
-  let generate ?(rng=default_rng) { nbinomial_failures; nbinomial_p } =
-    Randist.negative_binomial ~n:nbinomial_failures ~p:nbinomial_p rng
-
   let mean { nbinomial_failures = r; nbinomial_p = p } =
     float_of_int r *. p /. (1. -. p)
   and variance { nbinomial_failures = r; nbinomial_p = p } =
     float_of_int r *. p *. sqr (1. -. p)
+
+  let generate ?(rng=default_rng) { nbinomial_failures; nbinomial_p } =
+    Randist.negative_binomial ~n:nbinomial_failures ~p:nbinomial_p rng
+  let sample = make_sampler generate
 end
 
 
