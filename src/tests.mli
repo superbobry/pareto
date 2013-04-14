@@ -28,3 +28,12 @@ module T : sig
     -> unit
     -> (float * float)
 end
+
+
+module ChiSquared : sig
+  val goodness_of_fit
+    : float array -> ?expected:float array -> ?df:int -> unit -> (float * float)
+
+  val independence
+    : float array array -> ?correction:bool -> unit -> (float * float)
+end

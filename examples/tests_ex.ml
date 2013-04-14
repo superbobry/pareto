@@ -50,9 +50,37 @@ let t_test_two_sample_related () =
     print_newline ()
   end
 
+let chisq_test_gof () =
+  let open Distributions.Uniform in
+  let v = sample ~size:10 (create ~lower:0. ~upper:1.) in
+  let (chisq, pvalue) = Tests.ChiSquared.goodness_of_fit v () in
+  begin
+    print_endline "X^2 test for goodness of fit";
+    print_array v;
+    printf "X^2 = %f, P-value: %f\n" chisq pvalue;
+    print_newline ()
+  end
+
+let chisq_test_independence () =
+  let open Distributions.Uniform in
+  let d  = create ~lower:0. ~upper:1. in
+  let v1 = sample ~size:10 d in
+  let v2 = sample ~size:10 d in
+  let (chisq, pvalue) =
+    Tests.ChiSquared.independence [|v1; v2|] ~correction:true ()
+  in begin
+    print_endline "X^2 test for independence with Yates' continuity correction\n";
+    print_array v1;
+    print_array v2;
+    printf "X^2 = %f, P-value: %f\n" chisq pvalue;
+    print_newline ()
+  end
+
 
 let () = begin
   t_test_one_sample ();
   t_test_two_sample_independent ();
-  t_test_two_sample_related ()
+  t_test_two_sample_related ();
+  chisq_test_gof ();
+  chisq_test_independence ()
 end

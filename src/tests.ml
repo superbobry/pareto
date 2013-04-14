@@ -45,3 +45,69 @@ module T = struct
     then invalid_arg "T.two_sample_related: unequal length arrays";
     one_sample (Array.mapi (fun i x -> x -. v2.(i)) v1) ~mean ~alternative ()
 end
+
+module ChiSquared = struct
+  let finalize d chisq =
+    let open Distributions.ChiSquared in
+    (chisq, 1. -. cumulative_probability ~x:chisq d)
+
+  let goodness_of_fit observed ?(expected=[||]) ?(df=0) () =
+    let n = Array.length observed in
+    let k = Array.length expected in
+    let expected =
+      if k = 0
+      then Array.make n (sum_array observed /. float_of_int n)
+      else if k != n
+      then invalid_arg "ChiSquared.goodness_of_fit: unequal length arrays"
+      else
+        (* TODO(superbobry): make sure we have wellformed frequencies. *)
+        expected
+    in
+
+    let chisq = ref 0. in
+    for i = 0 to n - 1 do
+      chisq := !chisq +. sqr (observed.(i) -. expected.(i)) /. expected.(i)
+    done;
+
+    finalize (Distributions.ChiSquared.create ~df:(n - 1 - df)) !chisq
+
+  let independence observed ?(correction=false) () =
+    let observed = Matrix.of_arrays observed in
+    let (m, n) = Matrix.dims observed in
+    if m = 0 || n = 0 then invalid_arg "ChiSquared.independence: no data"
+    else if Matrix.exists (fun x -> x < 0.) observed
+    then invalid_arg ("ChiSquared.independence: observed values must " ^
+                      "be non negative");
+
+    let expected = Matrix.create m n in
+    let open Gsl.Blas_flat in
+    gemm ~ta:Trans ~tb:NoTrans ~alpha:(1. /. Matrix.sum observed) ~beta:1.
+      ~a:(Matrix.sum_by `Rows observed)
+      ~b:(Matrix.sum_by `Columns observed)
+      ~c:expected;
+
+    if Matrix.exists ((=) 0.) expected
+    then invalid_arg ("ChiSquared.independence: computed expected " ^
+                      " frequencies matrix has a zero element");
+
+    match (m - 1) * (n - 1) with
+    | 0  ->
+      (* This degenerate case is shamelessly ripped of from SciPy
+        'chi2_contingency' function. *)
+      (0., 1.)
+    | df ->
+      let chisq =
+        let open Matrix in
+        let t = create m n in begin
+          memcpy ~src:expected ~dst:t;
+          sub t observed;
+          if df = 1 && correction then begin
+            abs t;  (* Use Yates' correction for continuity. *)
+            add_constant t (-. 0.5)
+          end;
+          mul_elements t t;
+          div_elements t expected;
+          sum t
+        end
+      in finalize (Distributions.ChiSquared.create ~df) chisq
+end

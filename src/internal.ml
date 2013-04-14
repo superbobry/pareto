@@ -7,30 +7,45 @@ let default_rng = let open Rng in
   env_setup();
   make (default ())
 
-module Vector = struct
-  include Gsl.Vector
-
-  type t = vector
-
-  let map2 ~f v1 v2 =
-    let k = length v1 in
-    if length v2 <> k then invalid_arg "Vector.map2";
-    let acc = copy v1 in
-    for i = 0 to k - 1 do
-      acc.{i} <- f v1.{i} v2.{i}
-    done; acc
-
-  let sum v = let acc = ref 0. in
-    for i = 0 to length v - 1 do
-      acc := !acc +. v.{i}
-    done; !acc
-end
-
 module Sample = Gsl.Stats
 
 let sqr x = x *. x
 
 let invalid_arg s = raise (Invalid_argument s)
+
+let sum_array = Array.fold_left (+.) 0.
+
+module Matrix = struct
+  include Gsl.Matrix_flat
+
+  let iter f m =
+    let (nrow, ncol) = dims m in
+    for i = 0 to nrow - 1 do
+      for j = 0 to ncol - 1 do
+        f i j (get m i j)
+      done
+    done
+
+  let exists p m =
+    (* FIXME(superbobry): This may be too slow, rewrite with an exception? *)
+    let res = ref false in
+    iter (fun _i _j x -> res := !res || p x) m;
+    !res
+
+  let abs m = iter (fun i j x -> set m i j (abs_float x)) m
+
+  let sum_by direction m =
+    let (nrow, ncol) = dims m in
+    match direction with
+    | `Rows -> of_array (Array.map sum_array (to_arrays m)) 1 nrow
+    | `Columns ->
+      let res = create ~init:0. 1 ncol in
+      iter (fun _i j x -> set res 0 j (get res 0 j +. x)) m;
+      res
+
+  let sum m = sum_array (to_array (sum_by `Rows m))
+end
+
 
 module type Mean = sig
   type t
