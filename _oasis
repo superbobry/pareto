@@ -1,15 +1,15 @@
-OASISFormat: 0.3
-Name:        pareto
-Version:     0.1
-Synopsis:    GSL powered OCaml statistics library
-Authors:     Sergei Lebedev <superbobry@gmail.com>
-License:     MIT
-Plugins:     META (0.3), DevFiles (0.3)
-BuildTools:  ocamlbuild
-
-Flag examples
-  Description: Build examples
-  Default:     false
+OASISFormat:    0.3
+Name:           pareto
+Version:        0.1.0
+Synopsis:       GSL powered OCaml statistics library
+Authors:        Sergei Lebedev <superbobry@gmail.com>
+Maintainers:    Sergei Lebedev <superbobry@gmail.com>
+License:        MIT
+OCamlVersion:   >= 4.0.0
+FindlibVersion: >= 1.3.1
+Homepage:       https://github.com/superbobry/pareto
+BuildTools:     ocamlbuild, ocamldoc
+Plugins:        META (0.3), DevFiles (0.3)
 
 Library statistics
   Path:         src
@@ -20,6 +20,12 @@ Library statistics
   NativeOpt:    -w @a
   ByteOpt:      -w @a
 
+# Examples
+
+Flag examples
+  Description: Build examples
+  Default:     false
+
 Executable tests_ex
   Path:           examples
   Build$:         flag(examples)
@@ -29,3 +35,16 @@ Executable tests_ex
   BuildDepends:   gsl, statistics
   NativeOpt:      -w @a
   ByteOpt:        -w @a
+
+Document API
+  Title:                API reference for Statistics
+  Type:                 OCamlbuild (0.3)
+  InstallDir:           $docdir/api
+  XOCamlbuildPath:      .
+  XOCamlbuildLibraries: statistics
+
+SourceRepository github
+  Type:       git
+  Location:   https://github.com/superbobry/pareto
+  Browser:    https://github.com/superbobry/pareto
+  Tag:        $(pkg_version)
