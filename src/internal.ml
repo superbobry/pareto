@@ -4,10 +4,8 @@ module Randist = Gsl.Randist
 module Cdf = Gsl.Cdf
 
 let default_rng = let open Rng in
-  env_setup();
+  env_setup ();
   make (default ())
-
-module Sample = Gsl.Stats
 
 let sqr x = x *. x
 
