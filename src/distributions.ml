@@ -1,33 +1,34 @@
 open Internal
 
-module Gaussian = struct
+
+module Normal = struct
   type t = {
-    gaussian_mean : float;
-    gaussian_sd   : float;
+    normal_mean : float;
+    normal_sd   : float;
   }
 
   let create ~mean ~sd =
     if sd > 0.
-    then { gaussian_mean = mean; gaussian_sd = sd }
-    else invalid_arg "Gaussian.create: standard deviation must be positive"
+    then { normal_mean = mean; normal_sd = sd }
+    else invalid_arg "Normal.create: standard deviation must be positive"
 
   let standard = create ~mean:0. ~sd:1.
 
-  let cumulative_probability { gaussian_mean; gaussian_sd } ~x =
-    Cdf.gaussian_P ~sigma:gaussian_sd ~x:(x -. gaussian_mean)
+  let cumulative_probability { normal_mean; normal_sd } ~x =
+    Cdf.gaussian_P ~sigma:normal_sd ~x:(x -. normal_mean)
 
-  let density { gaussian_mean; gaussian_sd } ~x =
-    Randist.gaussian_pdf ~sigma:gaussian_sd (x -. gaussian_mean)
-  and quantile { gaussian_mean; gaussian_sd } ~p =
+  let density { normal_mean; normal_sd } ~x =
+    Randist.gaussian_pdf ~sigma:normal_sd (x -. normal_mean)
+  and quantile { normal_mean; normal_sd } ~p =
     if p < 0. || p > 1.
-    then invalid_arg "Gaussian.quantile: p must be in range [0, 1]"
-    else Cdf.gaussian_Pinv ~sigma:gaussian_sd ~p +. gaussian_mean
+    then invalid_arg "Normal.quantile: p must be in range [0, 1]"
+    else Cdf.gaussian_Pinv ~sigma:normal_sd ~p +. normal_mean
 
-  let mean { gaussian_mean; _ } = gaussian_mean
-  and variance { gaussian_sd; _ } = sqr gaussian_sd
+  let mean { normal_mean; _ } = normal_mean
+  and variance { normal_sd; _ } = sqr normal_sd
 
-  let generate ?(rng=default_rng) { gaussian_mean; gaussian_sd } =
-    Randist.gaussian ~sigma:gaussian_sd rng +. gaussian_mean
+  let generate ?(rng=default_rng) { normal_mean; normal_sd } =
+    Randist.gaussian ~sigma:normal_sd rng +. normal_mean
   let sample = make_sampler generate
 end
 
@@ -278,9 +279,6 @@ module Cauchy = struct
     then invalid_arg "Cauchy.quantile: p must be in range [0, 1]"
     else Cdf.cauchy_Pinv ~a:cauchy_scale ~p +. cauchy_location
 
-  let mean_opt _d = None
-  and variance_opt _d = None
-
   let generate ?(rng=default_rng) { cauchy_location; cauchy_scale } =
     Randist.cauchy ~a:cauchy_scale rng +. cauchy_location
   let sample = make_sampler generate
@@ -415,7 +413,7 @@ module NegativeBinomial = struct
 end
 
 
-let gaussian = Gaussian.create
+let normal = Normal.create
 let uniform = Uniform.create
 let exponential = Exponential.create
 let poisson = Poisson.create

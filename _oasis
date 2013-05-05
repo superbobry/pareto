@@ -12,13 +12,17 @@ BuildTools:     ocamlbuild, ocamldoc
 Plugins:        META (0.3), DevFiles (0.3)
 
 Library statistics
-  Path:         src
-  BuildDepends: gsl (= 1.11.0)
-  Modules:      Statistics
-  CSources:     mlgsl_extra.c
-  CCOpt:        -O2 -Wall -pedantic -Wextra
-  NativeOpt:    -w @a
-  ByteOpt:      -w @a
+  Path:              src
+  FindlibName:       statistics
+  Pack:              true
+  Modules:           Distributions
+                   , Sample
+                   , Tests
+  CSources:          mlgsl_extra.c
+  CCOpt:             -O2 -Wall -pedantic -Wextra
+  NativeOpt:         -w @a
+  ByteOpt:           -w @a
+  BuildDepends:      gsl (= 1.11.0)
 
 # Examples
 

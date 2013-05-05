@@ -11,7 +11,7 @@ let print_array v =
   print_newline ()
 
 let t_test_one_sample () =
-  let open Distributions.Gaussian in
+  let open Distributions.Normal in
   let v = sample ~size:10 standard in
   let (t, pvalue) =
     Tests.T.one_sample v ~mean:0. ~alternative:Tests.TwoSided ()
@@ -23,7 +23,7 @@ let t_test_one_sample () =
   end
 
 let t_test_two_sample_independent () =
-  let open Distributions.Gaussian in
+  let open Distributions.Normal in
   let v1 = sample ~size:10 standard in
   let v2 = sample ~size:10 standard in
   let (t, pvalue) = Tests.T.two_sample_independent v1 v2
@@ -37,7 +37,7 @@ let t_test_two_sample_independent () =
   end
 
 let t_test_two_sample_related () =
-  let open Distributions.Gaussian in
+  let open Distributions.Normal in
   let v1 = sample ~size:10 standard in
   let v2 = Array.map (fun x -> x +. generate standard) v1 in
   let (t, pvalue) = Tests.T.two_sample_related v1 v2

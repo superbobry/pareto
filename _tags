@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: ca9d871edb400ce8630c5ab2dda5a571)
+# DO NOT EDIT (digest: 5639c89e0b42c4e2a7d60c2e35e7aa97)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -15,6 +15,9 @@
 "_darcs": not_hygienic
 # Library statistics
 "src/statistics.cmxs": use_statistics
+"src/distributions.cmx": for-pack(Statistics)
+"src/sample.cmx": for-pack(Statistics)
+"src/tests.cmx": for-pack(Statistics)
 <src/*.ml{,i}>: oasis_library_statistics_ccopt
 "src/mlgsl_extra.c": oasis_library_statistics_ccopt
 <src/statistics.{cma,cmxa}>: oasis_library_statistics_byte
