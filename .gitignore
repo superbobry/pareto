@@ -2,3 +2,4 @@ _build
 setup.*
 *.native
 *.byte
+*.docdir
