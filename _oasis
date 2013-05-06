@@ -24,7 +24,7 @@ Library statistics
   CCOpt:             -O2 -Wall -pedantic -Wextra
   NativeOpt:         -w @a
   ByteOpt:           -w @a
-  BuildDepends:      gsl (= 1.11.0)
+  BuildDepends:      gsl (>= 1.11.0)
 
 # Examples
 

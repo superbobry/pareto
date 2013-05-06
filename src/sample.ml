@@ -69,7 +69,7 @@ module Quantile = struct
   let continous_by ?(param=S) ?(p=0.5) vs =
     if p < 0. || p > 1.
     then invalid_arg "Quantile.continous_by: p must be in range [0, 1]";
-    if Array.exists (fun v -> v <> v)
+    if Array.exists (fun v -> v <> v) vs
     then invalid_arg "Quantile.continous_by: sample contains NaNs";
 
     let (a, b) = match param with
