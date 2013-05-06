@@ -40,6 +40,16 @@ Executable tests_ex
   NativeOpt:      -w @a
   ByteOpt:        -w @a
 
+Executable sample_ex
+  Path:           examples
+  Build$:         flag(examples)
+  Install:        false
+  CompiledObject: best
+  MainIs:         sample_ex.ml
+  BuildDepends:   gsl, statistics
+  NativeOpt:      -w @a
+  ByteOpt:        -w @a
+
 Document API
   Title:                API reference for Statistics
   Type:                 OCamlbuild (0.3)

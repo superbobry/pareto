@@ -56,7 +56,7 @@ module ChiSquared = struct
     let k = Array.length expected in
     let expected =
       if k = 0
-      then Array.make n (sum_array observed /. float_of_int n)
+      then Array.make n (Array.sum observed /. float_of_int n)
       else if k != n
       then invalid_arg "ChiSquared.goodness_of_fit: unequal length arrays"
       else

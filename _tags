@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 5639c89e0b42c4e2a7d60c2e35e7aa97)
+# DO NOT EDIT (digest: a4a4e202c41bc67f21afb1f7fac28e69)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -36,6 +36,13 @@
 <examples/*.ml{,i}>: oasis_executable_tests_ex_native
 <examples/tests_ex.{native,byte}>: use_statistics
 <examples/tests_ex.{native,byte}>: pkg_gsl
+# Executable sample_ex
+<examples/sample_ex.{native,byte}>: oasis_executable_sample_ex_byte
+<examples/*.ml{,i}>: oasis_executable_sample_ex_byte
+<examples/sample_ex.{native,byte}>: oasis_executable_sample_ex_native
+<examples/*.ml{,i}>: oasis_executable_sample_ex_native
+<examples/sample_ex.{native,byte}>: use_statistics
+<examples/sample_ex.{native,byte}>: pkg_gsl
 <examples/*.ml{,i}>: use_statistics
 <examples/*.ml{,i}>: pkg_gsl
 # OASIS_STOP

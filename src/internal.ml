@@ -9,9 +9,24 @@ let default_rng = let open Rng in
 
 let sqr x = x *. x
 
+let bound ?(a=0) ~b i = min (max i a) b
+
 let invalid_arg s = raise (Invalid_argument s)
 
-let sum_array = Array.fold_left (+.) 0.
+module Array = struct
+  include Array
+
+  let sum = fold_left (+.) 0.
+  let for_all p = fold_left (fun acc x -> acc && p x) true
+  let exists p = fold_left (fun acc x -> acc || p x) false
+end
+
+module Vector = struct
+  include Gsl.Vector_flat
+
+  let sort = Gsl.Gsl_sort.vector_flat
+  let partial_sort = Gsl.Gsl_sort.vector_flat_smallest
+end
 
 module Matrix = struct
   include Gsl.Matrix_flat
@@ -35,13 +50,13 @@ module Matrix = struct
   let sum_by direction m =
     let (nrow, ncol) = dims m in
     match direction with
-    | `Rows -> of_array (Array.map sum_array (to_arrays m)) 1 nrow
+    | `Rows -> of_array (Array.map Array.sum (to_arrays m)) 1 nrow
     | `Columns ->
       let res = create ~init:0. 1 ncol in
       iter (fun _i j x -> set res 0 j (get res 0 j +. x)) m;
       res
 
-  let sum m = sum_array (to_array (sum_by `Rows m))
+  let sum m = Array.sum (to_array (sum_by `Rows m))
 end
 
 

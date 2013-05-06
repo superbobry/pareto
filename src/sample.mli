@@ -28,3 +28,41 @@ val histogram
   -> ?density:bool
   -> float array
   -> float array
+
+
+module Quantile : sig
+  (** Parameters for the continious sample method. *)
+  type continous_param =
+    | CADPW           (** Linear interpolation of the {e ECDF}. *)
+    | Hazen           (** Hazen's definition. *)
+    | SPSS            (** Definition used by the SPSS statistics application,
+                          also known as Weibull's definition. *)
+    | S               (** Definition used by the S statistics application.org
+                          Interpolation points divide the sample range into
+                          [n - 1] intervals. {b Default}. *)
+    | MedianUnbiased  (** Median unbiased definition. The resulting quantile
+                          estimates are approximately median unbiased
+                          regardless of the distribution of [vs] *)
+    | NormalUnbiased  (** Normal unbiased definition. An approximately unbiased
+                          estimate if the empirical distribution approximates
+                          the normal distribution. *)
+
+  (** {e O(n log n)} Estimates sample quantile corresponding to the given
+      probability [p], using the continuous sample method with given
+      parameters. *)
+  val continous_by
+    : ?param:continous_param -> ?p:float -> float array -> float
+
+  (** {e O(n log n)} Estimates interquantile range of a given sample,
+      using the continuous sample method with given parameters. *)
+  val iqr : ?param:continous_param -> float array -> float
+end
+
+(** {e O(n log n)} Estimates sample quantile corresponding to the given
+    probability [p], using the continuous sample method with default
+    parameters. *)
+val quantile : ?p:float -> float array -> float
+
+(** {e O(n log n)} Estimates interquantile range of a given sample,
+    using the continuous sample method with given parameters. *)
+val iqr : float array -> float

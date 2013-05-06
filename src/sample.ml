@@ -16,6 +16,7 @@ let variance ?(mean=nan) vs =
   then Stats.variance vs
   else Stats.variance ~mean vs
 
+
 let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
   if bins <= 0
   then invalid_arg "Sample.histogram: bins must be a positive integer";
@@ -48,3 +49,49 @@ let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
   for i = 0 to bins - 1 do
     counts.(i) <- Histo.get h i
   done; counts
+
+
+module Quantile = struct
+  type continous_param =
+    | CADPW
+    | Hazen
+    | SPSS
+    | S
+    | MedianUnbiased
+    | NormalUnbiased
+
+  let finalize vs h j =
+    let n    = Array.length vs in
+    let svs  = Vector.partial_sort (bound ~b:n (j + 1)) (Vector.of_array vs) in
+    let item = fun i -> svs.(bound ~b:(n - 1) i) in
+    (1. -. h) *. item (j - 1) +. h *. item j
+
+  let continous_by ?(param=S) ?(p=0.5) vs =
+    if p < 0. || p > 1.
+    then invalid_arg "Quantile.continous_by: p must be in range [0, 1]";
+
+    let (a, b) = match param with
+      | CADPW -> (0., 1.)
+      | Hazen -> (0.5, 0.5)
+      | SPSS  -> (0., 0.)
+      | S     -> (1., 1.)
+      | MedianUnbiased -> (1. /. 3., 1. /. 3.)
+      | NormalUnbiased -> (3. /. 8., 3. /. 8.)
+    in
+
+    let n    = Array.length vs in
+    let nppm = a +. p *. (float_of_int n +. 1. -. a -. b) in
+    let fuzz = epsilon_float *. 4. in
+    let j    = int_of_float (floor (nppm +. fuzz)) in
+    let h    = if abs_float (nppm -. float_of_int j) < fuzz
+               then 0.
+               else nppm -. float_of_int j in
+    finalize vs h j
+
+  let iqr ?param vs =
+    continous_by ?param ~p:0.75 vs -. continous_by ?param ~p:0.25 vs
+end
+
+let quantile ?p vs = Quantile.continous_by ?p vs
+
+let iqr vs = Quantile.iqr vs
