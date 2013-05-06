@@ -11,7 +11,7 @@ Homepage:       https://github.com/superbobry/pareto
 BuildTools:     ocamlbuild, ocamldoc
 Plugins:        META (0.3), DevFiles (0.3)
 
-Library statistics
+Library pareto
   Path:              src
   FindlibName:       statistics
   Pack:              true
@@ -38,7 +38,7 @@ Executable tests_ex
   Install:        false
   CompiledObject: best
   MainIs:         tests_ex.ml
-  BuildDepends:   gsl, statistics
+  BuildDepends:   gsl, pareto
   NativeOpt:      -w @a
   ByteOpt:        -w @a
 
@@ -48,7 +48,7 @@ Executable sample_ex
   Install:        false
   CompiledObject: best
   MainIs:         sample_ex.ml
-  BuildDepends:   gsl, statistics
+  BuildDepends:   gsl, pareto
   NativeOpt:      -w @a
   ByteOpt:        -w @a
 

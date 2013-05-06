@@ -1,5 +1,5 @@
 open Printf
-open Statistics
+open Pareto
 
 open Common
 

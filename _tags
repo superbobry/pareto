@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 2b2116467642a6ac645a769765fa4e26)
+# DO NOT EDIT (digest: da7b2a3cc321cec97cdaa50020ffd0c8)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -13,22 +13,22 @@
 ".git": not_hygienic
 "_darcs": -traverse
 "_darcs": not_hygienic
-# Library statistics
-"src/statistics.cmxs": use_statistics
-"src/distributions.cmx": for-pack(Statistics)
-"src/resampling.cmx": for-pack(Statistics)
-"src/sample.cmx": for-pack(Statistics)
-"src/tests.cmx": for-pack(Statistics)
-"src/internal.cmx": for-pack(Statistics)
-<src/*.ml{,i}>: oasis_library_statistics_ccopt
-"src/mlgsl_extra.c": oasis_library_statistics_ccopt
-<src/statistics.{cma,cmxa}>: oasis_library_statistics_byte
-<src/*.ml{,i}>: oasis_library_statistics_byte
-"src/mlgsl_extra.c": oasis_library_statistics_byte
-<src/statistics.{cma,cmxa}>: oasis_library_statistics_native
-<src/*.ml{,i}>: oasis_library_statistics_native
-"src/mlgsl_extra.c": oasis_library_statistics_native
-<src/statistics.{cma,cmxa}>: use_libstatistics_stubs
+# Library pareto
+"src/pareto.cmxs": use_pareto
+"src/distributions.cmx": for-pack(Pareto)
+"src/resampling.cmx": for-pack(Pareto)
+"src/sample.cmx": for-pack(Pareto)
+"src/tests.cmx": for-pack(Pareto)
+"src/internal.cmx": for-pack(Pareto)
+<src/*.ml{,i}>: oasis_library_pareto_ccopt
+"src/mlgsl_extra.c": oasis_library_pareto_ccopt
+<src/pareto.{cma,cmxa}>: oasis_library_pareto_byte
+<src/*.ml{,i}>: oasis_library_pareto_byte
+"src/mlgsl_extra.c": oasis_library_pareto_byte
+<src/pareto.{cma,cmxa}>: oasis_library_pareto_native
+<src/*.ml{,i}>: oasis_library_pareto_native
+"src/mlgsl_extra.c": oasis_library_pareto_native
+<src/pareto.{cma,cmxa}>: use_libpareto_stubs
 <src/*.ml{,i}>: pkg_gsl
 "src/mlgsl_extra.c": pkg_gsl
 # Executable tests_ex
@@ -36,22 +36,23 @@
 <examples/*.ml{,i}>: oasis_executable_tests_ex_byte
 <examples/tests_ex.{native,byte}>: oasis_executable_tests_ex_native
 <examples/*.ml{,i}>: oasis_executable_tests_ex_native
-<examples/tests_ex.{native,byte}>: use_statistics
 <examples/tests_ex.{native,byte}>: pkg_gsl
+<examples/tests_ex.{native,byte}>: pkg_pareto
 # Executable sample_ex
 <examples/sample_ex.{native,byte}>: oasis_executable_sample_ex_byte
 <examples/*.ml{,i}>: oasis_executable_sample_ex_byte
 <examples/sample_ex.{native,byte}>: oasis_executable_sample_ex_native
 <examples/*.ml{,i}>: oasis_executable_sample_ex_native
-<examples/sample_ex.{native,byte}>: use_statistics
 <examples/sample_ex.{native,byte}>: pkg_gsl
+<examples/sample_ex.{native,byte}>: pkg_pareto
+<examples/*.ml{,i}>: pkg_pareto
 # Executable resampling_ex
 <examples/resampling_ex.{native,byte}>: oasis_executable_resampling_ex_byte
 <examples/*.ml{,i}>: oasis_executable_resampling_ex_byte
 <examples/resampling_ex.{native,byte}>: oasis_executable_resampling_ex_native
 <examples/*.ml{,i}>: oasis_executable_resampling_ex_native
-<examples/resampling_ex.{native,byte}>: use_statistics
+<examples/resampling_ex.{native,byte}>: use_pareto
 <examples/resampling_ex.{native,byte}>: pkg_gsl
-<examples/*.ml{,i}>: use_statistics
+<examples/*.ml{,i}>: use_pareto
 <examples/*.ml{,i}>: pkg_gsl
 # OASIS_STOP

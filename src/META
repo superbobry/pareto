@@ -1,12 +1,12 @@
 # OASIS_START
-# DO NOT EDIT (digest: f789d5e2bd5bb2e032518e76f6d9b799)
+# DO NOT EDIT (digest: fd80095b0b5d197225dca17583224426)
 version = "0.1.0"
 description = "GSL powered OCaml statistics library"
 requires = "gsl"
-archive(byte) = "statistics.cma"
-archive(byte, plugin) = "statistics.cma"
-archive(native) = "statistics.cmxa"
-archive(native, plugin) = "statistics.cmxs"
-exists_if = "statistics.cma"
+archive(byte) = "pareto.cma"
+archive(byte, plugin) = "pareto.cma"
+archive(native) = "pareto.cmxa"
+archive(native, plugin) = "pareto.cmxs"
+exists_if = "pareto.cma"
 # OASIS_STOP
 

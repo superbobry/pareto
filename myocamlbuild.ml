@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 450e40c561934059f777c9d7204a1d08) *)
+(* DO NOT EDIT (digest: 8eca5560437aa63e88b6cf3e09bca48d) *)
 module OASISGettext = struct
 (* # 21 "/Users/superbobry/.opam/system/build/oasis.0.3.0/src/oasis/OASISGettext.ml" *)
 
@@ -477,11 +477,11 @@ end
 open Ocamlbuild_plugin;;
 let package_default =
   {
-     MyOCamlbuildBase.lib_ocaml = [("statistics", ["src"])];
-     lib_c = [("statistics", "src", [])];
+     MyOCamlbuildBase.lib_ocaml = [("pareto", ["src"])];
+     lib_c = [("pareto", "src", [])];
      flags =
        [
-          (["oasis_library_statistics_ccopt"; "compile"],
+          (["oasis_library_pareto_ccopt"; "compile"],
             [
                (OASISExpr.EBool true,
                  S
@@ -496,17 +496,17 @@ let package_default =
                       A "-Wextra"
                    ])
             ]);
-          (["oasis_library_statistics_byte"; "ocaml"; "link"; "byte"],
+          (["oasis_library_pareto_byte"; "ocaml"; "link"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          (["oasis_library_statistics_native"; "ocaml"; "link"; "native"],
+          (["oasis_library_pareto_native"; "ocaml"; "link"; "native"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          (["oasis_library_statistics_byte"; "ocaml"; "ocamldep"; "byte"],
+          (["oasis_library_pareto_byte"; "ocaml"; "ocamldep"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          (["oasis_library_statistics_native"; "ocaml"; "ocamldep"; "native"],
+          (["oasis_library_pareto_native"; "ocaml"; "ocamldep"; "native"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          (["oasis_library_statistics_byte"; "ocaml"; "compile"; "byte"],
+          (["oasis_library_pareto_byte"; "ocaml"; "compile"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
-          (["oasis_library_statistics_native"; "ocaml"; "compile"; "native"],
+          (["oasis_library_pareto_native"; "ocaml"; "compile"; "native"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
           (["oasis_executable_tests_ex_byte"; "ocaml"; "link"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
