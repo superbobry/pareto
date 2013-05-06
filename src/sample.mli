@@ -66,3 +66,15 @@ val quantile : ?p:float -> float array -> float
 (** {e O(n log n)} Estimates interquantile range of a given sample,
     using the continuous sample method with given parameters. *)
 val iqr : float array -> float
+
+
+open Internal
+
+(** {e O(n)} Shuffles a given array using Fisher-Yates shuffle. *)
+val shuffle : ?rng:Rng.t -> 'a array -> 'a array
+
+(** {e O(n)} Takes a sample of the specified [size] from the given
+    array either with or without replacement. [size] defaults to the
+    whole array. *)
+val sample
+  : ?rng:Rng.t -> ?replace:bool -> ?size:int -> 'a array -> 'a array

@@ -16,8 +16,10 @@ Library statistics
   FindlibName:       statistics
   Pack:              true
   Modules:           Distributions
+                   , Resampling
                    , Sample
                    , Tests
+  InternalModules:   Internal
   CSources:          mlgsl_extra.c
   CCOpt:             -O2 -Wall -pedantic -Wextra
   NativeOpt:         -w @a
@@ -46,6 +48,16 @@ Executable sample_ex
   Install:        false
   CompiledObject: best
   MainIs:         sample_ex.ml
+  BuildDepends:   gsl, statistics
+  NativeOpt:      -w @a
+  ByteOpt:        -w @a
+
+Executable resampling_ex
+  Path:           examples
+  Build$:         flag(examples)
+  Install:        false
+  CompiledObject: best
+  MainIs:         resampling_ex.ml
   BuildDepends:   gsl, statistics
   NativeOpt:      -w @a
   ByteOpt:        -w @a

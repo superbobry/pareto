@@ -1,20 +1,23 @@
 open Printf
 open Statistics
 
-let print_array v =
-  print_char '[';
-  Array.iteri (fun i ->
-    if i <> Array.length v - 1
-    then printf "%f, "
-    else printf "%f") v;
-  print_char ']';
-  print_newline ()
+open Common
 
-let random_array ?(a=0.) ?(b=100.) n =
-  let vs = Array.make n 0. in
-  for i = 0 to n - 1 do
-    vs.(i) <- a +. Random.float b
-  done; vs
+let sample_shuffle () =
+  let vs  = Array.init 10 (fun i -> float_of_int i) in
+  let svs = Sample.shuffle vs in
+  let svs_with_replacement = Sample.sample ~replace:true ~size:5 vs
+  and svs_without_replacement = Sample.sample ~size:5 vs in begin
+    print_string "Initial sample : ";
+    print_array vs;
+    print_string "Shuffled sample: ";
+    print_array svs;
+    print_endline "5-sample *with* replacement from the shuffled array:";
+    print_array svs_with_replacement;
+    print_endline "5-sample *without* replacement from the shuffled array:";
+    print_array svs_without_replacement;
+    print_newline ();
+  end
 
 let sample_quantiles () =
   let vs = random_array 10 in begin
@@ -36,6 +39,7 @@ let sample_iqr () =
 
 
 let () = begin
+  sample_shuffle ();
   sample_quantiles ();
   sample_iqr ();
 end

@@ -1,14 +1,7 @@
 open Printf
 open Statistics
 
-let print_array v =
-  print_char '[';
-  Array.iteri (fun i ->
-    if i <> Array.length v - 1
-    then printf "%f, "
-    else printf "%f") v;
-  print_char ']';
-  print_newline ()
+open Common
 
 let t_test_one_sample () =
   let open Distributions.Normal in

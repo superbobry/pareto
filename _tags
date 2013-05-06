@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: a4a4e202c41bc67f21afb1f7fac28e69)
+# DO NOT EDIT (digest: 2b2116467642a6ac645a769765fa4e26)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -16,8 +16,10 @@
 # Library statistics
 "src/statistics.cmxs": use_statistics
 "src/distributions.cmx": for-pack(Statistics)
+"src/resampling.cmx": for-pack(Statistics)
 "src/sample.cmx": for-pack(Statistics)
 "src/tests.cmx": for-pack(Statistics)
+"src/internal.cmx": for-pack(Statistics)
 <src/*.ml{,i}>: oasis_library_statistics_ccopt
 "src/mlgsl_extra.c": oasis_library_statistics_ccopt
 <src/statistics.{cma,cmxa}>: oasis_library_statistics_byte
@@ -43,6 +45,13 @@
 <examples/*.ml{,i}>: oasis_executable_sample_ex_native
 <examples/sample_ex.{native,byte}>: use_statistics
 <examples/sample_ex.{native,byte}>: pkg_gsl
+# Executable resampling_ex
+<examples/resampling_ex.{native,byte}>: oasis_executable_resampling_ex_byte
+<examples/*.ml{,i}>: oasis_executable_resampling_ex_byte
+<examples/resampling_ex.{native,byte}>: oasis_executable_resampling_ex_native
+<examples/*.ml{,i}>: oasis_executable_resampling_ex_native
+<examples/resampling_ex.{native,byte}>: use_statistics
+<examples/resampling_ex.{native,byte}>: pkg_gsl
 <examples/*.ml{,i}>: use_statistics
 <examples/*.ml{,i}>: pkg_gsl
 # OASIS_STOP
