@@ -129,6 +129,21 @@ module KDE = struct
   type kernel =
     | Gaussian
 
+  let build_kernel = function
+    | Gaussian ->
+      fun h p v ->
+        let u = (v -. p) /. h in
+        let open Gsl.Math in
+        (1. /. (sqrt2 *. sqrtpi)) *. exp (-. sqr u /. 2.)
+
+  let build_points points h kernel vs =
+    let (min, max) = minmax vs in
+    let (a, b) = match kernel with
+      | Gaussian     -> (min -. 3. *. h, max +. 3. *. h)
+    in
+    let step = (b -. a) /. float_of_int points in
+    Array.init points (fun i -> a +. (float_of_int i) *. step)
+
   let estimate_pdf ?(kernel=Gaussian) ?(bandwidth=Scott) ?(points=512) vs =
     if Array.length vs < 2
     then invalid_arg "KDE.estimate_pdf: sample should have multiple elements";
@@ -136,25 +151,15 @@ module KDE = struct
     let n = float_of_int (Array.length vs) in
     let s = Pervasives.min (sd vs) (iqr vs /. 1.34) in
     let h = match bandwidth with
-      | Silverman  -> 0.90 *. s *. ((4. /. (n *. 3.)) ** 0.2)
-      | Scott      -> 1.06 *. s *. ((4. /. (n *. 3.)) ** 0.2)
+      | Silverman  -> 0.90 *. s *. (n ** -0.2)
+      | Scott      -> 1.06 *. s *. (n ** -0.2)
     in
 
-    let f = 1. /. (h *. n) in
-    let k = match kernel with
-      | Gaussian ->
-        let open Gsl.Math in
-        fun p v -> exp (-. 0.5 *. sqr ((v -. p) /. h)) *.
-                     f *. 0.5 *. sqrt2 *. sqrtpi *. (1. /. sqrt2)
-    in
-
-    let (min, max) = minmax vs in
-    let (a, b)     = (min -. 3. *. h, max +. 3. *. h) in
-    let step       = (b -. a) /. float_of_int points in
-    let points     = Array.init points
-        (fun i -> a +. (float_of_int i) *. step) in
-    let pdf        = Array.map
-        (fun p -> Array.fold_left (fun acc v -> acc +. k p v) 0. vs)
+    let points = build_points points h kernel vs in
+    let k      = build_kernel kernel in
+    let f      = 1. /. (h *. n) in
+    let pdf    = Array.map
+        (fun p -> f *. Array.fold_left (fun acc v -> acc +. k h p v) 0. vs)
         points
     in (points, pdf)
 end
