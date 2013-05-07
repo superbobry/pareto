@@ -11,15 +11,14 @@ let range vs =
   max -. min
 
 let mean vs = Stats.mean vs
-let variance ?(mean=nan) vs =
-  if mean = nan
-  then Stats.variance vs
-  else Stats.variance ~mean vs
+let variance ?mean vs = Stats.variance ?mean vs
+let sd ?mean vs = Stats.sd ?mean vs
 
 
 let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
   if bins <= 0
   then invalid_arg "Sample.histogram: bins must be a positive integer";
+  if vs = [||] then invalid_arg "Sample.histogram: empty sample";
 
   let h = Histo.make bins in
   begin match range with
@@ -46,9 +45,11 @@ let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
   if density then Histo.scale h (1. /. Histo.sum h);
 
   let counts = Array.make bins 0. in
+  let points = Array.make bins 0. in
   for i = 0 to bins - 1 do
-    counts.(i) <- Histo.get h i
-  done; counts
+    counts.(i) <- Histo.get h i;
+    points.(i) <- fst (Histo.get_range h i)
+  done; (points, counts)
 
 
 module Quantile = struct
@@ -118,3 +119,42 @@ and sample ?(rng=default_rng) ?(replace=false) ?size vs =
     else Randist.choose rng ~src:vs ~dst;
     dst
   end
+
+
+module KDE = struct
+  type bandwidth =
+    | Silverman
+    | Scott
+
+  type kernel =
+    | Gaussian
+
+  let estimate_pdf ?(kernel=Gaussian) ?(bandwidth=Scott) ?(points=512) vs =
+    if Array.length vs < 2
+    then invalid_arg "KDE.estimate_pdf: sample should have multiple elements";
+
+    let n = float_of_int (Array.length vs) in
+    let s = Pervasives.min (sd vs) (iqr vs /. 1.34) in
+    let h = match bandwidth with
+      | Silverman  -> 0.90 *. s *. ((4. /. (n *. 3.)) ** 0.2)
+      | Scott      -> 1.06 *. s *. ((4. /. (n *. 3.)) ** 0.2)
+    in
+
+    let f = 1. /. (h *. n) in
+    let k = match kernel with
+      | Gaussian ->
+        let open Gsl.Math in
+        fun p v -> exp (-. 0.5 *. sqr ((v -. p) /. h)) *.
+                     f *. 0.5 *. sqrt2 *. sqrtpi *. (1. /. sqrt2)
+    in
+
+    let (min, max) = minmax vs in
+    let (a, b)     = (min -. 3. *. h, max +. 3. *. h) in
+    let step       = (b -. a) /. float_of_int points in
+    let points     = Array.init points
+        (fun i -> a +. (float_of_int i) *. step) in
+    let pdf        = Array.map
+        (fun p -> Array.fold_left (fun acc v -> acc +. k p v) 0. vs)
+        points
+    in (points, pdf)
+end
