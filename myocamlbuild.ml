@@ -581,4 +581,10 @@ let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
 # 583 "myocamlbuild.ml"
 (* OASIS_STOP *)
-Ocamlbuild_plugin.dispatch dispatch_default;;
+
+let () = dispatch (function
+    | After_rules as e ->
+      flag ["doc"; "ocaml"] & (S [A"-keep-code"; A"-colorize-code";
+                                  A"-stars"; A"-charset"; A"utf8"]);
+      dispatch_default e
+    | e -> dispatch_default e);;

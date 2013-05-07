@@ -3,3 +3,4 @@ setup.*
 *.native
 *.byte
 *.docdir
+*.ba*

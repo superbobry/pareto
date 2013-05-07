@@ -104,4 +104,30 @@ module KDE : sig
     -> ?points:int
     -> float array
     -> (float array * float array)
+
+  (** {6 Example}
+
+      {[
+        open Pareto
+        let open Distributions.Normal in
+        let vs = sample ~size:100 standard in
+        let (points, pdf) = Sample.KDE.estimate_pdf ~points:10 vs in begin
+          (* Output an ASCII density plot. *)
+          Array.iteri (fun i d ->
+              let count = int_of_float (d *. 20.) in
+              printf "%9.5f " points.(i);
+              for i = 0 to count do
+                print_char (if i = count then '.' else ' ');
+              done;
+
+              print_newline ();
+            ) pdf
+        end
+      ]}
+
+      {6 References}
+
+      + B.W. Silverman, "Density Estimation for Statistics and Data
+        Analysis", Vol. 26, Monographs on Statistics and Applied
+        Probability, Chapman and Hall, London, 1986. *)
 end
