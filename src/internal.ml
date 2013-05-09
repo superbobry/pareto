@@ -8,6 +8,12 @@ let default_rng = let open Rng in
   make (default ())
 
 let sqr x = x *. x
+let cube x = x *. x *. x
+
+let is_nan (x : float) = x <> x
+let is_not_nan (x : float) = x = x
+
+let round x = int_of_float (floor (x +. 0.5))
 
 let bound ?(a=0) ~b i = min (max i a) b
 
@@ -17,6 +23,8 @@ module Array = struct
   include Array
 
   let sum = fold_left (+.) 0.
+  let sum_with f = fold_left (fun acc x -> acc +. f x) 0.
+  let count p = sum_with (fun v -> if p v then 1. else 0.)
   let for_all p = fold_left (fun acc x -> acc && p x) true
   let exists p = fold_left (fun acc x -> acc || p x) false
 end

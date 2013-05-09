@@ -70,7 +70,7 @@ module Quantile = struct
   let continous_by ?(param=S) ?(p=0.5) vs =
     if p < 0. || p > 1.
     then invalid_arg "Quantile.continous_by: p must be in range [0, 1]";
-    if Array.exists (fun v -> v <> v) vs
+    if Array.exists is_nan vs
     then invalid_arg "Quantile.continous_by: sample contains NaNs";
 
     let (a, b) = match param with
@@ -158,8 +158,6 @@ module KDE = struct
     let points = build_points points h kernel vs in
     let k      = build_kernel kernel in
     let f      = 1. /. (h *. n) in
-    let pdf    = Array.map
-        (fun p -> f *. Array.fold_left (fun acc v -> acc +. k h p v) 0. vs)
-        points
-    in (points, pdf)
+    let pdf    = Array.map (fun p -> f *. Array.sum_with (k h p) vs) points in
+    (points, pdf)
 end
