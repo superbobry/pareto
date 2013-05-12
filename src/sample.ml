@@ -15,6 +15,32 @@ let variance ?mean vs = Stats.variance ?mean vs
 let sd ?mean vs = Stats.sd ?mean vs
 
 
+let rank ?(ties_strategy=`Average) vs =
+  let resolve_ties next d = match ties_strategy with
+    | `Average    -> next - d / 2
+    | `Min        -> next - d
+    | `Max        -> next
+    | `Random rng -> next - Rng.uniform_int rng d
+  in
+
+  let n     = Array.length vs in
+  (** FIXME(superbobry): use polymorphic sorting procedure? *)
+  let order = Gsl.Permut.to_array Vector.(sort_index (of_array vs)) in
+  let ranks = Array.make n 0 in
+  let d     = ref 0 in
+  for i = 1 to n - 1 do
+    if i == n - 1 || vs.(order.(i)) <> vs.(order.(i + 1))
+    then
+      let tie_rank = resolve_ties (i + 1) !d in
+      for j = i - !d to i do
+        ranks.(order.(j)) <- tie_rank
+      done;
+      d := 0
+    else
+      incr d  (* Found a duplicate! *)
+  done; ranks
+
+
 let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
   if bins <= 0
   then invalid_arg "Sample.histogram: bins must be a positive integer";

@@ -1,5 +1,7 @@
 (** Commonly used sample statistics. *)
 
+open Internal
+
 val min    : float array -> float
 val max    : float array -> float
 val minmax : float array -> (float * float)
@@ -17,6 +19,21 @@ val variance : ?mean:float -> float array -> float
 
 (** {e O(n)} Computes sample's standard deviation. *)
 val sd : ?mean:float -> float array -> float
+
+(** {e O(n log n)} Computes sample's ranks, [ties_strategy] controls
+    which ranks are assigned to equal values:
+
+    - [`Average] the average of ranks should be assigned to each value.
+    - [`Min] the minimum of ranks is assigned to each value.
+    - [`Max] the maximum of ranks is assigned to each value.
+    - [`Random] all ties should be assigned a random rank, chosen from
+      the ranks that would've been assigned to all tied values.
+
+    The default strategy is [`Average]. *)
+val rank
+  :  ?ties_strategy:[`Average | `Min | `Max | `Random of Rng.t]
+  -> float array
+  -> int array
 
 (** {e O(n)} Computes histogram of a data set. Bin sizes are uniform,
     based on a given [range], whic defaults to

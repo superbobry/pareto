@@ -33,6 +33,7 @@ module Vector = struct
   include Gsl.Vector_flat
 
   let sort = Gsl.Gsl_sort.vector_flat
+  let sort_index = Gsl.Gsl_sort.vector_flat_index
   let partial_sort = Gsl.Gsl_sort.vector_flat_smallest
 end
 
