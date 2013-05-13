@@ -32,7 +32,7 @@ val sd : ?mean:float -> float array -> float
     The default strategy is [`Average]. *)
 val rank
   :  ?ties_strategy:[`Average | `Min | `Max | `Random of Rng.t]
-  -> float array
+  -> 'a array
   -> int array
 
 (** {e O(n)} Computes histogram of a data set. Bin sizes are uniform,

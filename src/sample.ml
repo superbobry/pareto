@@ -25,21 +25,21 @@ let rank ?(ties_strategy=`Average) vs =
 
   let n     = Array.length vs in
   (** FIXME(superbobry): use polymorphic sorting procedure? *)
-  let order = Gsl.Permut.to_array Vector.(sort_index (of_array vs)) in
+  let order = Array.sort_index compare vs in
   let ranks = Array.make n 0 in
-  let d     = ref 0 in
-  for i = 1 to n - 1 do
-    if i == n - 1 || vs.(order.(i)) <> vs.(order.(i + 1))
-    then
-      let tie_rank = resolve_ties (i + 1) !d in
-      for j = i - !d to i do
-        ranks.(order.(j)) <- tie_rank
-      done;
-      d := 0
-    else
-      incr d  (* Found a duplicate! *)
-  done; ranks
-
+  let d     = ref 0 in begin
+    for i = 1 to n - 1 do
+      if i == n - 1 || vs.(order.(i)) <> vs.(order.(i + 1))
+      then
+        let tie_rank = resolve_ties (i + 1) !d in
+        for j = i - !d to i do
+          ranks.(order.(j)) <- tie_rank
+        done;
+        d := 0
+      else
+        incr d  (* Found a duplicate! *)
+    done
+  end; ranks
 
 let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
   if bins <= 0

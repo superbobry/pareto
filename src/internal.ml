@@ -22,6 +22,21 @@ let invalid_arg s = raise (Invalid_argument s)
 module Array = struct
   include Array
 
+  let range a b =
+    if b <= a
+    then [||]
+    else
+      let vs = make (b - a) 0 in
+      for i = a to b - 1 do
+        vs.(i) <- i
+      done; vs
+
+  let sort_index cmp vs =
+    let order = range 0 (length vs) in begin
+      sort (fun i j -> cmp vs.(i) vs.(j)) order;
+      order
+    end
+
   let sum = fold_left (+.) 0.
   let sum_with f = fold_left (fun acc x -> acc +. f x) 0.
   let count p = sum_with (fun v -> if p v then 1. else 0.)
