@@ -24,11 +24,10 @@ let rank ?(ties_strategy=`Average) vs =
   in
 
   let n     = Array.length vs in
-  (** FIXME(superbobry): use polymorphic sorting procedure? *)
   let order = Array.sort_index compare vs in
   let ranks = Array.make n 0 in
   let d     = ref 0 in begin
-    for i = 1 to n - 1 do
+    for i = 0 to n - 1 do
       if i == n - 1 || vs.(order.(i)) <> vs.(order.(i + 1))
       then
         let tie_rank = resolve_ties (i + 1) !d in

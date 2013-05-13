@@ -10,7 +10,7 @@ let t_test_one_sample () =
     Tests.T.one_sample v ~mean:0. ~alternative:Tests.TwoSided ()
   in begin
     printf "One-sample T-test for true mean = 0.0\n";
-    print_array v;
+    print_float_array v;
     printf "t = %f, P-value: %f\n" t pvalue;
     print_newline ()
   end
@@ -23,8 +23,8 @@ let t_test_two_sample_independent () =
       ~mean:0.1 ~equal_variance:false ~alternative:Tests.TwoSided ()
   in begin
     printf "Two-sample T-test for mean difference not equal to 0.1\n";
-    print_array v1;
-    print_array v2;
+    print_float_array v1;
+    print_float_array v2;
     printf "t = %f, P-value: %f\n" t pvalue;
     print_newline ()
   end
@@ -37,8 +37,8 @@ let t_test_two_sample_related () =
       ~mean:0.1 ~alternative:Tests.TwoSided ()
   in begin
     printf "Paired two-sample T-test for mean difference not equal to 0.1\n";
-    print_array v1;
-    print_array v2;
+    print_float_array v1;
+    print_float_array v2;
     printf "t = %f, P-value: %f\n" t pvalue;
     print_newline ()
   end
@@ -49,7 +49,7 @@ let chisq_test_gof () =
   let (chisq, pvalue) = Tests.ChiSquared.goodness_of_fit v () in
   begin
     print_endline "X^2 test for goodness of fit";
-    print_array v;
+    print_float_array v;
     printf "X^2 = %f, P-value: %f\n" chisq pvalue;
     print_newline ()
   end
@@ -63,8 +63,8 @@ let chisq_test_independence () =
     Tests.ChiSquared.independence [|v1; v2|] ~correction:true ()
   in begin
     print_endline "X^2 test for independence with Yates' continuity correction\n";
-    print_array v1;
-    print_array v2;
+    print_float_array v1;
+    print_float_array v2;
     printf "X^2 = %f, P-value: %f\n" chisq pvalue;
     print_newline ()
   end

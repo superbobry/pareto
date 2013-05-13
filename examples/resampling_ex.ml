@@ -11,7 +11,7 @@ let bootstrap_mean () =
     bca ~estimator:Sample.mean ~n:10000 vs
   in begin
     print_endline "Sample:";
-    print_array vs;
+    print_float_array vs;
     print_endline "BCA bootstrapped estimate of sample mean:";
     printf "%.5f    %i%% CI  %.5f %.5f\n"
       point (int_of_float (confidence_level *. 100.)) lower_bound upper_bound;
