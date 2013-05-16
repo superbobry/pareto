@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: da7b2a3cc321cec97cdaa50020ffd0c8)
+# DO NOT EDIT (digest: c63dcbd4bf1855edc06d9e6a01cbc83c)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -36,16 +36,15 @@
 <examples/*.ml{,i}>: oasis_executable_tests_ex_byte
 <examples/tests_ex.{native,byte}>: oasis_executable_tests_ex_native
 <examples/*.ml{,i}>: oasis_executable_tests_ex_native
+<examples/tests_ex.{native,byte}>: use_pareto
 <examples/tests_ex.{native,byte}>: pkg_gsl
-<examples/tests_ex.{native,byte}>: pkg_pareto
 # Executable sample_ex
 <examples/sample_ex.{native,byte}>: oasis_executable_sample_ex_byte
 <examples/*.ml{,i}>: oasis_executable_sample_ex_byte
 <examples/sample_ex.{native,byte}>: oasis_executable_sample_ex_native
 <examples/*.ml{,i}>: oasis_executable_sample_ex_native
+<examples/sample_ex.{native,byte}>: use_pareto
 <examples/sample_ex.{native,byte}>: pkg_gsl
-<examples/sample_ex.{native,byte}>: pkg_pareto
-<examples/*.ml{,i}>: pkg_pareto
 # Executable resampling_ex
 <examples/resampling_ex.{native,byte}>: oasis_executable_resampling_ex_byte
 <examples/*.ml{,i}>: oasis_executable_resampling_ex_byte

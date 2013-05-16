@@ -13,7 +13,6 @@ Plugins:        META (0.3), DevFiles (0.3)
 
 Library pareto
   Path:              src
-  FindlibName:       statistics
   Pack:              true
   Modules:           Distributions
                    , Resampling
@@ -58,16 +57,16 @@ Executable resampling_ex
   Install:        false
   CompiledObject: best
   MainIs:         resampling_ex.ml
-  BuildDepends:   gsl, statistics
+  BuildDepends:   gsl, pareto
   NativeOpt:      -w @a
   ByteOpt:        -w @a
 
 Document API
-  Title:                API reference for Statistics
+  Title:                API reference for Pareto
   Type:                 OCamlbuild (0.3)
   InstallDir:           $docdir/api
   XOCamlbuildPath:      .
-  XOCamlbuildLibraries: statistics
+  XOCamlbuildLibraries: pareto
 
 SourceRepository github
   Type:       git
