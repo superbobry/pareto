@@ -15,30 +15,56 @@ let variance ?mean vs = Stats.variance ?mean vs
 let sd ?mean vs = Stats.sd ?mean vs
 
 
-let rank ?(ties_strategy=`Average) vs =
-  let resolve_ties next d = match ties_strategy with
-    | `Average    -> next - d / 2
-    | `Min        -> next - d
-    | `Max        -> next
-    | `Random rng -> next - Rng.uniform_int rng d
-  in
+let _resolve_ties next d = function
+  | `Average    -> float_of_int next -. float_of_int d /. 2.
+  | `Min        -> float_of_int (next - d)
+  | `Max        -> float_of_int next
 
+let _correct_ties ranks =
+  let n = Array.length ranks in
+  if n < 2
+  then 1.0
+  else
+    let sorted = Array.copy ranks
+    and t = ref 0
+    and d = ref 0
+    and i = ref 0 in begin
+      Array.sort (fun r1 r2 ->
+          compare (int_of_float r1) (int_of_float r2)) sorted;
+
+      while !i < n - 1 do
+        if sorted.(!i) = sorted.(!i + 1)
+        then begin
+          d := 1;
+          while !i < n - 1 && sorted.(!i) = sorted.(!i + 1) do
+            incr d;
+            incr i;
+          done;
+
+          t := !t + (!d * !d * !d - !d)
+        end;
+        incr i
+      done; float_of_int !t
+    end
+
+let rank ?(ties_strategy=`Average) vs =
   let n     = Array.length vs in
   let order = Array.sort_index compare vs in
-  let ranks = Array.make n 0 in
+  let ranks = Array.make n 0. in
   let d     = ref 0 in begin
     for i = 0 to n - 1 do
       if i == n - 1 || vs.(order.(i)) <> vs.(order.(i + 1))
       then
-        let tie_rank = resolve_ties (i + 1) !d in
+        let tie_rank = _resolve_ties (i + 1) !d ties_strategy in
         for j = i - !d to i do
           ranks.(order.(j)) <- tie_rank
         done;
         d := 0
       else
         incr d  (* Found a duplicate! *)
-    done
-  end; ranks
+    done;
+  end; (_correct_ties ranks, ranks)
+
 
 let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
   if bins <= 0

@@ -24,16 +24,21 @@ val sd : ?mean:float -> float array -> float
     which ranks are assigned to equal values:
 
     - [`Average] the average of ranks should be assigned to each value.
+      {b Default}.
     - [`Min] the minimum of ranks is assigned to each value.
     - [`Max] the maximum of ranks is assigned to each value.
-    - [`Random] all ties should be assigned a random rank, chosen from
-      the ranks that would've been assigned to all tied values.
 
-    The default strategy is [`Average]. *)
+    Returns a pair, where the first element is ties correction factor
+    and second is an array of sample ranks.
+
+    {6 References}
+
+    + P. R. Freeman, "Algorithm AS 26: Ranking an array of numbers",
+      Vol. 19, Applied Statistics, pp111-113, 1970. *)
 val rank
-  :  ?ties_strategy:[`Average | `Min | `Max | `Random of Rng.t]
+  :  ?ties_strategy:[`Average | `Min | `Max]
   -> 'a array
-  -> int array
+  -> (float * float array)
 
 (** {e O(n)} Computes histogram of a data set. Bin sizes are uniform,
     based on a given [range], whic defaults to

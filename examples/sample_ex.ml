@@ -82,9 +82,10 @@ let sample_iqr () =
   end
 
 let sample_ranks () =
-  let vs = random_array 10 in begin
+  let vs = random_array 10 in
+  let (_t, ranks) = Sample.rank vs in begin
     print_float_array vs;
-    print_int_array (Sample.rank vs)
+    print_float_array ranks
   end
 
 let () = begin

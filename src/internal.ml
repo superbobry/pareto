@@ -15,9 +15,15 @@ let is_not_nan (x : float) = x = x
 
 let round x = int_of_float (floor (x +. 0.5))
 
+let float_of_bool b = if b then 1. else 0.
+
 let bound ?(a=0) ~b i = min (max i a) b
 
 let invalid_arg s = raise (Invalid_argument s)
+
+exception Not_implemented of string
+
+let not_implemented s = raise (Not_implemented s)
 
 module Array = struct
   include Array
@@ -28,12 +34,12 @@ module Array = struct
     else
       let vs = make (b - a) 0 in
       for i = a to b - 1 do
-        vs.(i) <- i
+        unsafe_set vs (i - a) i
       done; vs
 
   let sort_index cmp vs =
     let order = range 0 (length vs) in begin
-      sort (fun i j -> cmp vs.(i) vs.(j)) order;
+      sort (fun i j -> cmp (unsafe_get vs i) (unsafe_get vs j)) order;
       order
     end
 
