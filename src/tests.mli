@@ -1,3 +1,5 @@
+(** Statistical testing. *)
+
 open Internal
 
 type test_alternative = Less | Greater | TwoSided
@@ -38,6 +40,10 @@ module ChiSquared : sig
 end
 
 module Wilcoxon : sig
+  (** Mann-Whitney U test (also known as Mann-Whitney-Wilcoxon test and
+      Wilcoxon rank sum test) is a non-paramteric test, which evaluates
+      the null hypothesis that two {e independent} samples have equal
+      medians. *)
   val two_sample_independent
     :  'a array
     -> 'a array
@@ -45,4 +51,10 @@ module Wilcoxon : sig
     -> ?correction:bool
     -> unit
     -> (float * float)
+
+  (** {6 References}
+
+      + Gravetter, Frederick J., and Larry B. Wallnau.
+       "Statistics for the behavioral sciences". Wadsworth Publishing
+       Company, 2006. *)
 end

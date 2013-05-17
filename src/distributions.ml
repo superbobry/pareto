@@ -358,7 +358,7 @@ module Hypergeometric = struct
       https://bitbucket.org/mmottl/gsl-ocaml/issue/4 for details. *)
   external hypergeometric_P
     : k:int -> n1:int -> n2:int -> t:int -> float
-    = "ml_gsl_cdf_hypergeometric_P" "gsl_cdf_hypergeometric_P" "float"
+    = "ml_gsl_cdf_hypergeometric_P"
 
   let cumulative_probability { hyper_m; hyper_t; hyper_k } ~n =
     hypergeometric_P ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k ~k:n

@@ -70,14 +70,12 @@ let chisq_test_independence () =
   end
 
 let mann_whitney_wilcoxon () =
-  (* The example is from 'Mann-Whitney U Test' chapter in
-     "Handbook of Parametric and Nonparametric Statistical Procedures". *)
   let v1 = [|11; 1; -1; 2; 0|] in
-  let v2 = [|3; 9; 5; 8; 4|] in
+  let v2 = [|-5; 9; 5; 8; 4|] in
   let (u, pvalue) = Tests.Wilcoxon.two_sample_independent v1 v2
       ~correction:true ~alternative:Tests.TwoSided ()
   in begin
-    printf "Two-sample Mann-Whitney-Wilcoxon test\n";
+    printf "Two-sample Mann-Whitney U test\n";
     print_int_array v1;
     print_int_array v2;
     printf "U = %f, P-value: %f\n" u pvalue;

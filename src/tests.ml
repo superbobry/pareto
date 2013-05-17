@@ -113,67 +113,6 @@ module ChiSquared = struct
 end
 
 module Wilcoxon = struct
-  let w_table_ref = ref (Array.make 0 [|[||]|])
-
-  let rec ensure_w_table_size m n =
-    if m > n
-    then ensure_w_table_size n m
-    else
-      let w = Array.make (m + 1) [|[||]|] in begin
-        for i = 0 to m do
-          Array.unsafe_set w i (Array.make (n + 1) [||]);
-        done;
-
-        w_table_ref := w
-      end
-
-  let rec compute_w k m n =
-    let u = m * n in
-    if k < 0 || k > u
-    then 0.
-    else
-      let w      = !w_table_ref in
-      let c      = u / 2 in
-      let k      = if k > c then u - k else k in
-      let (i, j) = if m < n then (m, n) else (n, m) in begin
-        if i = 0 && j = 0
-        then float_of_bool (k = 0)
-        else begin
-          if w.(i).(j) = [||]
-          then w.(i).(j) <- Array.make (c + 1) (-. 1.);
-
-          if w.(i).(j).(k) < 0.
-          then begin
-            if i = 0 && j = 0
-            then w.(i).(j).(k) <- float_of_bool (k = 0)
-            else w.(i).(j).(k) <-
-                   compute_w (k - j) (i - 1) j +. compute_w k i (j - 1);
-          end;
-
-          w.(i).(j).(k)
-        end
-      end
-
-  let w_cumulative_probability x m n =
-    if x < 0.
-    then 0.
-    else if x > m *. n
-    then 1.
-    else
-      let (m, n) = (round m, round n) in
-      let c      = Gsl.Sf.choose (m + n) n in begin
-        ensure_w_table_size m n;
-        let p = ref 0. in
-        let j = if x < float_of_int (m * n) /. 2.
-          then round x
-          else round (float_of_int (m * n) -. x) - 1
-        in begin
-          for i = 0 to j do
-            p := !p +. compute_w i m n /. c
-          done; !p
-        end
-      end
-
   let two_sample_independent v1 v2
       ?(alternative=TwoSided) ?(correction=true) () =
     let n1 = float_of_int (Array.length v1)
@@ -220,11 +159,24 @@ module Wilcoxon = struct
       in (u, pvalue)
     else
       (* Exact critical value. *)
-      let pvalue = match alternative with
-        | Less     -> w_cumulative_probability u n1 n2
-        | Greater  -> 1. -. w_cumulative_probability u n1 n2
-        | TwoSided ->
-          2. *. (min (w_cumulative_probability u n1 n2)
-                     (1. -. w_cumulative_probability u n1 n2))
-      in (u, pvalue)
+      let k  = int_of_float (min n1 n2) in
+      let c  = Combi.make (int_of_float n) k in
+      let c_n_k = Gsl.Sf.choose (int_of_float n) k in
+      let le = ref 0 in
+      let gt = ref 0 in
+      begin
+        for _i = 0 to int_of_float c_n_k do
+          let cu = Array.sum_with (fun i -> ranks.(i)) (Combi.to_array c) -.
+                     float_of_int (k * (k + 1)) /. 2.
+          in incr (if cu <= u then le else gt);
+
+          Combi.next c;
+        done;
+
+        let pvalue = match alternative with
+          | Less     -> float_of_int !le /. c_n_k
+          | Greater  -> float_of_int !le /. c_n_k
+          | TwoSided -> 2. *. float_of_int (min !le !gt) /. c_n_k
+        in (u, pvalue)
+      end
 end
