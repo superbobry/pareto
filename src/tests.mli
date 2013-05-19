@@ -63,7 +63,7 @@ end
 
 module WilcoxonT : sig
   (** Wilcoxon signed-rank test, which evaluates the null hypothesis
-      that sample median is equal to a specified [shift].
+      that sample median is equal to the specified [shift].
 
       Test assumptions:
 
@@ -100,4 +100,35 @@ module WilcoxonT : sig
       + David J. Sheskin. "Handbook of Parametric and Nonparametric
         Statistical Procedures", 3rd edition. CRC Press, 2003.
       + http://www.fon.hum.uva.nl/Service/Statistics/Signed_Rank_Algorihms.html *)
+end
+
+module Sign : sig
+  (** Sign test, which evaluates the null hypothesis that sample median is
+      equal to the specified [shift].
+
+      Test assumptions:
+
+      + Sample under test was randomly selected from the population it
+        represents. *)
+  val one_sample
+    :  float array
+    -> ?shift:float
+    -> ?alternative:test_alternative
+    -> unit
+    -> (float * float)
+
+  (** Dependent samples sign test, which evaluates the null hypothesis
+      that the median difference between observations from two {e related}
+      samples is zero.
+
+      Test assumptions:
+
+      + Samples under test were randomly selected from the population they
+        represent. *)
+  val two_sample_paired
+    :  float array
+    -> float array
+    -> ?alternative:test_alternative
+    -> unit
+    -> (float * float)
 end

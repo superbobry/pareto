@@ -251,3 +251,35 @@ module WilcoxonT = struct
   let one_sample vs ?(shift=0.) =
     two_sample_paired (Array.make (Array.length vs) shift) vs
 end
+
+module Sign = struct
+  let two_sample_paired v1 v2 ?(alternative=TwoSided) () =
+    let n = Array.length v1 in
+    if n = 0
+    then invalid_arg "WilcoxonT.two_sample_paired: no data";
+    if n <> Array.length v2
+    then invalid_arg "WilcoxonT.two_sample_paired: unequal length arrays";
+
+    let ds = Array.init n (fun i -> v2.(i) -. v1.(i)) in
+    let (pi_plus, pi_minus) = Array.fold_left
+        (fun (p, m) d ->
+           if d > 0.
+           then (succ p, m)
+           else if d < 0. then (p, succ m)
+           else (p, m))
+        (0, 0) ds
+    in
+
+    let open Distributions.Binomial in
+    let d = create ~trials:(pi_plus + pi_minus) ~p:0.5 in
+    let pvalue = match alternative with
+      | Less     -> cumulative_probability d ~n:pi_plus
+      | Greater  -> 1. -. cumulative_probability d ~n:(pi_plus - 1)
+      | TwoSided ->
+        2. *. (min (cumulative_probability d ~n:pi_plus)
+                 (1. -. cumulative_probability d ~n:(pi_plus - 1)))
+    in (float_of_int pi_plus, min 1. pvalue)
+
+  let one_sample vs ?(shift=0.) =
+    two_sample_paired (Array.make (Array.length vs) shift) vs
+end

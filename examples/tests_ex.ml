@@ -99,13 +99,37 @@ let wilcoxon_signed_rank_paired () =
   let (w, pvalue) = Tests.WilcoxonT.two_sample_paired v1 v2
       ~correction:true ~alternative:Tests.Less ()
   in begin
-    printf "Paired Wilcoxon signed rank test with continuity correction\n";
+    print_endline ("Two-sample paired Wilcoxon signed rank test with " ^
+                     "continuity correction");
     print_float_array v1;
     print_float_array v2;
     printf "W = %f, P-value: %f\n" w pvalue;
     print_newline ()
   end
 
+let sign_one_sample () =
+  let vs = [|11.; 1.; -1.; 2.; 0.|] in
+  let (pi_plus, pvalue) = Tests.Sign.one_sample vs
+      ~shift:1. ~alternative:Tests.TwoSided ()
+  in begin
+    printf "One-sample Sign test\n";
+    print_float_array vs;
+    printf "π+ = %f, P-value: %f\n" pi_plus pvalue;
+    print_newline ()
+  end
+
+let sign_paired () =
+  let v1 = [|11.; 1.; -1.; 2.; 0.|] in
+  let v2 = [|-5.; 9.; 5.; 8.; 4.|] in
+  let (pi_plus, pvalue) = Tests.Sign.two_sample_paired v1 v2
+      ~alternative:Tests.TwoSided ()
+  in begin
+    printf "Two-sample Sign test\n";
+    print_float_array v1;
+    print_float_array v2;
+    printf "π+ = %f, P-value: %f\n" pi_plus pvalue;
+    print_newline ()
+  end
 
 let () = begin
   t_test_one_sample ();
@@ -115,5 +139,7 @@ let () = begin
   chisq_test_independence ();
   mann_whitney_wilcoxon ();
   wilcoxon_signed_rank_one_sample ();
-  wilcoxon_signed_rank_paired ()
+  wilcoxon_signed_rank_paired ();
+  sign_one_sample ();
+  sign_paired ()
 end
