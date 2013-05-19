@@ -54,7 +54,7 @@ module MannWhitneyU : sig
 
   (** {6 References}
 
-      + Gravetter, Frederick J., and Larry B. Wallnau.
+      + Gravetter, Frederick J. and Larry B. Wallnau.
         "Statistics for the behavioral sciences". Wadsworth Publishing
         Company, 2006.
       + David J. Sheskin. "Handbook of Parametric and Nonparametric
@@ -62,6 +62,14 @@ module MannWhitneyU : sig
 end
 
 module WilcoxonT : sig
+  (** Wilcoxon signed-rank test, which evaluates the null hypothesis
+      that sample median is equal to a specified [shift].
+
+      Test assumptions:
+
+      + Sample under test was randomly selected from the population it
+        represents.
+      + The distribution of the differences [vs -. shift] is symmetrical. *)
   val one_sample
     :  float array
     -> ?shift:float
@@ -70,6 +78,15 @@ module WilcoxonT : sig
     -> unit
     -> (float * float)
 
+  (** Wilcoxon paired signed-rank test, which evaluates the null hypothesis
+      that two {e related} samples have equal medians.
+
+      Test assumptions:
+
+      + Samples under test were randomly selected from the population they
+        represent.
+      + The distribution of the differences [vs2 -. vs1] is symmetric
+        about the median difference value. *)
   val two_sample_paired
     :  float array
     -> float array
