@@ -22,7 +22,7 @@ module T : sig
     -> unit
     -> (float * float)
 
-  val two_sample_related
+  val two_sample_paired
     :  float array
     -> float array
     -> ?mean:float
@@ -39,7 +39,7 @@ module ChiSquared : sig
     : float array array -> ?correction:bool -> unit -> (float * float)
 end
 
-module Wilcoxon : sig
+module MannWhitneyU : sig
   (** Mann-Whitney U test (also known as Mann-Whitney-Wilcoxon test and
       Wilcoxon rank sum test) is a non-paramteric test, which evaluates
       the null hypothesis that two {e independent} samples have equal
@@ -55,6 +55,31 @@ module Wilcoxon : sig
   (** {6 References}
 
       + Gravetter, Frederick J., and Larry B. Wallnau.
-       "Statistics for the behavioral sciences". Wadsworth Publishing
-       Company, 2006. *)
+        "Statistics for the behavioral sciences". Wadsworth Publishing
+        Company, 2006.
+      + David J. Sheskin. "Handbook of Parametric and Nonparametric
+        Statistical Procedures", 3rd edition. CRC Press, 2003. *)
+end
+
+module WilcoxonT : sig
+  val one_sample
+    :  float array
+    -> ?shift:float
+    -> ?alternative:test_alternative
+    -> ?correction:bool
+    -> unit
+    -> (float * float)
+
+  val two_sample_paired
+    :  float array
+    -> float array
+    -> ?alternative:test_alternative
+    -> ?correction:bool
+    -> unit
+    -> (float * float)
+
+  (** {6 References}
+
+      + David J. Sheskin. "Handbook of Parametric and Nonparametric
+        Statistical Procedures", 3rd edition. CRC Press, 2003. *)
 end

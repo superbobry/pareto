@@ -29,11 +29,11 @@ let t_test_two_sample_independent () =
     print_newline ()
   end
 
-let t_test_two_sample_related () =
+let t_test_two_sample_paired () =
   let open Distributions.Normal in
   let v1 = sample ~size:10 standard in
   let v2 = Array.map (fun x -> x +. generate standard) v1 in
-  let (t, pvalue) = Tests.T.two_sample_related v1 v2
+  let (t, pvalue) = Tests.T.two_sample_paired v1 v2
       ~mean:0.1 ~alternative:Tests.TwoSided ()
   in begin
     printf "Paired two-sample T-test for mean difference not equal to 0.1\n";
@@ -72,7 +72,7 @@ let chisq_test_independence () =
 let mann_whitney_wilcoxon () =
   let v1 = [|11; 1; -1; 2; 0|] in
   let v2 = [|-5; 9; 5; 8; 4|] in
-  let (u, pvalue) = Tests.Wilcoxon.two_sample_independent v1 v2
+  let (u, pvalue) = Tests.MannWhitneyU.two_sample_independent v1 v2
       ~correction:true ~alternative:Tests.TwoSided ()
   in begin
     printf "Two-sample Mann-Whitney U test\n";
@@ -82,13 +82,38 @@ let mann_whitney_wilcoxon () =
     print_newline ()
   end
 
+let wilcoxon_signed_rank_one_sample () =
+  let vs = [|11.; 1.; -1.; 2.; 0.|] in
+  let (w, pvalue) = Tests.WilcoxonT.one_sample vs
+      ~shift:1. ~correction:true ~alternative:Tests.Greater ()
+  in begin
+    printf "Wilcoxon signed rank test with continuity correction\n";
+    print_float_array vs;
+    printf "W = %f, P-value: %f\n" w pvalue;
+    print_newline ()
+  end
+
+let wilcoxon_signed_rank_paired () =
+  let v1 = [|11.; 1.; -1.; 2.; 0.|] in
+  let v2 = [|-5.; 9.; 5.; 8.; 4.|] in
+  let (w, pvalue) = Tests.WilcoxonT.two_sample_paired v1 v2
+      ~correction:true ~alternative:Tests.Less ()
+  in begin
+    printf "Paired Wilcoxon signed rank test with continuity correction\n";
+    print_float_array v1;
+    print_float_array v2;
+    printf "W = %f, P-value: %f\n" w pvalue;
+    print_newline ()
+  end
 
 
 let () = begin
   t_test_one_sample ();
   t_test_two_sample_independent ();
-  t_test_two_sample_related ();
+  t_test_two_sample_paired ();
   chisq_test_gof ();
   chisq_test_independence ();
-  mann_whitney_wilcoxon ()
+  mann_whitney_wilcoxon ();
+  wilcoxon_signed_rank_one_sample ();
+  wilcoxon_signed_rank_paired ()
 end

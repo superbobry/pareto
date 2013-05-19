@@ -47,13 +47,13 @@ let _correct_ties ranks =
       done; float_of_int !t
     end
 
-let rank ?(ties_strategy=`Average) vs =
+let rank ?(ties_strategy=`Average) ?(cmp=compare) vs =
   let n     = Array.length vs in
-  let order = Array.sort_index compare vs in
+  let order = Array.sort_index cmp vs in
   let ranks = Array.make n 0. in
   let d     = ref 0 in begin
     for i = 0 to n - 1 do
-      if i == n - 1 || vs.(order.(i)) <> vs.(order.(i + 1))
+      if i == n - 1 || cmp vs.(order.(i)) vs.(order.(i + 1)) <> 0
       then
         let tie_rank = _resolve_ties (i + 1) !d ties_strategy in
         for j = i - !d to i do

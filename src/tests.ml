@@ -39,10 +39,10 @@ module T = struct
     let t = (Sample.mean v1 -. Sample.mean v2 -. mean) /. denom in
     finalize (Distributions.T.create ~df) t alternative
 
-  let two_sample_related v1 v2 ?(mean=0.) ?(alternative=TwoSided) () =
+  let two_sample_paired v1 v2 ?(mean=0.) ?(alternative=TwoSided) () =
     let n = Array.length v1 in
     if n <> Array.length v2
-    then invalid_arg "T.two_sample_related: unequal length arrays";
+    then invalid_arg "T.two_sample_paired: unequal length arrays";
     one_sample (Array.mapi (fun i x -> x -. v2.(i)) v1) ~mean ~alternative ()
 end
 
@@ -112,16 +112,16 @@ module ChiSquared = struct
       in finalize (Distributions.ChiSquared.create ~df) chisq
 end
 
-module Wilcoxon = struct
+module MannWhitneyU = struct
   let two_sample_independent v1 v2
       ?(alternative=TwoSided) ?(correction=true) () =
     let n1 = float_of_int (Array.length v1)
     and n2 = float_of_int (Array.length v2) in
     if n1 = 0. || n2 = 0.
-    then invalid_arg "Wilcoxon.two_sample_independent: no data";
+    then invalid_arg "MannWhitneyU.two_sample_independent: no data";
 
-    let (t, ranks) = Sample.rank (Array.append v1 v2) in
     let n  = n1 +. n2 in
+    let (t, ranks) = Sample.rank (Array.append v1 v2) in
     let w1 = Array.sum (Array.sub ranks 0 (int_of_float n1)) in
     let w2 = Array.sum (Array.sub ranks (int_of_float n1) (int_of_float n2)) in
     let u1 = w1 -. n1 *. (n1 +. 1.) /. 2. in
@@ -133,7 +133,7 @@ module Wilcoxon = struct
        Gravetter, Frederick J., and Larry B. Wallnau.
        "Statistics for the behavioral sciences". Wadsworth Publishing
        Company, 2006. *)
-    if t <> 0. || n1 > 20. && n2 > 20.
+    if t <> 0. || (n1 > 20. && n2 > 20.)
     then
       (* Normal approximation. *)
       let mean  = n1 *. n2 /. 2. in
@@ -175,8 +175,79 @@ module Wilcoxon = struct
 
         let pvalue = match alternative with
           | Less     -> float_of_int !le /. c_n_k
-          | Greater  -> float_of_int !le /. c_n_k
+          | Greater  -> float_of_int !gt /. c_n_k
           | TwoSided -> 2. *. float_of_int (min !le !gt) /. c_n_k
         in (u, pvalue)
       end
+end
+
+module WilcoxonT = struct
+  let two_sample_paired v1 v2 ?(alternative=TwoSided) ?(correction=true) () =
+    let n = Array.length v1 in
+    if n = 0
+    then invalid_arg "WilcoxonT.two_sample_paired: no data";
+    if n <> Array.length v2
+    then invalid_arg "WilcoxonT.two_sample_paired: unequal length arrays";
+
+    let d  = Array.init n (fun i -> v2.(i) -. v1.(i)) in
+    let (zeros, non_zeros) = Array.partition ((=) 0.) d in
+    let nz = float_of_int (Array.length non_zeros) in
+    let (t, ranks) = Sample.rank non_zeros
+        ~cmp:(fun d1 d2 -> compare (abs_float d1) (abs_float d2)) in
+    let w_plus  = Array.sum
+        (Array.mapi (fun i v -> if v > 0. then ranks.(i) else 0.) non_zeros) in
+    let w_minus = nz *. (nz +. 1.) /. 2. -. w_plus in
+
+    (* Following Sheskin, W is computed as a minimum of W+ and W-. *)
+    let w = min w_plus w_minus in
+
+    if t <> 0. || Array.length zeros <> 0 || n > 20
+    then
+      (* Normal approximation. *)
+      let mean  = nz *. (nz +. 1.) /. 4. in
+      let sd    = sqrt (nz *. (nz +. 1.) *. (2. *. nz +. 1.) /. 24. -.
+                          t /. 48.) in
+      let delta =
+        if correction
+        then match alternative with
+          | Less     -> -. 0.5
+          | Greater  -> 0.5
+          | TwoSided -> if w > mean then 0.5 else -. 0.5
+        else 0.
+      in
+
+      let z = (w -. mean -. delta) /. sd in
+      let open Distributions.Normal in
+      let pvalue = match alternative with
+        | Less     -> cumulative_probability standard ~x:z
+        | Greater  -> 1. -. cumulative_probability standard ~x:z
+        | TwoSided ->
+          2. *. (min (cumulative_probability standard ~x:z)
+                     (1. -. cumulative_probability standard ~x:z))
+      in (w, pvalue)
+    else
+      (* Exact critical value. *)
+      let le = ref 0 in
+      let gt = ref 0 in
+      let two_n = float_of_int (2 lsl (int_of_float nz)) in
+      begin
+        for i = 0 to int_of_float two_n - 1 do
+          let pw = ref 0. in
+          for j = 0 to int_of_float nz - 1 do
+            if (i lsr j) land 1 = 1
+            then pw := !pw +. ranks.(j);
+          done;
+
+          incr (if !pw <= w then le else gt);
+        done;
+
+        let pvalue = match alternative with
+          | Less     -> float_of_int !le /. two_n
+          | Greater  -> float_of_int !gt /. two_n
+          | TwoSided -> 2. *. float_of_int (min !le !gt) /. two_n
+        in (w, pvalue)
+      end
+
+  let one_sample vs ?(shift=0.) =
+    two_sample_paired (Array.make (Array.length vs) shift) vs
 end

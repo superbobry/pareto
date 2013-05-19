@@ -81,6 +81,13 @@ module Array = struct
   let count p = sum_with (fun v -> if p v then 1. else 0.)
   let for_all p = fold_left (fun acc x -> acc && p x) true
   let exists p = fold_left (fun acc x -> acc || p x) false
+
+  let partition p vs =
+    let (l, r) = fold_left
+        (fun (l, r) x -> if p x then (x :: l, r) else (l, x :: r))
+        ([], [])
+        vs
+    in (Array.of_list l, Array.of_list r)
 end
 
 module Vector = struct

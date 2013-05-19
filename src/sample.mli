@@ -37,6 +37,7 @@ val sd : ?mean:float -> float array -> float
       Vol. 19, Applied Statistics, pp111-113, 1970. *)
 val rank
   :  ?ties_strategy:[`Average | `Min | `Max]
+  -> ?cmp:('a -> 'a -> int)
   -> 'a array
   -> (float * float array)
 
