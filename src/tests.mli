@@ -81,5 +81,6 @@ module WilcoxonT : sig
   (** {6 References}
 
       + David J. Sheskin. "Handbook of Parametric and Nonparametric
-        Statistical Procedures", 3rd edition. CRC Press, 2003. *)
+        Statistical Procedures", 3rd edition. CRC Press, 2003.
+      + http://www.fon.hum.uva.nl/Service/Statistics/Signed_Rank_Algorihms.html *)
 end
