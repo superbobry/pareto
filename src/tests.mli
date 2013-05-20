@@ -4,15 +4,30 @@ open Internal
 
 type test_alternative = Less | Greater | TwoSided
 
+type test_result = (float * float)
+
+(** Assess significance of the statistical test at a given
+    [significance_level], which defaults to [0.05]. *)
+val run_test
+  :  ?significance_level:float
+  -> (unit -> test_result)
+  -> [`Significant | `NotSignificant]
+
 
 module T : sig
+  (** One sample Student's t-test, which evaluates the null hypothesis
+      that a [mean] of a normally distributed variable is equal to the
+      specified value. *)
   val one_sample
     :  float array
     -> ?mean:float
     -> ?alternative:test_alternative
     -> unit
-    -> (float * float)
+    -> test_result
 
+  (** Two sample t-test, which evaluates the null hypothesis that the
+      difference of means of two {e independent} normally distributed
+      populations is equal to the specified value. *)
   val two_sample_independent
     :  float array
     -> float array
@@ -20,23 +35,27 @@ module T : sig
     -> ?mean:float
     -> ?alternative:test_alternative
     -> unit
-    -> (float * float)
+    -> test_result
 
+  (** Paired two sample t-test, which evaluates the null hypothes that
+      the difference of means of the two {e paired} normally distributed
+      populations is equal to the specified value. *)
   val two_sample_paired
     :  float array
     -> float array
     -> ?mean:float
     -> ?alternative:test_alternative
     -> unit
-    -> (float * float)
+    -> test_result
 end
 
+(** Pearson's chi-squared test. *)
 module ChiSquared : sig
   val goodness_of_fit
-    : float array -> ?expected:float array -> ?df:int -> unit -> (float * float)
+    : float array -> ?expected:float array -> ?df:int -> unit -> test_result
 
   val independence
-    : float array array -> ?correction:bool -> unit -> (float * float)
+    : float array array -> ?correction:bool -> unit -> test_result
 end
 
 module MannWhitneyU : sig
@@ -50,7 +69,7 @@ module MannWhitneyU : sig
     -> ?alternative:test_alternative
     -> ?correction:bool
     -> unit
-    -> (float * float)
+    -> test_result
 
   (** {6 References}
 
@@ -76,7 +95,7 @@ module WilcoxonT : sig
     -> ?alternative:test_alternative
     -> ?correction:bool
     -> unit
-    -> (float * float)
+    -> test_result
 
   (** Wilcoxon paired signed-rank test, which evaluates the null hypothesis
       that two {e related} samples have equal medians.
@@ -93,7 +112,7 @@ module WilcoxonT : sig
     -> ?alternative:test_alternative
     -> ?correction:bool
     -> unit
-    -> (float * float)
+    -> test_result
 
   (** {6 References}
 
@@ -115,7 +134,7 @@ module Sign : sig
     -> ?shift:float
     -> ?alternative:test_alternative
     -> unit
-    -> (float * float)
+    -> test_result
 
   (** Dependent samples sign test, which evaluates the null hypothesis
       that the median difference between observations from two {e related}
@@ -130,5 +149,5 @@ module Sign : sig
     -> float array
     -> ?alternative:test_alternative
     -> unit
-    -> (float * float)
+    -> test_result
 end

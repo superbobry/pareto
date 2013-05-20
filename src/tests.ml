@@ -2,6 +2,14 @@ open Internal
 
 type test_alternative = Less | Greater | TwoSided
 
+type test_result = (float * float)
+
+let run_test ?(significance_level=0.05) f =
+  let (_statistic, pvalue) = f () in
+  if pvalue <= significance_level
+  then `NotSignificant
+  else `Significant
+
 
 module T = struct
   let finalize d t alternative =
