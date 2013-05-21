@@ -88,7 +88,8 @@ module WilcoxonT : sig
 
       + Sample under test was randomly selected from the population it
         represents.
-      + The distribution of the differences [vs -. shift] is symmetrical. *)
+      + All [vs -. shift] differences are iid and come from a continious
+        population. *)
   val one_sample
     :  float array
     -> ?shift:float
@@ -102,10 +103,10 @@ module WilcoxonT : sig
 
       Test assumptions:
 
-      + Samples under test were randomly selected from the population they
-        represent.
-      + The distribution of the differences [vs2 -. vs1] is symmetric
-        about the median difference value. *)
+      + Samples under test were randomly selected from the population
+        they represent.
+      + Observation differences [vs2 -. vs1] are iid and come from a
+        continious population. *)
   val two_sample_paired
     :  float array
     -> float array
