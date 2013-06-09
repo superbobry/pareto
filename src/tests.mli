@@ -4,7 +4,10 @@ open Internal
 
 type test_alternative = Less | Greater | TwoSided
 
-type test_result = (float * float)
+type test_result = {
+  test_statistic : float;
+  test_pvalue    : float
+}
 
 (** Assess significance of the statistical test at a given
     [significance_level], which defaults to [0.05]. *)

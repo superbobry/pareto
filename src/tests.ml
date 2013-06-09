@@ -2,10 +2,13 @@ open Internal
 
 type test_alternative = Less | Greater | TwoSided
 
-type test_result = (float * float)
+type test_result = {
+  test_statistic : float;
+  test_pvalue    : float
+}
 
 let run_test ?(significance_level=0.05) f =
-  let (_statistic, pvalue) = f () in
+  let { test_pvalue = pvalue; _ } = f () in
   if pvalue <= significance_level
   then `NotSignificant
   else `Significant
@@ -18,7 +21,7 @@ module T = struct
     | Less     -> cumulative_probability d ~x:t
     | Greater  -> 1. -. cumulative_probability d ~x:t
     | TwoSided -> 2. *. cumulative_probability d ~x:(-. (abs_float t))
-    in (t, pvalue)
+    in { test_statistic = t; test_pvalue = pvalue }
 
   let one_sample v ?(mean=0.) ?(alternative=TwoSided) () =
     let n = float_of_int (Array.length v) in
@@ -57,7 +60,10 @@ end
 module ChiSquared = struct
   let finalize d chisq =
     let open Distributions.ChiSquared in
-    (chisq, 1. -. cumulative_probability ~x:chisq d)
+    {
+      test_statistic = chisq;
+      test_pvalue    = 1. -. cumulative_probability ~x:chisq d
+    }
 
   let goodness_of_fit observed ?(expected=[||]) ?(df=0) () =
     let n = Array.length observed in
@@ -102,7 +108,7 @@ module ChiSquared = struct
     | 0  ->
       (* This degenerate case is shamelessly ripped of from SciPy
         'chi2_contingency' function. *)
-      (0., 1.)
+      { test_statistic = 0.; test_pvalue = 1. }
     | df ->
       let chisq =
         let open Matrix in
@@ -164,7 +170,7 @@ module MannWhitneyU = struct
         | TwoSided ->
           2. *. (min (cumulative_probability standard ~x:z)
                      (1. -. cumulative_probability standard ~x:z))
-      in (u, pvalue)
+      in { test_statistic = u; test_pvalue = pvalue }
     else
       (* Exact critical value. *)
       let k  = int_of_float (min n1 n2) in
@@ -185,7 +191,7 @@ module MannWhitneyU = struct
           | Less     -> float_of_int !le /. c_n_k
           | Greater  -> float_of_int !gt /. c_n_k
           | TwoSided -> 2. *. float_of_int (min !le !gt) /. c_n_k
-        in (u, pvalue)
+        in { test_statistic = u; test_pvalue = pvalue }
       end
 end
 
@@ -232,7 +238,7 @@ module WilcoxonT = struct
         | TwoSided ->
           2. *. (min (cumulative_probability standard ~x:z)
                      (1. -. cumulative_probability standard ~x:z))
-      in (w, pvalue)
+      in { test_statistic = w; test_pvalue = pvalue }
     else
       (* Exact critical value. *)
       let le = ref 0 in
@@ -253,7 +259,7 @@ module WilcoxonT = struct
           | Less     -> float_of_int !le /. two_n
           | Greater  -> float_of_int !gt /. two_n
           | TwoSided -> 2. *. float_of_int (min !le !gt) /. two_n
-        in (w, pvalue)
+        in { test_statistic = w; test_pvalue = pvalue }
       end
 
   let one_sample vs ?(shift=0.) =
@@ -286,7 +292,7 @@ module Sign = struct
       | TwoSided ->
         2. *. (min (cumulative_probability d ~n:pi_plus)
                  (1. -. cumulative_probability d ~n:(pi_plus - 1)))
-    in (float_of_int pi_plus, min 1. pvalue)
+    in { test_statistic = float_of_int pi_plus; test_pvalue = min 1. pvalue }
 
   let one_sample vs ?(shift=0.) =
     two_sample_paired (Array.make (Array.length vs) shift) vs
