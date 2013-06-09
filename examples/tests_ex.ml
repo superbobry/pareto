@@ -131,6 +131,32 @@ let sign_paired () =
     print_newline ()
   end
 
+
+let adjust_bh () =
+  let open Distributions.Beta in
+  let pvalues = sample ~size:10 (create ~alpha:0.5 ~beta:0.5) in
+  let adjusted_pvalues =
+    Tests.Multiple.(adjust pvalues BenjaminiHochberg)
+  in begin
+    printf "Benjamini-Hochberg P-value adjustment\n";
+    print_float_array pvalues;
+    print_float_array adjusted_pvalues;
+    print_newline ()
+  end
+
+let adjust_hb () =
+  let open Distributions.Beta in
+  let pvalues = sample ~size:10 (create ~alpha:0.5 ~beta:0.5) in
+  let adjusted_pvalues =
+    Tests.Multiple.(adjust pvalues HolmBonferroni)
+  in begin
+    printf "Holm-Bonferroni P-value adjustment\n";
+    print_float_array pvalues;
+    print_float_array adjusted_pvalues;
+    print_newline ()
+  end
+
+
 let () = begin
   t_test_one_sample ();
   t_test_two_sample_independent ();
@@ -141,5 +167,8 @@ let () = begin
   wilcoxon_signed_rank_one_sample ();
   wilcoxon_signed_rank_paired ();
   sign_one_sample ();
-  sign_paired ()
+  sign_paired ();
+
+  adjust_bh ();
+  adjust_hb ();
 end

@@ -291,3 +291,47 @@ module Sign = struct
   let one_sample vs ?(shift=0.) =
     two_sample_paired (Array.make (Array.length vs) shift) vs
 end
+
+
+module Multiple = struct
+  type adjustment_method =
+    | HolmBonferroni
+    | BenjaminiHochberg
+
+  let adjust pvalues how =
+    let m = Array.length pvalues in
+    let adjusted_pvalues = Array.make m 0. in
+    begin match how with
+      | HolmBonferroni ->
+        let is = Array.sort_index compare pvalues in
+        let iu = Array.sort_index compare is in begin
+          for i = 0 to m - 1 do
+            let j = Array.unsafe_get is i in
+            Array.unsafe_set adjusted_pvalues i
+              (min 1. (float_of_int (m - i) *. pvalues.(j)))
+          done;
+
+          let cm = Array.cumulative max adjusted_pvalues in
+          for i = 0 to m - 1 do
+            let j = Array.unsafe_get iu i in
+            Array.unsafe_set adjusted_pvalues i (Array.unsafe_get cm j)
+          done
+        end
+      | BenjaminiHochberg ->
+        let is = Array.sort_index (flip compare) pvalues in
+        let iu = Array.sort_index compare is in begin
+          for i = 0 to m - 1 do
+            let j = Array.unsafe_get is i in
+            Array.unsafe_set adjusted_pvalues i
+              (min 1. (float_of_int m /. float_of_int (m - i) *. pvalues.(j)))
+          done;
+
+          let cm = Array.cumulative min adjusted_pvalues in
+          (** TODO(superbobry): refactor this into [Array.reorder]. *)
+          for i = 0 to m - 1 do
+            let j = Array.unsafe_get iu i in
+            Array.unsafe_set adjusted_pvalues i (Array.unsafe_get cm j)
+          done
+        end
+    end; adjusted_pvalues
+end

@@ -43,6 +43,8 @@ end
 let sqr x = x *. x
 let cube x = x *. x *. x
 
+let flip f x y = f y x
+
 let is_nan (x : float) = x <> x
 let is_not_nan (x : float) = x = x
 
@@ -75,6 +77,15 @@ module Array = struct
       sort (fun i j -> cmp (unsafe_get vs i) (unsafe_get vs j)) order;
       order
     end
+
+  let cumulative f = function
+    | [||] -> [||]
+    | xs   ->
+      let n   = length xs in
+      let acc = make n (unsafe_get xs 0) in
+      for i = 1 to n - 1 do
+        unsafe_set acc i (f (unsafe_get acc (i - 1)) (unsafe_get xs i))
+      done; acc
 
   let sum = fold_left (+.) 0.
   let sum_with f = fold_left (fun acc x -> acc +. f x) 0.

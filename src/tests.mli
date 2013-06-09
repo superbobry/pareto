@@ -152,3 +152,22 @@ module Sign : sig
     -> unit
     -> test_result
 end
+
+
+(** Adjustments for multiple comparisons. *)
+module Multiple : sig
+  type adjustment_method =
+    | HolmBonferroni
+    | BenjaminiHochberg
+
+  (** Adjusts obtained P-values for multiple comparisons using a given
+      adjustment method. *)
+  val adjust : float array -> adjustment_method -> float array
+
+  (** {6 References}
+
+      + Yoav Benjamini and Yosef Hochberg. "Controlling the false discovery
+        rate: a practical and powerful approach to multiple testing.",
+        Journal of the Royal Statistical Society, Series B (Methodological),
+        1995, 289-300. *)
+end
