@@ -112,7 +112,8 @@ module Uniform = struct
     then invalid_arg "Uniform.quantile: p must be in range [0, 1]"
     else Cdf.flat_Pinv ~a:uniform_lower ~b:uniform_upper ~p
 
-  let mean { uniform_lower; uniform_upper } = 0.5 *. (uniform_lower +. uniform_upper)
+  let mean { uniform_lower; uniform_upper } =
+    0.5 *. (uniform_lower +. uniform_upper)
   and variance { uniform_lower; uniform_upper } =
     sqr (uniform_upper -. uniform_lower) /. 12.
 
@@ -413,8 +414,7 @@ module Hypergeometric = struct
     then invalid_arg "Hypergeometric.create: k must be in range (0, t]"
     else { hyper_m = m; hyper_t = t; hyper_k = k }
 
-  (** Not yet implemented in ocaml-gsl, see issue
-      https://bitbucket.org/mmottl/gsl-ocaml/issue/4 for details. *)
+  (** FIXME(superbobry): remove this once gsl-1.14.0 is out. *)
   external hypergeometric_P
     : k:int -> n1:int -> n2:int -> t:int -> float
     = "ml_gsl_cdf_hypergeometric_P"
@@ -447,7 +447,7 @@ module NegativeBinomial = struct
   let create ~failures ~p =
     if failures < 0
     then invalid_arg ("NegativeBinomial.create: number of failures must " ^
-                   "be non negative")
+                      "be non negative")
     else if p >= 1.0 || p <= 0.
     then invalid_arg "NegativeBinomial.create: probability must be in range (0, 1)"
     else { nbinomial_failures = failures; nbinomial_p = p }

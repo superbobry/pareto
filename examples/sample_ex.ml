@@ -78,8 +78,7 @@ let sample_ranks () =
 
 
 let sample_autocovariance () =
-  let vs = random_array 10 in
-  begin
+  let vs = random_array 10 in begin
     print_endline "Autocovariance / autocorrelation";
     print_float_array vs;
     print_float_array (Sample.autocovariance vs);
@@ -94,5 +93,5 @@ let () = begin
   sample_quantiles ();
   sample_iqr ();
   sample_ranks ();
-  sample_autocovariance ();
+  sample_autocovariance ()
 end

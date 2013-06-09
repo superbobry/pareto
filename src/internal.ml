@@ -8,6 +8,7 @@ let default_rng = let open Rng in
   make (default ())
 
 
+(** FIXME(superbobry): remove this once gsl-1.14.0 is out. *)
 module Combi = struct
   open Bigarray
 
