@@ -27,10 +27,11 @@ open Statistics
 
 let open Distributions.Normal in
 let v = sample ~size:10 standard in
-let (t, pvalue) =
-  Tests.T.one_sample v ~mean:0. ~alternative:Tests.TwoSided ()
+let open Tests in
+let { test_statistic = t; test_pvalue } =
+  T.one_sample v ~mean:0. ~alternative:TwoSided ()
 in begin
   printf "One-sample T-test for true mean = 0.0\n";
-  printf "t = %f, P-value: %f\n" t pvalue;
+  printf "t = %f, P-value: %f\n" t test_pvalue;
 end
 ```
