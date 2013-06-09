@@ -2,6 +2,55 @@
 
 open Internal
 
+
+module type Mean = sig
+  type t
+
+  val mean : t -> float
+end
+
+module type MeanOpt = sig
+  type t
+
+  val mean_opt : t -> float option
+end
+
+module type Variance = sig
+  type t
+
+  val variance : t -> float
+end
+
+module type VarianceOpt = sig
+  type t
+
+  val variance_opt : t -> float option
+end
+
+module type BaseDistribution = sig
+  type t
+  type elt
+
+  val generate : ?rng:Rng.t -> t -> elt
+  val sample   : ?rng:Rng.t -> size:int -> t -> elt array
+end
+
+module type DiscreteDistribution = sig
+  include BaseDistribution with type elt := int
+
+  val cumulative_probability : t -> n:int -> float
+  val probability : t -> n:int -> float
+end
+
+module type ContinuousDistribution = sig
+  include BaseDistribution with type elt := float
+
+  val cumulative_probability : t -> x:float -> float
+  val density  : t -> x:float -> float
+  val quantile : t -> p:float -> float
+end
+
+
 (** The normal distribution. *)
 module Normal : sig
   include ContinuousDistribution
