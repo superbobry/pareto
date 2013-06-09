@@ -32,6 +32,16 @@ Flag examples
   Description: Build examples
   Default:     false
 
+Executable base_ex
+  Path:           examples
+  Build$:         flag(examples)
+  Install:        false
+  CompiledObject: best
+  MainIs:         base_ex.ml
+  BuildDepends:   gsl, pareto
+  NativeOpt:      -w @a
+  ByteOpt:        -w @a
+
 Executable tests_ex
   Path:           examples
   Build$:         flag(examples)

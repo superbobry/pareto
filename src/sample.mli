@@ -20,6 +20,13 @@ val variance : ?mean:float -> float array -> float
 (** {e O(n)} Computes sample's standard deviation. *)
 val sd : ?mean:float -> float array -> float
 
+(** {e O(n^2)} Computes sample's autocovariance, i. e. the covariance of
+    the sample against a shifted version of itself. *)
+val autocovariance : ?mean:float -> float array -> float array
+
+(** {e O(n^2)} Computes sample's autocorrelation. *)
+val autocorrelation : ?mean:float -> float array -> float array
+
 (** {e O(n log n)} Computes sample's ranks, [ties_strategy] controls
     which ranks are assigned to equal values:
 

@@ -7,6 +7,7 @@ let default_rng = let open Rng in
   env_setup ();
   make (default ())
 
+
 module Combi = struct
   open Bigarray
 
@@ -39,6 +40,14 @@ module Combi = struct
     try _valid c
     with Error.Gsl_exn (Error.FAILURE, _) -> false
 end
+
+
+module Option = struct
+  let value opt ~default = match opt with
+    | Some x -> x
+    | None   -> default
+end
+
 
 let sqr x = x *. x
 let cube x = x *. x *. x
