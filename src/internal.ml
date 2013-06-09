@@ -78,14 +78,11 @@ module Array = struct
       order
     end
 
-  let cumulative f = function
-    | [||] -> [||]
-    | xs   ->
-      let n   = length xs in
-      let acc = make n (unsafe_get xs 0) in
-      for i = 1 to n - 1 do
-        unsafe_set acc i (f (unsafe_get acc (i - 1)) (unsafe_get xs i))
-      done; acc
+  let reorder is src dst =
+    let n = Array.length src in
+    for i = 0 to n - 1 do
+      let j = unsafe_get is i in unsafe_set dst i (unsafe_get src j)
+    done
 
   let sum = fold_left (+.) 0.
   let sum_with f = fold_left (fun acc x -> acc +. f x) 0.

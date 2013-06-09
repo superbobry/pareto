@@ -1,6 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: fd80095b0b5d197225dca17583224426)
-version = "0.1.0"
+# DO NOT EDIT (digest: 14d00f110b63e284673dd356c3293e89)
+version = "0.0.1"
 description = "GSL powered OCaml statistics library"
 requires = "gsl"
 archive(byte) = "pareto.cma"

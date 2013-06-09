@@ -1,5 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: 5e2af8dbc13967b06ac2e4d31740e12a)
+# DO NOT EDIT (digest: 3b04688bda815e42247276cc7ad0b9f3)
+src/Base
 src/Distributions
 src/Resampling
 src/Sample

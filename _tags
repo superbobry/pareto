@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: c63dcbd4bf1855edc06d9e6a01cbc83c)
+# DO NOT EDIT (digest: b12b8203859aedee7073067f1b5272b5)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -15,6 +15,7 @@
 "_darcs": not_hygienic
 # Library pareto
 "src/pareto.cmxs": use_pareto
+"src/base.cmx": for-pack(Pareto)
 "src/distributions.cmx": for-pack(Pareto)
 "src/resampling.cmx": for-pack(Pareto)
 "src/sample.cmx": for-pack(Pareto)

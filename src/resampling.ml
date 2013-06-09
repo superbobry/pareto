@@ -13,7 +13,7 @@ let jackknife ~estimator vs =
     )
 
 let resample ?rng ~estimator ~n vs =
-  Array.init n (fun _i -> estimator (Sample.sample ?rng ~replace:true vs))
+  Array.init n (fun _i -> estimator (Base.sample ?rng ~replace:true vs))
 
 
 module Bootstrap = struct

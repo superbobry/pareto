@@ -14,7 +14,8 @@ Plugins:        META (0.3), DevFiles (0.3)
 Library pareto
   Path:              src
   Pack:              true
-  Modules:           Distributions
+  Modules:           Base
+                   , Distributions
                    , Resampling
                    , Sample
                    , Tests

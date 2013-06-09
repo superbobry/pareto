@@ -26,9 +26,9 @@ and print_density (points, pdf) =
 
 let sample_shuffle () =
   let vs  = Array.init 10 (fun i -> float_of_int i) in
-  let svs = Sample.shuffle vs in
-  let svs_with_replacement = Sample.sample ~replace:true ~size:5 vs
-  and svs_without_replacement = Sample.sample ~size:5 vs in begin
+  let svs = Base.shuffle vs in
+  let svs_with_replacement = Base.sample ~replace:true ~size:5 vs
+  and svs_without_replacement = Base.sample ~size:5 vs in begin
     print_string "Initial sample : ";
     print_float_array vs;
     print_string "Shuffled sample: ";
@@ -87,6 +87,7 @@ let sample_ranks () =
     print_float_array vs;
     print_float_array ranks
   end
+
 
 let () = begin
   sample_shuffle ();

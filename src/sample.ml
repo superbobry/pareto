@@ -151,27 +151,6 @@ let quantile ?p vs = Quantile.continous_by ?p vs
 let iqr vs = Quantile.iqr vs
 
 
-let shuffle ?(rng=default_rng) vs =
-  let svs = Array.copy vs in begin
-    Randist.shuffle rng svs;
-    svs
-  end
-
-and sample ?(rng=default_rng) ?(replace=false) ?size vs =
-  let dst = match size with
-    | Some n ->
-      if vs = [||] || not replace && Array.length vs < n
-      then invalid_arg "Sample.sample: not enough elements to sample from"
-      else Array.create n vs.(0)
-    | None      -> Array.copy vs
-  in begin
-    if replace
-    then Randist.sample rng ~src:vs ~dst
-    else Randist.choose rng ~src:vs ~dst;
-    dst
-  end
-
-
 module KDE = struct
   type bandwidth =
     | Silverman

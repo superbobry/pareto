@@ -311,11 +311,8 @@ module Multiple = struct
               (min 1. (float_of_int (m - i) *. pvalues.(j)))
           done;
 
-          let cm = Array.cumulative max adjusted_pvalues in
-          for i = 0 to m - 1 do
-            let j = Array.unsafe_get iu i in
-            Array.unsafe_set adjusted_pvalues i (Array.unsafe_get cm j)
-          done
+          let cm = Base.cumulative max adjusted_pvalues in
+          Array.reorder iu cm adjusted_pvalues
         end
       | BenjaminiHochberg ->
         let is = Array.sort_index (flip compare) pvalues in
@@ -326,12 +323,8 @@ module Multiple = struct
               (min 1. (float_of_int m /. float_of_int (m - i) *. pvalues.(j)))
           done;
 
-          let cm = Array.cumulative min adjusted_pvalues in
-          (** TODO(superbobry): refactor this into [Array.reorder]. *)
-          for i = 0 to m - 1 do
-            let j = Array.unsafe_get iu i in
-            Array.unsafe_set adjusted_pvalues i (Array.unsafe_get cm j)
-          done
+          let cm = Base.cumulative min adjusted_pvalues in
+          Array.reorder iu cm adjusted_pvalues
         end
     end; adjusted_pvalues
 end
