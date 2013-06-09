@@ -1,10 +1,12 @@
+(** Tutti-frutti statistical functions. *)
+
 open Internal
 
 (** {e O(n)} Calculates a cumulative statistic over a given array. *)
 val cumulative : ('a -> 'a -> 'a) -> 'a array -> 'a array
 
 
-(** Creates an array of integers given a semiopen range [[a, b)]. *)
+(** Creates an array of integers given a semiopen range [\[a, b)]. *)
 val range : int -> int -> int array
 
 
