@@ -1,10 +1,10 @@
 open Internal
 
 
-let range = Array.range
+let range ?(a=0) ~b = Array.range a b
 
 
-let cumulative f = function
+let cumulative ~f = function
   | [||] -> [||]
   | xs   ->
     let n   = Array.length xs in

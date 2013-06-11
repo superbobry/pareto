@@ -3,11 +3,11 @@
 open Internal
 
 (** {e O(n)} Calculates a cumulative statistic over a given array. *)
-val cumulative : ('a -> 'a -> 'a) -> 'a array -> 'a array
+val cumulative : f:('a -> 'a -> 'a) -> 'a array -> 'a array
 
 
 (** Creates an array of integers given a semiopen range [\[a, b)]. *)
-val range : int -> int -> int array
+val range : ?a:int -> b:int -> int array
 
 
 (** {e O(n)} Shuffles a given array using Fisher-Yates shuffle. *)

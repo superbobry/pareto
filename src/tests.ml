@@ -317,7 +317,7 @@ module Multiple = struct
               (min 1. (float_of_int (m - i) *. pvalues.(j)))
           done;
 
-          let cm = Base.cumulative max adjusted_pvalues in
+          let cm = Base.cumulative ~f:max adjusted_pvalues in
           Array.reorder iu cm adjusted_pvalues
         end
       | BenjaminiHochberg ->
@@ -329,7 +329,7 @@ module Multiple = struct
               (min 1. (float_of_int m /. float_of_int (m - i) *. pvalues.(j)))
           done;
 
-          let cm = Base.cumulative min adjusted_pvalues in
+          let cm = Base.cumulative ~f:min adjusted_pvalues in
           Array.reorder iu cm adjusted_pvalues
         end
     end; adjusted_pvalues
