@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 8eca5560437aa63e88b6cf3e09bca48d) *)
+(* DO NOT EDIT (digest: e48b2a5d7c8df3e036f216860c4801d3) *)
 module OASISGettext = struct
 (* # 21 "/Users/superbobry/.opam/system/build/oasis.0.3.0/src/oasis/OASISGettext.ml" *)
 
@@ -508,6 +508,56 @@ let package_default =
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
           (["oasis_library_pareto_native"; "ocaml"; "compile"; "native"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_base_ex_byte"; "ocaml"; "link"; "byte"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_base_ex_native"; "ocaml"; "link"; "native"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_base_ex_byte"; "ocaml"; "ocamldep"; "byte"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_base_ex_native"; "ocaml"; "ocamldep"; "native"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_base_ex_byte"; "ocaml"; "compile"; "byte"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_base_ex_native"; "ocaml"; "compile"; "native"],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          (["oasis_executable_distributions_ex_byte"; "ocaml"; "link"; "byte"
+           ],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          ([
+              "oasis_executable_distributions_ex_native";
+              "ocaml";
+              "link";
+              "native"
+           ],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          ([
+              "oasis_executable_distributions_ex_byte";
+              "ocaml";
+              "ocamldep";
+              "byte"
+           ],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          ([
+              "oasis_executable_distributions_ex_native";
+              "ocaml";
+              "ocamldep";
+              "native"
+           ],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          ([
+              "oasis_executable_distributions_ex_byte";
+              "ocaml";
+              "compile";
+              "byte"
+           ],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
+          ([
+              "oasis_executable_distributions_ex_native";
+              "ocaml";
+              "compile";
+              "native"
+           ],
+            [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
           (["oasis_executable_tests_ex_byte"; "ocaml"; "link"; "byte"],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])]);
           (["oasis_executable_tests_ex_native"; "ocaml"; "link"; "native"],
@@ -579,7 +629,7 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 583 "myocamlbuild.ml"
+# 633 "myocamlbuild.ml"
 (* OASIS_STOP *)
 
 

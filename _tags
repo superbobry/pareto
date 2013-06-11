@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: b12b8203859aedee7073067f1b5272b5)
+# DO NOT EDIT (digest: def6eb3897d7a9297429c4ae67d945a9)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -32,6 +32,20 @@
 <src/pareto.{cma,cmxa}>: use_libpareto_stubs
 <src/*.ml{,i}>: pkg_gsl
 "src/mlgsl_extra.c": pkg_gsl
+# Executable base_ex
+<examples/base_ex.{native,byte}>: oasis_executable_base_ex_byte
+<examples/*.ml{,i}>: oasis_executable_base_ex_byte
+<examples/base_ex.{native,byte}>: oasis_executable_base_ex_native
+<examples/*.ml{,i}>: oasis_executable_base_ex_native
+<examples/base_ex.{native,byte}>: use_pareto
+<examples/base_ex.{native,byte}>: pkg_gsl
+# Executable distributions_ex
+<examples/distributions_ex.{native,byte}>: oasis_executable_distributions_ex_byte
+<examples/*.ml{,i}>: oasis_executable_distributions_ex_byte
+<examples/distributions_ex.{native,byte}>: oasis_executable_distributions_ex_native
+<examples/*.ml{,i}>: oasis_executable_distributions_ex_native
+<examples/distributions_ex.{native,byte}>: use_pareto
+<examples/distributions_ex.{native,byte}>: pkg_gsl
 # Executable tests_ex
 <examples/tests_ex.{native,byte}>: oasis_executable_tests_ex_byte
 <examples/*.ml{,i}>: oasis_executable_tests_ex_byte
