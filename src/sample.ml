@@ -217,3 +217,41 @@ module KDE = struct
     let pdf    = Array.map (fun p -> f *. Array.sum_with (k h p) vs) points in
     (points, pdf)
 end
+
+
+module RunningStats = struct
+
+  type t =
+    { k   : int;
+      m_k : float;
+      s_k : float;
+      max_k : float;
+      min_k  : float; }
+ 
+  let empty =
+    { k = 0; m_k = 0.0; s_k = 0.0; max_k = min_float; min_k = max_float; }
+
+  let push t x_k =
+    let m_k,s_k =
+      if t.k = 1 then
+        (x_k,0.0)
+      else
+        let k = float_of_int t.k in
+        let m_k1 = t.m_k +. ((x_k -. t.m_k) /. k) in
+        let s_k1 = t.s_k +. ((x_k -. m_k1) *. (x_k -. t.m_k)) in
+        m_k1,s_k1
+    in
+    { k = t.k+1;
+      min_k = Pervasives.min t.min_k x_k;
+      max_k = Pervasives.max t.max_k x_k;
+      m_k;
+      s_k; }
+  
+  let size t = t.k
+  let min t = t.min_k
+  let max t = t.max_k
+  let variance t = if t.k > 1 then t.s_k /. (float_of_int (t.k-1)) else 0.0
+  let mean t = if t.k = 0 then 0.0 else t.m_k
+  let sd t = sqrt (variance t)
+
+end
