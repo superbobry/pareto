@@ -102,7 +102,7 @@ val iqr : float array -> float
 
 
 module KDE : sig
-  (** Bandwith selection rules. *)
+  (** Bandwidth selection rules. *)
   type bandwidth =
     | Silverman  (** Use {e rule-of-thumb} for choosing the bandwidth.
                      It defaults to
@@ -148,4 +148,37 @@ module KDE : sig
       + B.W. Silverman, "Density Estimation for Statistics and Data
         Analysis", Vol. 26, Monographs on Statistics and Applied
         Probability, Chapman and Hall, London, 1986. *)
+end
+
+
+(** Calculate running / online statistics over a stream data of unknown
+   size. No storage of data is used. This method is also preferred in situations
+   to avoid numerical issues where a square root taken from a negative value can
+   take place in the traditional formula as mentioned in Knuth's Art of Computer
+   Programming Volume 2 Third Edition, Section 4.2.2. *)
+module RunningStats : sig
+  type t
+
+  val empty : t
+
+  val push : t -> float -> t
+  (** Push an element to the data-set. *)
+
+  val max : t -> float
+  (** Return the maximum element passed to the set. *)
+
+  val min : t -> float
+  (** Return the minimum element passed to the set. *)
+
+  val size : t -> int
+  (** Return the number of elements pushed to the set. *)
+
+  val mean : t -> float
+  (** Return the current mean of the data-set. *)
+
+  val sd : t -> float
+  (** Return the current standard-deviation of the data-set. *)
+
+  val variance : t -> float
+  (** Return the current variance of the data-set. *)
 end
