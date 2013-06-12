@@ -22,8 +22,8 @@ Library pareto
   InternalModules:   Internal
   CSources:          mlgsl_extra.c
   CCOpt:             -O2 -Wall -pedantic -Wextra
-  NativeOpt:         -w @a
-  ByteOpt:           -w @a
+  NativeOpt:         -w @a -warn-error -a
+  ByteOpt:           -w @a -warn-error -a
   BuildDepends:      gsl (>= 1.11.0)
 
 # Examples
