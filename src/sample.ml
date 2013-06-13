@@ -254,7 +254,8 @@ module Summary = struct
     min_k : float
   }
 
-  let empty = { k = 0; m_k = 0.0; s_k = 0.0; max_k = nan; min_k = nan }
+  let empty =
+    { k = 0; m_k = 0.0; s_k = 0.0; max_k = min_float; min_k = max_float }
 
   let add t x_k =
     let (m_k, s_k) =
@@ -271,10 +272,17 @@ module Summary = struct
       max_k = Pervasives.max t.max_k x_k;
     }
 
-  let size t = t.k
-  let min t = t.min_k
-  let max t = t.max_k
-  let variance t = if t.k > 1 then t.s_k /. (float_of_int (t.k - 1)) else nan
+  let size { k; _ } = k
+
+  let min { min_k; _ } = if min_k = max_float then nan else min_k
+  let max { max_k; _ } = if max_k = min_float then nan else max_k
+
   let mean t = if t.k > 0 then t.m_k else nan
+
+  let variance t = match t.k with
+    (** Note(superbobry): we follow R and GSL here and treat variance
+        of a single number undefined. *)
+    | 0 | 1 -> nan
+    | _ -> t.s_k /. (float_of_int (t.k - 1))
   let sd t = sqrt (variance t)
 end
