@@ -77,7 +77,7 @@ let sample_ranks () =
   end
 
 
-let sample_autocovariance () =
+let sample_autocovariance_autocorrelation () =
   let vs = random_array 10 in begin
     print_endline "Autocovariance / autocorrelation";
     print_float_array vs;
@@ -87,11 +87,24 @@ let sample_autocovariance () =
   end
 
 
+let sample_correlation () =
+  let vs1 = random_array 10
+  and vs2 = random_array 10 in begin
+    print_float_array vs1;
+    print_float_array vs2;
+    printf "Pearson product-momentum correlation: %f\n"
+      (Sample.Correlation.pearson vs1 vs2);
+    printf "Spearman rank-correlation: %f\n"
+      (Sample.Correlation.spearman vs1 vs2);
+    print_newline ()
+  end
+
 let () = begin
   sample_histogram ();
   sample_kde ();
   sample_quantiles ();
   sample_iqr ();
   sample_ranks ();
-  sample_autocovariance ()
+  sample_autocovariance_autocorrelation ();
+  sample_correlation ()
 end

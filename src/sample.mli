@@ -20,12 +20,25 @@ val variance : ?mean:float -> float array -> float
 (** {e O(n)} Computes sample's standard deviation. *)
 val sd : ?mean:float -> float array -> float
 
+
+module Correlation : sig
+  (** {e O(n)} Computes Pearson product-moment correlation coefficient
+      for two given samples. *)
+  val pearson : float array -> float array -> float
+
+  (** {e O(n log n)} Computes Spearman rank correlation coefficient for
+      two given samples, which is essentially Pearson correlation
+      calculated for sample ranks. *)
+  val spearman : ?cmp:('a -> 'a -> int) -> 'a array -> 'a array -> float
+end
+
 (** {e O(n^2)} Computes sample's autocovariance, i. e. the covariance of
     the sample against a shifted version of itself. *)
 val autocovariance : ?mean:float -> float array -> float array
 
 (** {e O(n^2)} Computes sample's autocorrelation. *)
 val autocorrelation : ?mean:float -> float array -> float array
+
 
 (** {e O(n log n)} Computes sample's ranks, [ties_strategy] controls
     which ranks are assigned to equal values:

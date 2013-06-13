@@ -14,32 +14,6 @@ let mean vs = Stats.mean vs
 let variance ?mean vs = Stats.variance ?mean vs
 let sd ?mean vs = Stats.sd ?mean vs
 
-let autocovariance ?mean vs =
-  let n = Array.length vs in
-  if n < 2
-  then [||]
-  else
-    let mean = Option.value mean ~default:(Stats.mean vs) in
-    let acf shift =
-      let acc = ref 0. in
-      for i = 0 to n - shift - 1 do
-        let v_i = Array.unsafe_get vs i
-        and v_s = Array.unsafe_get vs (i + shift) in
-        acc := !acc +. (v_s -. mean) *. (v_i -. mean)
-      done; !acc /. float_of_int n
-    in Array.init (n - 2) acf
-
-let autocorrelation ?mean vs =
-  let ac = autocovariance ?mean vs in
-  if ac = [||]
-  then ac
-  else
-    let n   = Array.length ac in
-    let ac0 = ac.(0) in
-    for i = 0 to n - 1 do
-      Array.unsafe_set ac i (Array.unsafe_get ac i /. ac0)
-    done; ac
-
 
 let _resolve_ties next d = function
   | `Average    -> float_of_int next -. float_of_int d /. 2.
@@ -90,6 +64,59 @@ let rank ?(ties_strategy=`Average) ?(cmp=compare) vs =
         incr d  (* Found a duplicate! *)
     done;
   end; (_correct_ties ranks, ranks)
+
+
+module Correlation = struct
+  let pearson vs1 vs2 =
+    let n = Array.length vs1 in
+    if Array.length vs2 <> n
+    then invalid_arg "Correlation.pearson: unequal length arrays";
+
+    let vs1_mean = mean vs1
+    and vs2_mean = mean vs2 in
+    let vs12_sd  = sd ~mean:vs2_mean vs1 *. sd ~mean:vs2_mean vs2
+    and acc      = ref 0. in
+    for i = 0 to n - 1 do
+      let v1 = Array.unsafe_get vs1 i
+      and v2 = Array.unsafe_get vs2 i
+      in acc := !acc +. (v1 -. vs1_mean) *. (v2 -. vs2_mean)
+    done; !acc /. float_of_int (n - 1) /. vs12_sd
+
+  let spearman ?cmp vs1 vs2 =
+    let n = Array.length vs1 in
+    if Array.length vs2 <> n
+    then invalid_arg "Correlation.spearman: unequal length arrays"
+    else
+      let f vs = snd (rank ~ties_strategy:`Average ?cmp vs) in
+      pearson (f vs1) (f vs2)
+end
+
+
+let autocovariance ?mean vs =
+  let n = Array.length vs in
+  if n < 2
+  then [||]
+  else
+    let mean = Option.value mean ~default:(Stats.mean vs) in
+    let acf shift =
+      let acc = ref 0. in
+      for i = 0 to n - shift - 1 do
+        let v_i = Array.unsafe_get vs i
+        and v_s = Array.unsafe_get vs (i + shift) in
+        acc := !acc +. (v_s -. mean) *. (v_i -. mean)
+      done; !acc /. float_of_int n
+    in Array.init (n - 2) acf
+
+let autocorrelation ?mean vs =
+  let ac = autocovariance ?mean vs in
+  if ac = [||]
+  then ac
+  else
+    let n   = Array.length ac in
+    let ac0 = ac.(0) in
+    for i = 0 to n - 1 do
+      Array.unsafe_set ac i (Array.unsafe_get ac i /. ac0)
+    done; ac
 
 
 let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
