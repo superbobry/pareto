@@ -164,34 +164,45 @@ module KDE : sig
 end
 
 
-(** Calculate running / online statistics over a stream data of unknown
-   size. No storage of data is used. This method is also preferred in situations
-   to avoid numerical issues where a square root taken from a negative value can
-   take place in the traditional formula as mentioned in Knuth's Art of Computer
-   Programming Volume 2 Third Edition, Section 4.2.2. *)
-module RunningStats : sig
+(** Calculates summary statistics over a possibly infinite stream of data.
+
+    The algorithm runs in {e O(1)} space and {e O(n)} time.
+
+    It is prefered for computing standard deviation, because roundoff
+    errors in floating point operations might lead to taking a square
+    root of a negative value.
+
+    {6 References}
+
+    + D. E. Knuth, "The Art of Computer Programming, Volume 2:
+      Seminumerical Algorithms", 2nd edition, Section 4.2.2, p. 216. *)
+module Summary : sig
   type t
 
+  (** Empty data set. *)
   val empty : t
 
-  val push : t -> float -> t
-  (** Push an element to the data-set. *)
+  (** Adds a value to the data set. *)
+  val add : t -> float -> t
 
+  (** Returns the maximum added value or [nan] if the data set is empty. *)
   val max : t -> float
-  (** Return the maximum element passed to the set. *)
 
+  (** Returns the minimum added value or [nan] is the data set is empty. *)
   val min : t -> float
-  (** Return the minimum element passed to the set. *)
 
+  (** Returns the number of available values. *)
   val size : t -> int
-  (** Return the number of elements pushed to the set. *)
 
+  (** Returns the arithmetic mean of the values that have been added
+      or [nan] if the data set is empty. *)
   val mean : t -> float
-  (** Return the current mean of the data-set. *)
 
-  val sd : t -> float
-  (** Return the current standard-deviation of the data-set. *)
-
+  (** Returns the variance of the available values or [nan] if the
+      data set is empty. *)
   val variance : t -> float
-  (** Return the current variance of the data-set. *)
+
+  (** Returns the standard deviation of the values that have been added
+      or [nan] if the data set is empty. *)
+  val sd : t -> float
 end

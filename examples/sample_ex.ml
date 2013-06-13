@@ -76,7 +76,6 @@ let sample_ranks () =
     print_newline ()
   end
 
-
 let sample_autocovariance_autocorrelation () =
   let vs = random_array 10 in begin
     print_endline "Autocovariance / autocorrelation";
@@ -85,7 +84,6 @@ let sample_autocovariance_autocorrelation () =
     print_float_array (Sample.autocorrelation vs);
     print_newline ()
   end
-
 
 let sample_correlation () =
   let vs1 = random_array 10
@@ -99,6 +97,18 @@ let sample_correlation () =
     print_newline ()
   end
 
+let sample_summary () =
+  let vs = random_array 10 in
+  let open Sample in
+  let s  = Summary.(Array.fold_left add empty vs) in
+  begin
+    print_float_array vs;
+    printf "        mean = %f, sd = %f\n" (mean vs) (sd vs);
+    printf "Summary mean = %f, sd = %f\n" (Summary.mean s) (Summary.sd s);
+    print_newline ()
+  end
+
+
 let () = begin
   sample_histogram ();
   sample_kde ();
@@ -106,5 +116,6 @@ let () = begin
   sample_iqr ();
   sample_ranks ();
   sample_autocovariance_autocorrelation ();
-  sample_correlation ()
+  sample_correlation ();
+  sample_summary ()
 end
