@@ -43,13 +43,6 @@ module Combi = struct
 end
 
 
-module Option = struct
-  let value opt ~default = match opt with
-    | Some x -> x
-    | None   -> default
-end
-
-
 let sqr x = x *. x
 let cube x = x *. x *. x
 
