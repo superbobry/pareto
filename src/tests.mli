@@ -61,6 +61,27 @@ module ChiSquared : sig
     : float array array -> ?correction:bool -> unit -> test_result
 end
 
+module KolmogorovSmirnov : sig
+  val goodness_of_fit
+    :  float array
+    -> (float -> float)
+    -> ?alternative:test_alternative
+    -> unit
+    -> test_result
+
+  (** {6 References}
+
+      + National Institute of Standards and Technology (US), et al.
+        "Engineering statistics handbook", Section 1.3.5.16.
+        The Institute, 2001.
+      + Wang, Jingbo, Wai Wan Tsang, and George Marsaglia.
+        "Evaluating Kolmogorov's distribution." Journal of
+        Statistical Software 8, no. 18. 2003.
+      + Z. W. Birnbaum, Fred H. Tingey. "One-sided confidence contours
+        for probability distribution functions." The Annals of
+        Mathematical Statistics, pp592-596. 1951. *)
+end
+
 module MannWhitneyU : sig
   (** Mann-Whitney U test (also known as Mann-Whitney-Wilcoxon test and
       Wilcoxon rank sum test) is a non-paramteric test, which evaluates
@@ -172,5 +193,5 @@ module Multiple : sig
       + Yoav Benjamini and Yosef Hochberg. "Controlling the false discovery
         rate: a practical and powerful approach to multiple testing.",
         Journal of the Royal Statistical Society, Series B (Methodological),
-        1995, 289-300. *)
+        pp289-300, 1995. *)
 end

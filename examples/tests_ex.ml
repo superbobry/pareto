@@ -138,6 +138,19 @@ let sign_paired () =
     print_newline ()
   end
 
+let ks_gof () =
+  let open Distributions.Normal in
+  let v = sample ~size:10 standard in
+  let { test_statistic = d; test_pvalue } =
+    KolmogorovSmirnov.goodness_of_fit v
+      (fun x -> cumulative_probability standard ~x) ~alternative:Greater ()
+  in begin
+    print_endline "Kolmogorov-Smirnov test for goodness of fit";
+    print_float_array v;
+    printf "D+ = %f, P-value: %f\n" d test_pvalue;
+    print_newline ()
+  end
+
 
 let adjust_bh () =
   let open Distributions.Beta in
@@ -173,7 +186,8 @@ let () = begin
   wilcoxon_signed_rank_paired ();
   sign_one_sample ();
   sign_paired ();
+  ks_gof ();
 
   adjust_bh ();
-  adjust_hb ();
+  adjust_hb ()
 end

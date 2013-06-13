@@ -126,6 +126,49 @@ module ChiSquared = struct
       in finalize (Distributions.ChiSquared.create ~df) chisq
 end
 
+module KolmogorovSmirnov = struct
+  let goodness_of_fit vs cp ?(alternative=TwoSided) () =
+    let n = Array.length vs in
+    if n < 1 then invalid_arg "KolmogorovSmirnov.goodness_of_fit: no data";
+
+    let is       = Array.sort_index compare vs in
+    let ds_plus  = ref min_float
+    and ds_minus = ref min_float in begin
+      for i = 0 to n - 1 do
+        let j = Array.unsafe_get is i in
+        ds_minus := max !ds_minus
+            (cp vs.(j) -. float_of_int i /. float_of_int n);
+        ds_plus  := max !ds_plus
+            (float_of_int (i + 1) /. float_of_int n -. cp vs.(j))
+      done;
+    end;
+
+    let d = match alternative with
+      | Less     -> !ds_minus
+      | Greater  -> !ds_plus
+      | TwoSided -> max !ds_minus !ds_plus
+    in
+
+    let pvalue = match alternative with
+      | Less | Greater ->
+        if d <= 0.
+        then 0.
+        else if d >= 1.
+        then 1.
+        else
+          let acc = ref 0. in begin
+            for i = 0 to int_of_float (floor (float_of_int n *. (1. -. d))) do
+              let j  = float_of_int i in
+              let s1 = (float_of_int n -. j) *.
+                         log (1. -. d -. j /. float_of_int n)
+              and s2 = (j -. 1.) *. log (d +. j /. float_of_int n)
+              in acc := !acc +. exp (Gsl.Sf.lnchoose n i +. s1 +. s2)
+            done
+          end; d *. !acc
+      | TwoSided -> not_implemented "KolmogorovSmirnov.goodness_of_fit"
+    in { test_statistic = d; test_pvalue = pvalue }
+end
+
 module MannWhitneyU = struct
   let two_sample_independent v1 v2
       ?(alternative=TwoSided) ?(correction=true) () =
