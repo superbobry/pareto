@@ -29,26 +29,6 @@ val skewness : ?mean:float -> ?sd:float -> float array -> float
 val kurtosis : ?mean:float -> ?sd:float -> float array -> float
 
 
-module Correlation : sig
-  (** {e O(n)} Computes Pearson product-moment correlation coefficient
-      for two given samples. *)
-  val pearson : float array -> float array -> float
-
-  (** {e O(n log n)} Computes Spearman rank correlation coefficient for
-      two given samples, which is essentially Pearson correlation
-      calculated for sample ranks. *)
-  val spearman : ?cmp:('a -> 'a -> int) -> 'a array -> 'a array -> float
-
-  (** Autocorrelation, i. e. the correlation of the sample against a
-      shifted version of itself. *)
-  module Auto : sig
-    (** {e O(n^2)} Computes autocorrelation, using Person product-moment
-        correlation coefficient. *)
-    val pearson : float array -> float array
-  end
-end
-
-
 (** {e O(n log n)} Computes sample's ranks, [ties_strategy] controls
     which ranks are assigned to equal values:
 
@@ -170,6 +150,26 @@ module KDE : sig
       + B.W. Silverman, "Density Estimation for Statistics and Data
         Analysis", Vol. 26, Monographs on Statistics and Applied
         Probability, Chapman and Hall, London, 1986. *)
+end
+
+
+module Correlation : sig
+  (** {e O(n)} Computes Pearson product-moment correlation coefficient
+      for two given samples. *)
+  val pearson : float array -> float array -> float
+
+  (** {e O(n log n)} Computes Spearman rank correlation coefficient for
+      two given samples, which is essentially Pearson correlation
+      calculated for sample ranks. *)
+  val spearman : ?cmp:('a -> 'a -> int) -> 'a array -> 'a array -> float
+
+  (** Autocorrelation, i. e. the correlation of the sample against a
+      shifted version of itself. *)
+  module Auto : sig
+    (** {e O(n^2)} Computes autocorrelation, using Person product-moment
+        correlation coefficient. *)
+    val pearson : float array -> float array
+  end
 end
 
 

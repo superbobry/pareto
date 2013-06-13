@@ -80,58 +80,6 @@ let rank ?(ties_strategy=`Average) ?(cmp=compare) vs =
   end; (_correct_ties ranks, ranks)
 
 
-module Correlation = struct
-  let pearson vs1 vs2 =
-    let n = Array.length vs1 in
-    if Array.length vs2 <> n
-    then invalid_arg "Correlation.pearson: unequal length arrays";
-
-    let vs1_mean = mean vs1
-    and vs2_mean = mean vs2 in
-    let vs12_sd  = sd ~mean:vs2_mean vs1 *. sd ~mean:vs2_mean vs2
-    and acc      = ref 0. in
-    for i = 0 to n - 1 do
-      let v1 = Array.unsafe_get vs1 i
-      and v2 = Array.unsafe_get vs2 i
-      in acc := !acc +. (v1 -. vs1_mean) *. (v2 -. vs2_mean)
-    done; !acc /. float_of_int (n - 1) /. vs12_sd
-
-  let spearman ?cmp vs1 vs2 =
-    let n = Array.length vs1 in
-    if Array.length vs2 <> n
-    then invalid_arg "Correlation.spearman: unequal length arrays"
-    else
-      (* Note(superbobry): according to Wikipedia, ties strategy is
-         fixed to [`Average]. *)
-      let f vs = snd (rank ~ties_strategy:`Average ?cmp vs) in
-      pearson (f vs1) (f vs2)
-
-  module Auto = struct
-    let pearson vs =
-      let n = Array.length vs in
-      if n < 2
-      then [||]
-      else
-        let mean = Stats.mean vs in
-        let acf shift =
-          let acc = ref 0. in
-          for i = 0 to n - shift - 1 do
-            let v_i = Array.unsafe_get vs i
-            and v_s = Array.unsafe_get vs (i + shift) in
-            acc := !acc +. (v_s -. mean) *. (v_i -. mean)
-          done; !acc /. float_of_int n
-        in
-
-        let ac  = Array.init n acf in
-        let ac0 = ac.(0) in begin
-          for i = 0 to n - 1 do
-            Array.unsafe_set ac i (Array.unsafe_get ac i /. ac0)
-          done; ac
-        end
-  end
-end
-
-
 let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
   if bins <= 0
   then invalid_arg "Sample.histogram: bins must be a positive integer";
@@ -256,6 +204,58 @@ module KDE = struct
     let f      = 1. /. (h *. n) in
     let pdf    = Array.map (fun p -> f *. Array.sum_with (k h p) vs) points in
     (points, pdf)
+end
+
+
+module Correlation = struct
+  let pearson vs1 vs2 =
+    let n = Array.length vs1 in
+    if Array.length vs2 <> n
+    then invalid_arg "Correlation.pearson: unequal length arrays";
+
+    let vs1_mean = mean vs1
+    and vs2_mean = mean vs2 in
+    let vs12_sd  = sd ~mean:vs2_mean vs1 *. sd ~mean:vs2_mean vs2
+    and acc      = ref 0. in
+    for i = 0 to n - 1 do
+      let v1 = Array.unsafe_get vs1 i
+      and v2 = Array.unsafe_get vs2 i
+      in acc := !acc +. (v1 -. vs1_mean) *. (v2 -. vs2_mean)
+    done; !acc /. float_of_int (n - 1) /. vs12_sd
+
+  let spearman ?cmp vs1 vs2 =
+    let n = Array.length vs1 in
+    if Array.length vs2 <> n
+    then invalid_arg "Correlation.spearman: unequal length arrays"
+    else
+      (* Note(superbobry): according to Wikipedia, ties strategy is
+         fixed to [`Average]. *)
+      let f vs = snd (rank ~ties_strategy:`Average ?cmp vs) in
+      pearson (f vs1) (f vs2)
+
+  module Auto = struct
+    let pearson vs =
+      let n = Array.length vs in
+      if n < 2
+      then [||]
+      else
+        let mean = Stats.mean vs in
+        let acf shift =
+          let acc = ref 0. in
+          for i = 0 to n - shift - 1 do
+            let v_i = Array.unsafe_get vs i
+            and v_s = Array.unsafe_get vs (i + shift) in
+            acc := !acc +. (v_s -. mean) *. (v_i -. mean)
+          done; !acc /. float_of_int n
+        in
+
+        let ac  = Array.init n acf in
+        let ac0 = ac.(0) in begin
+          for i = 0 to n - 1 do
+            Array.unsafe_set ac i (Array.unsafe_get ac i /. ac0)
+          done; ac
+        end
+  end
 end
 
 
