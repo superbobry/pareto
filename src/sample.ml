@@ -14,6 +14,20 @@ let mean vs = Stats.mean vs
 let variance ?mean vs = Stats.variance ?mean vs
 let sd ?mean vs = Stats.sd ?mean vs
 
+let skewness ?mean ?sd vs = match (mean, sd) with
+  | (Some mean, Some sd) -> Stats.skew_m_sd ~mean ~sd vs
+  | (Some mean, None)    -> Stats.skew_m_sd ~mean ~sd:(Stats.sd ~mean vs) vs
+  | (None, Some sd)      -> Stats.skew_m_sd ~mean:(Stats.mean vs) ~sd vs
+  | (None, None)         -> Stats.skew vs
+
+let kurtosis ?mean ?sd vs = match (mean, sd) with
+  | (Some mean, None)    ->
+    Stats.kurtosis_m_sd ~mean ~sd:(Stats.sd ~mean vs) vs
+  | (None, Some sd)      ->
+    Stats.kurtosis_m_sd ~mean:(Stats.mean vs) ~sd vs
+  | (Some mean, Some sd) -> Stats.kurtosis_m_sd ~mean ~sd vs
+  | (None, None)         -> Stats.kurtosis vs
+
 
 let _resolve_ties next d = function
   | `Average    -> float_of_int next -. float_of_int d /. 2.
@@ -87,8 +101,8 @@ module Correlation = struct
     if Array.length vs2 <> n
     then invalid_arg "Correlation.spearman: unequal length arrays"
     else
-      (** Note(superbobry): according to Wikipedia, ties strategy is
-          fixed to [`Average]. *)
+      (* Note(superbobry): according to Wikipedia, ties strategy is
+         fixed to [`Average]. *)
       let f vs = snd (rank ~ties_strategy:`Average ?cmp vs) in
       pearson (f vs1) (f vs2)
 
@@ -280,8 +294,8 @@ module Summary = struct
   let mean t = if t.k > 0 then t.m_k else nan
 
   let variance t = match t.k with
-    (** Note(superbobry): we follow R and GSL here and treat variance
-        of a single number undefined. *)
+    (* Note(superbobry): we follow R and GSL here and treat variance
+       of a single number undefined. *)
     | 0 | 1 -> nan
     | _ -> t.s_k /. (float_of_int (t.k - 1))
   let sd t = sqrt (variance t)

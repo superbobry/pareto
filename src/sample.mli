@@ -20,6 +20,14 @@ val variance : ?mean:float -> float array -> float
 (** {e O(n)} Computes sample's standard deviation. *)
 val sd : ?mean:float -> float array -> float
 
+(** {e O(n)} Computes the skewness of a sample, which is a measure of
+    asymmetry of its distribution. *)
+val skewness : ?mean:float -> ?sd:float -> float array -> float
+
+(** {e O(n)} Computes the excess kurtosis of a sample, which is a
+    measure of a "peakedness" of its distribution. *)
+val kurtosis : ?mean:float -> ?sd:float -> float array -> float
+
 
 module Correlation : sig
   (** {e O(n)} Computes Pearson product-moment correlation coefficient
