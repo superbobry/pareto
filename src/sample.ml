@@ -87,6 +87,8 @@ module Correlation = struct
     if Array.length vs2 <> n
     then invalid_arg "Correlation.spearman: unequal length arrays"
     else
+      (** Note(superbobry): according to Wikipedia, ties strategy is
+          fixed to [`Average]. *)
       let f vs = snd (rank ~ties_strategy:`Average ?cmp vs) in
       pearson (f vs1) (f vs2)
 end
