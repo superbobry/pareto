@@ -76,15 +76,6 @@ let sample_ranks () =
     print_newline ()
   end
 
-let sample_autocovariance_autocorrelation () =
-  let vs = random_array 10 in begin
-    print_endline "Autocovariance / autocorrelation";
-    print_float_array vs;
-    print_float_array (Sample.autocovariance vs);
-    print_float_array (Sample.autocorrelation vs);
-    print_newline ()
-  end
-
 let sample_correlation () =
   let vs1 = random_array 10
   and vs2 = random_array 10 in begin
@@ -94,6 +85,14 @@ let sample_correlation () =
       (Sample.Correlation.pearson vs1 vs2);
     printf "Spearman rank-correlation: %f\n"
       (Sample.Correlation.spearman vs1 vs2);
+    print_newline ()
+  end
+
+let sample_autocorrelation () =
+  let vs = random_array 10 in begin
+    print_float_array vs;
+    print_endline "Pearson product-momentum autocorrelation:";
+    print_float_array (Sample.Correlation.Auto.pearson vs);
     print_newline ()
   end
 
@@ -115,7 +114,7 @@ let () = begin
   sample_quantiles ();
   sample_iqr ();
   sample_ranks ();
-  sample_autocovariance_autocorrelation ();
   sample_correlation ();
+  sample_autocorrelation ();
   sample_summary ()
 end

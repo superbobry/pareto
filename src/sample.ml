@@ -91,34 +91,31 @@ module Correlation = struct
           fixed to [`Average]. *)
       let f vs = snd (rank ~ties_strategy:`Average ?cmp vs) in
       pearson (f vs1) (f vs2)
+
+  module Auto = struct
+    let pearson vs =
+      let n = Array.length vs in
+      if n < 2
+      then [||]
+      else
+        let mean = Stats.mean vs in
+        let acf shift =
+          let acc = ref 0. in
+          for i = 0 to n - shift - 1 do
+            let v_i = Array.unsafe_get vs i
+            and v_s = Array.unsafe_get vs (i + shift) in
+            acc := !acc +. (v_s -. mean) *. (v_i -. mean)
+          done; !acc /. float_of_int n
+        in
+
+        let ac  = Array.init n acf in
+        let ac0 = ac.(0) in begin
+          for i = 0 to n - 1 do
+            Array.unsafe_set ac i (Array.unsafe_get ac i /. ac0)
+          done; ac
+        end
+  end
 end
-
-
-let autocovariance ?mean vs =
-  let n = Array.length vs in
-  if n < 2
-  then [||]
-  else
-    let mean = Option.value mean ~default:(Stats.mean vs) in
-    let acf shift =
-      let acc = ref 0. in
-      for i = 0 to n - shift - 1 do
-        let v_i = Array.unsafe_get vs i
-        and v_s = Array.unsafe_get vs (i + shift) in
-        acc := !acc +. (v_s -. mean) *. (v_i -. mean)
-      done; !acc /. float_of_int n
-    in Array.init (n - 2) acf
-
-let autocorrelation ?mean vs =
-  let ac = autocovariance ?mean vs in
-  if ac = [||]
-  then ac
-  else
-    let n   = Array.length ac in
-    let ac0 = ac.(0) in
-    for i = 0 to n - 1 do
-      Array.unsafe_set ac i (Array.unsafe_get ac i /. ac0)
-    done; ac
 
 
 let histogram ?(bins=10) ?range ?weights ?(density=false) vs =

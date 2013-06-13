@@ -30,14 +30,15 @@ module Correlation : sig
       two given samples, which is essentially Pearson correlation
       calculated for sample ranks. *)
   val spearman : ?cmp:('a -> 'a -> int) -> 'a array -> 'a array -> float
+
+  (** Autocorrelation, i. e. the correlation of the sample against a
+      shifted version of itself. *)
+  module Auto : sig
+    (** {e O(n^2)} Computes autocorrelation, using Person product-moment
+        correlation coefficient. *)
+    val pearson : float array -> float array
+  end
 end
-
-(** {e O(n^2)} Computes sample's autocovariance, i. e. the covariance of
-    the sample against a shifted version of itself. *)
-val autocovariance : ?mean:float -> float array -> float array
-
-(** {e O(n^2)} Computes sample's autocorrelation. *)
-val autocorrelation : ?mean:float -> float array -> float array
 
 
 (** {e O(n log n)} Computes sample's ranks, [ties_strategy] controls
@@ -175,7 +176,7 @@ end
     {6 References}
 
     + D. E. Knuth, "The Art of Computer Programming, Volume 2:
-      Seminumerical Algorithms", 2nd edition, Section 4.2.2, p. 216. *)
+      Seminumerical Algorithms", 2nd edition, Section 4.2.2, p216. *)
 module Summary : sig
   type t
 
