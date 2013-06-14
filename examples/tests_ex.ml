@@ -143,11 +143,11 @@ let ks_gof () =
   let v = sample ~size:10 standard in
   let { test_statistic = d; test_pvalue } =
     KolmogorovSmirnov.goodness_of_fit v
-      (fun x -> cumulative_probability standard ~x) ~alternative:Greater ()
+      (fun x -> cumulative_probability standard ~x) ~alternative:TwoSided ()
   in begin
     print_endline "Kolmogorov-Smirnov test for goodness of fit";
     print_float_array v;
-    printf "D+ = %f, P-value: %f\n" d test_pvalue;
+    printf "D = %f, P-value: %f\n" d test_pvalue;
     print_newline ()
   end
 

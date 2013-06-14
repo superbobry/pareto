@@ -138,4 +138,25 @@ module Matrix = struct
       res
 
   let sum m = Array.sum (to_array (sum_by `Rows m))
+
+  let power m =
+    let open Gsl.Blas_flat in
+    let mul a b =
+      assert (dims a = dims b);
+      let (w, h) = dims a in
+      let res = create ~init:0. w h in begin
+        gemm ~ta:NoTrans ~tb:NoTrans ~alpha:1. ~beta:1. ~a ~b ~c:res;
+        res
+      end
+    in
+
+    let rec go m = function
+      | 1 -> m
+      | k ->
+        let m2 = go m (k / 2) in
+        let mm = mul m2 m2 in
+        if k mod 2 = 0
+        then mm
+        else mul mm m
+    in go m
 end

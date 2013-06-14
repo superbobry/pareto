@@ -127,6 +127,53 @@ module ChiSquared = struct
 end
 
 module KolmogorovSmirnov = struct
+  let create_h n d =
+    let k    = floor (float_of_int n *. d) +. 1. in
+    let h    = k -. float_of_int n *. d in
+    let size = 2 * int_of_float k - 1 in
+    let m    = Matrix.create ~init:0. size size in begin
+      (* Set all element in the lower triangle to 1. *)
+      for i = 0 to size - 1 do
+        for j = max 0 (i - 1) to size - 1 do
+          Matrix.set m (size - 1 - i) (size - 1 - j) 1.
+        done
+      done;
+
+      (* Pre-calculate 'h' powers for the first column and bottom row. *)
+      let h_powers = Array.make size 0. in
+      Array.unsafe_set h_powers 0 h;
+      for i = 1 to size - 1 do
+        Array.unsafe_set h_powers i
+          ((Array.unsafe_get h_powers (i - 1)) *. h)
+      done;
+
+      (* Correct first column and bottom row. *)
+      for i = 0 to size - 1 do
+        Matrix.set m i 0 (Matrix.get m i 0 -. Array.get h_powers i);
+        Matrix.set m (size - 1) i
+          (Matrix.get m (size - 1) i -. Array.get h_powers (size - 1 - i))
+      done;
+
+      (* Correct bottom left element if needed. *)
+      if 2. *. h > 1.
+      then Matrix.set m (size - 1) 0
+          (Matrix.get m (size - 1) 0 +. (2. *. h -. 1.) ** float_of_int size);
+
+      (* Here come factorials! *)
+      let facts = Array.make size 1 in
+      for i = 1 to size - 1 do
+        Array.unsafe_set facts i (Array.unsafe_get facts (i - 1) * (i + 1))
+      done;
+
+      for i = 0 to size - 1 do
+        for j = i + 1 to size - 1 do
+          Matrix.set m (size - 1 - i) (size - 1 - j)
+            (Matrix.get m (size - 1 - i) (size - 1 - j) /.
+               float_of_int (Array.unsafe_get facts (j - i)))
+        done
+      done
+    end; m
+
   let goodness_of_fit vs cp ?(alternative=TwoSided) () =
     let n = Array.length vs in
     if n < 1 then invalid_arg "KolmogorovSmirnov.goodness_of_fit: no data";
@@ -156,6 +203,7 @@ module KolmogorovSmirnov = struct
         else if d >= 1.
         then 1.
         else
+          (** See Section 3 in Birnbaum and Tingey. *)
           let acc = ref 0. in begin
             for i = 0 to int_of_float (floor (float_of_int n *. (1. -. d))) do
               let j  = float_of_int i in
@@ -165,7 +213,16 @@ module KolmogorovSmirnov = struct
               in acc := !acc +. exp (Gsl.Sf.lnchoose n i +. s1 +. s2)
             done
           end; d *. !acc
-      | TwoSided -> not_implemented "KolmogorovSmirnov.goodness_of_fit"
+      | TwoSided ->
+        (** FIXME(superbobry): control for overflow in matrix power
+            calculation. *)
+        let h   = Matrix.power (create_h n d) n in
+        let k   = int_of_float (ceil (float_of_int n *. d)) in
+        let acc = ref (Matrix.get h (k - 1) (k - 1)) in begin
+          for i = 1 to n do
+            acc := !acc *. float_of_int i /. float_of_int n
+          done
+        end; 1. -. !acc
     in { test_statistic = d; test_pvalue = pvalue }
 end
 
