@@ -203,7 +203,7 @@ module KolmogorovSmirnov = struct
         else if d >= 1.
         then 1.
         else
-          (** See Section 3 in Birnbaum and Tingey. *)
+          (* See Section 3 in Birnbaum and Tingey. *)
           let acc = ref 0. in begin
             for i = 0 to int_of_float (floor (float_of_int n *. (1. -. d))) do
               let j  = float_of_int i in
@@ -214,15 +214,22 @@ module KolmogorovSmirnov = struct
             done
           end; d *. !acc
       | TwoSided ->
-        (** FIXME(superbobry): control for overflow in matrix power
-            calculation. *)
-        let h   = Matrix.power (create_h n d) n in
-        let k   = int_of_float (ceil (float_of_int n *. d)) in
-        let acc = ref (Matrix.get h (k - 1) (k - 1)) in begin
-          for i = 1 to n do
-            acc := !acc *. float_of_int i /. float_of_int n
-          done
-        end; 1. -. !acc
+        (* See code in Marsaglia et al. *)
+        let s = float_of_int n *. d *. d in
+        if s > 7.24 || (s > 3.76 && n > 99)
+        then
+          1. -. 2. *. exp (-. (2.000071 +. 0.331 /. sqrt (float_of_int n) +.
+                                 1.409 /. float_of_int n) *. s)
+        else
+          (** FIXME(superbobry): control for overflow in matrix power
+              calculation. *)
+          let h   = Matrix.power (create_h n d) n in
+          let k   = int_of_float (ceil (float_of_int n *. d)) in
+          let acc = ref (Matrix.get h (k - 1) (k - 1)) in begin
+            for i = 1 to n do
+              acc := !acc *. float_of_int i /. float_of_int n
+            done
+          end; 1. -. !acc
     in { test_statistic = d; test_pvalue = pvalue }
 end
 

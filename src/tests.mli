@@ -74,7 +74,7 @@ module KolmogorovSmirnov : sig
       + National Institute of Standards and Technology (US), et al.
         "Engineering statistics handbook", Section 1.3.5.16.
         The Institute, 2001.
-      + Wang, Jingbo, Wai Wan Tsang, and George Marsaglia.
+      + Jingbo Wang, Wai Wan Tsang, and George Marsaglia.
         "Evaluating Kolmogorov's distribution." Journal of
         Statistical Software 8, no. 18. 2003.
       + Z. W. Birnbaum, Fred H. Tingey. "One-sided confidence contours
