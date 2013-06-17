@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 08013dc8bc60c6ec656932f93acd66d5) *)
+(* DO NOT EDIT (digest: c18c18c94b66de5dde3c1e2c160c6390) *)
 module OASISGettext = struct
 (* # 21 "/Users/superbobry/.opam/system/build/oasis.0.3.0/src/oasis/OASISGettext.ml" *)
 
@@ -477,8 +477,8 @@ end
 open Ocamlbuild_plugin;;
 let package_default =
   {
-     MyOCamlbuildBase.lib_ocaml = [("pareto", ["src"])];
-     lib_c = [("pareto", "src", [])];
+     MyOCamlbuildBase.lib_ocaml = [("pareto", ["lib"])];
+     lib_c = [("pareto", "lib", [])];
      flags =
        [
           (["oasis_library_pareto_ccopt"; "compile"],
@@ -641,7 +641,7 @@ let package_default =
            ],
             [(OASISExpr.EBool true, S [A "-w"; A "@a"])])
        ];
-     includes = [("examples", ["src"])];
+     includes = [("lib_test", ["lib"]); ("examples", ["lib"])];
      }
   ;;
 

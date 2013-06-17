@@ -12,7 +12,7 @@ BuildTools:     ocamlbuild, ocamldoc
 Plugins:        META (0.3), DevFiles (0.3)
 
 Library pareto
-  Path:              src
+  Path:              lib
   Pack:              true
   Modules:           Base
                    , Distributions
@@ -25,6 +25,23 @@ Library pareto
   NativeOpt:         -w @a -warn-error -a
   ByteOpt:           -w @a -warn-error -a
   BuildDepends:      gsl (>= 1.11.0)
+
+# Tests
+
+Executable test_runner
+  Path:               lib_test
+  MainIs:             test_runner.ml
+  Build$:             flag(tests)
+  Custom:             true
+  CompiledObject:     best
+  Install:            false
+  BuildDepends:       pareto
+                    , oUnit (>= 1.0.2)
+
+Test lib_test
+  Run$:               flag(tests)
+  Command:            $test_runner
+  WorkingDirectory:   lib_test
 
 # Examples
 

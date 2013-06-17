@@ -18,9 +18,9 @@ module T = struct
   let finalize d t alternative =
     let open Distributions.T in
     let pvalue = match alternative with
-    | Less     -> cumulative_probability d ~x:t
-    | Greater  -> 1. -. cumulative_probability d ~x:t
-    | TwoSided -> 2. *. cumulative_probability d ~x:(-. (abs_float t))
+      | Less     -> cumulative_probability d ~x:t
+      | Greater  -> 1. -. cumulative_probability d ~x:t
+      | TwoSided -> 2. *. cumulative_probability d ~x:(-. (abs_float t))
     in { test_statistic = t; test_pvalue = pvalue }
 
   let one_sample v ?(mean=0.) ?(alternative=TwoSided) () =

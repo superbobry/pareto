@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: def6eb3897d7a9297429c4ae67d945a9)
+# DO NOT EDIT (digest: d9c11594cf90e9803071a3cf16686d88)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -14,24 +14,32 @@
 "_darcs": -traverse
 "_darcs": not_hygienic
 # Library pareto
-"src/pareto.cmxs": use_pareto
-"src/base.cmx": for-pack(Pareto)
-"src/distributions.cmx": for-pack(Pareto)
-"src/resampling.cmx": for-pack(Pareto)
-"src/sample.cmx": for-pack(Pareto)
-"src/tests.cmx": for-pack(Pareto)
-"src/internal.cmx": for-pack(Pareto)
-<src/*.ml{,i}>: oasis_library_pareto_ccopt
-"src/mlgsl_extra.c": oasis_library_pareto_ccopt
-<src/pareto.{cma,cmxa}>: oasis_library_pareto_byte
-<src/*.ml{,i}>: oasis_library_pareto_byte
-"src/mlgsl_extra.c": oasis_library_pareto_byte
-<src/pareto.{cma,cmxa}>: oasis_library_pareto_native
-<src/*.ml{,i}>: oasis_library_pareto_native
-"src/mlgsl_extra.c": oasis_library_pareto_native
-<src/pareto.{cma,cmxa}>: use_libpareto_stubs
-<src/*.ml{,i}>: pkg_gsl
-"src/mlgsl_extra.c": pkg_gsl
+"lib/pareto.cmxs": use_pareto
+"lib/base.cmx": for-pack(Pareto)
+"lib/distributions.cmx": for-pack(Pareto)
+"lib/resampling.cmx": for-pack(Pareto)
+"lib/sample.cmx": for-pack(Pareto)
+"lib/tests.cmx": for-pack(Pareto)
+"lib/internal.cmx": for-pack(Pareto)
+<lib/*.ml{,i}>: oasis_library_pareto_ccopt
+"lib/mlgsl_extra.c": oasis_library_pareto_ccopt
+<lib/pareto.{cma,cmxa}>: oasis_library_pareto_byte
+<lib/*.ml{,i}>: oasis_library_pareto_byte
+"lib/mlgsl_extra.c": oasis_library_pareto_byte
+<lib/pareto.{cma,cmxa}>: oasis_library_pareto_native
+<lib/*.ml{,i}>: oasis_library_pareto_native
+"lib/mlgsl_extra.c": oasis_library_pareto_native
+<lib/pareto.{cma,cmxa}>: use_libpareto_stubs
+<lib/*.ml{,i}>: pkg_gsl
+"lib/mlgsl_extra.c": pkg_gsl
+# Executable test_runner
+<lib_test/test_runner.{native,byte}>: use_pareto
+<lib_test/test_runner.{native,byte}>: pkg_gsl
+<lib_test/test_runner.{native,byte}>: pkg_oUnit
+<lib_test/*.ml{,i}>: use_pareto
+<lib_test/*.ml{,i}>: pkg_gsl
+<lib_test/*.ml{,i}>: pkg_oUnit
+<lib_test/test_runner.{native,byte}>: custom
 # Executable base_ex
 <examples/base_ex.{native,byte}>: oasis_executable_base_ex_byte
 <examples/*.ml{,i}>: oasis_executable_base_ex_byte
