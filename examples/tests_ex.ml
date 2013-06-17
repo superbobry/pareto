@@ -143,10 +143,25 @@ let ks_gof () =
   let v = sample ~size:10 standard in
   let { test_statistic = d; test_pvalue } =
     KolmogorovSmirnov.goodness_of_fit v
-      (fun x -> cumulative_probability standard ~x) ~alternative:TwoSided ()
+      ~cumulative_probability:(fun x -> cumulative_probability standard ~x)
+      ~alternative:TwoSided ()
   in begin
-    print_endline "Kolmogorov-Smirnov test for goodness of fit";
+    print_endline "One-sample Kolmogorov-Smirnov test for goodness of fit";
     print_float_array v;
+    printf "D = %f, P-value: %f\n" d test_pvalue;
+    print_newline ()
+  end
+
+let ks_two_sample () =
+  let open Distributions.Normal in
+  let v1 = sample ~size:10 standard in
+  let v2 = sample ~size:10 standard in
+  let { test_statistic = d; test_pvalue } =
+    KolmogorovSmirnov.two_sample v1 v2 ~alternative:TwoSided ()
+  in begin
+    print_endline "Two-sample Kolmogorov-Smirnov test";
+    print_float_array v1;
+    print_float_array v2;
     printf "D = %f, P-value: %f\n" d test_pvalue;
     print_newline ()
   end
@@ -187,6 +202,7 @@ let () = begin
   sign_one_sample ();
   sign_paired ();
   ks_gof ();
+  ks_two_sample ();
 
   adjust_bh ();
   adjust_hb ()
