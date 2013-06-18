@@ -118,7 +118,7 @@ let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
 
 
 module Quantile = struct
-  type continous_param =
+  type continuous_param =
     | CADPW
     | Hazen
     | SPSS
@@ -132,11 +132,11 @@ module Quantile = struct
     let item = fun i -> svs.(bound ~b:(n - 1) i) in
     (1. -. h) *. item (j - 1) +. h *. item j
 
-  let continous_by ?(param=S) ?(p=0.5) vs =
+  let continuous_by ?(param=S) ?(p=0.5) vs =
     if p < 0. || p > 1.
-    then invalid_arg "Quantile.continous_by: p must be in range [0, 1]";
+    then invalid_arg "Quantile.continuous_by: p must be in range [0, 1]";
     if Array.exists is_nan vs
-    then invalid_arg "Quantile.continous_by: sample contains NaNs";
+    then invalid_arg "Quantile.continuous_by: sample contains NaNs";
 
     let (a, b) = match param with
       | CADPW -> (0., 1.)
@@ -157,7 +157,7 @@ module Quantile = struct
     finalize vs h j
 
   let iqr ?param vs =
-    continous_by ?param ~p:0.75 vs -. continous_by ?param ~p:0.25 vs
+    continuous_by ?param ~p:0.75 vs -. continous_by ?param ~p:0.25 vs
 end
 
 let quantile ?p vs = Quantile.continous_by ?p vs
