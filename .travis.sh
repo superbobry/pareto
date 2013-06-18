@@ -8,11 +8,11 @@ DEBS=libgsl0-dev
 export OPAM_VERSION=1.0.0
 
 # OPAM packages needed to build tests:
-export OPAM_PACKAGES='ocamlfind gsl oUnit'
+export OPAM_PACKAGES='ocamlfind gsl ounit'
 
 # Install OCaml
 sudo apt-get update -q -y
-sudo apt-get install -q -y ocaml ${DEBS}
+sudo apt-get install -q -y ocaml-nox ${DEBS}
 
 # Install OPAM
 curl -L https://github.com/OCamlPro/opam/archive/${OPAM_VERSION}.tar.gz \
