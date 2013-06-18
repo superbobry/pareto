@@ -35,3 +35,9 @@ in begin
   printf "t = %f, P-value: %f\n" t test_pvalue;
 end
 ```
+
+Testing [![Build Status][travis-img]][travis]
+-------
+
+[travis]: http://travis-ci.org/superbobry/pareto
+[travis-img]: https://secure.travis-ci.org/superbobry/pareto.png

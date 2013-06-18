@@ -62,9 +62,26 @@ module ChiSquared : sig
 end
 
 module KolmogorovSmirnov : sig
+  (** One-sample Kolmogorov-Smirnov test for goodness of fit, which
+      evaluates the distribution [G(x)] of the observed random variable
+      against a given distribution [F(x)]. Under the null hypothesis
+      the two distributions are identical, [G(x) = F(x)]. *)
   val goodness_of_fit
     :  float array
-    -> (float -> float)
+    -> cumulative_probability:(float -> float)
+    -> ?alternative:test_alternative
+    -> unit
+    -> test_result
+
+  (** Two-sample Kolmogorov-Smirnov test, which evaluates the null
+      hypothesis, that two {e independent} samples are drawn from the
+      same continious distribution.
+
+      {b Note}: in the current implementation samples with ties will
+      result in an [Invalid_argument] exception. *)
+  val two_sample
+    :  float array
+    -> float array
     -> ?alternative:test_alternative
     -> unit
     -> test_result

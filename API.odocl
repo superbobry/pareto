@@ -1,8 +1,8 @@
 # OASIS_START
-# DO NOT EDIT (digest: 3b04688bda815e42247276cc7ad0b9f3)
-src/Base
-src/Distributions
-src/Resampling
-src/Sample
-src/Tests
+# DO NOT EDIT (digest: 85857793d4ed98521d5590a94759f0e4)
+lib/Base
+lib/Distributions
+lib/Resampling
+lib/Sample
+lib/Tests
 # OASIS_STOP

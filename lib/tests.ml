@@ -18,13 +18,15 @@ module T = struct
   let finalize d t alternative =
     let open Distributions.T in
     let pvalue = match alternative with
-    | Less     -> cumulative_probability d ~x:t
-    | Greater  -> 1. -. cumulative_probability d ~x:t
-    | TwoSided -> 2. *. cumulative_probability d ~x:(-. (abs_float t))
+      | Less     -> cumulative_probability d ~x:t
+      | Greater  -> 1. -. cumulative_probability d ~x:t
+      | TwoSided -> 2. *. cumulative_probability d ~x:(-. (abs_float t))
     in { test_statistic = t; test_pvalue = pvalue }
 
   let one_sample v ?(mean=0.) ?(alternative=TwoSided) () =
     let n = float_of_int (Array.length v) in
+    (* Note(superbobry): R uses uncorrected sample variance, so the
+       exact value of t-statistic might be slightly different. *)
     let t = (Sample.mean v -. mean) *. sqrt (n /. Sample.variance v)
     in finalize (Distributions.T.create ~df:(n -. 1.)) t alternative
 
@@ -65,23 +67,22 @@ module ChiSquared = struct
       test_pvalue    = 1. -. cumulative_probability ~x:chisq d
     }
 
-  let goodness_of_fit observed ?(expected=[||]) ?(df=0) () =
+  let goodness_of_fit observed ?expected ?(df=0) () =
     let n = Array.length observed in
-    let k = Array.length expected in
-    let expected =
-      if k = 0
-      then Array.make n (Array.sum observed /. float_of_int n)
-      else if k != n
-      then invalid_arg "ChiSquared.goodness_of_fit: unequal length arrays"
-      else
-        (* TODO(superbobry): make sure we have wellformed frequencies. *)
-        expected
-    in
-
-    let chisq = ref 0. in
-    for i = 0 to n - 1 do
-      chisq := !chisq +. sqr (observed.(i) -. expected.(i)) /. expected.(i)
-    done;
+    let expected = match expected with
+      | Some expected ->
+        if Array.length expected <> n
+        then invalid_arg "ChiSquared.goodness_of_fit: unequal length arrays"
+        else
+          (* TODO(superbobry): make sure we have wellformed frequencies. *)
+          expected
+      | None ->
+        Array.make n (Array.sum observed /. float_of_int n)
+    and chisq = ref 0. in begin
+      for i = 0 to n - 1 do
+        chisq := !chisq +. sqr (observed.(i) -. expected.(i)) /. expected.(i)
+      done
+    end;
 
     finalize (Distributions.ChiSquared.create ~df:(n - 1 - df)) !chisq
 
@@ -174,7 +175,7 @@ module KolmogorovSmirnov = struct
       done
     end; m
 
-  let goodness_of_fit vs cp ?(alternative=TwoSided) () =
+  let goodness_of_fit vs ~cumulative_probability:cp ?(alternative=TwoSided) () =
     let n = Array.length vs in
     if n < 1 then invalid_arg "KolmogorovSmirnov.goodness_of_fit: no data";
 
@@ -221,8 +222,8 @@ module KolmogorovSmirnov = struct
           1. -. 2. *. exp (-. (2.000071 +. 0.331 /. sqrt (float_of_int n) +.
                                  1.409 /. float_of_int n) *. s)
         else
-          (** FIXME(superbobry): control for overflow in matrix power
-              calculation. *)
+          (* FIXME(superbobry): control for overflow in matrix power
+             calculation. *)
           let h   = Matrix.power (create_h n d) n in
           let k   = int_of_float (ceil (float_of_int n *. d)) in
           let acc = ref (Matrix.get h (k - 1) (k - 1)) in begin
@@ -230,6 +231,93 @@ module KolmogorovSmirnov = struct
               acc := !acc *. float_of_int i /. float_of_int n
             done
           end; 1. -. !acc
+    in { test_statistic = d; test_pvalue = pvalue }
+
+  (* FIXME(superbobry): see the following bug for critique of 'psmirnov2x'
+     implementation:
+     https://bugs.r-project.org/bugzilla3/show_bug.cgi?id=13848 *)
+  let psmirnov2x d n1 n2 =
+    let m  = min n1 n2
+    and n  = max n1 n2 in
+    let md = float_of_int m
+    and nd = float_of_int n in
+    let q  = (0.5 +. floor (d *. md *. nd -. 1e-7)) /. (md *. nd)
+    and u  = Array.make (n + 1) 0. in begin
+      for i = 0 to n do
+        Array.unsafe_set u i (if float_of_int i /. nd > q then 0. else 1.)
+      done;
+
+      for i = 1 to m do
+        let w = float_of_int i /. (float_of_int i +. nd) in begin
+          Array.unsafe_set u 0
+            (if float_of_int i /. md > q
+             then 0.
+             else w *. Array.unsafe_get u 0);
+
+          for j = 1 to n do
+            Array.unsafe_set u j
+              (if abs_float (float_of_int i /. md -. float_of_int j /. nd) > q
+               then 0.
+               else w *. Array.unsafe_get u j +. Array.unsafe_get u (j - 1))
+          done
+        end
+      done;
+
+      Array.unsafe_get u n
+    end
+
+  let two_sample v1 v2 ?(alternative=TwoSided) () =
+    let n1 = Array.length v1
+    and n2 = Array.length v2 in
+    if n1 = 0 || n2 = 0
+    then invalid_arg "KolmogorovSmirnov.two_sample: no data";
+
+    let vs = Array.append v1 v2 in
+    let is = Array.sort_index compare vs in
+    let has_ties = ref false in
+    for i = 1 to n1 + n2 - 1 do
+      let j = Array.unsafe_get is i in
+      let k = Array.unsafe_get is (i - 1) in
+      has_ties := !has_ties || Array.unsafe_get vs j = Array.unsafe_get vs k
+    done;
+
+    if !has_ties
+    then invalid_arg "KolmogorovSmirnov.two_sample: ties are not allowed";
+
+    let is    = Array.sort_index compare vs in
+    let acc   = ref 0.
+    and z_max = ref neg_infinity
+    and z_min = ref infinity
+    and z_abs = ref neg_infinity in begin
+      for i = 0 to n1 + n2 - 1 do
+        let j = Array.unsafe_get is i in
+        acc :=
+          if j < n1
+          then !acc +. 1. /. float_of_int n1
+          else !acc -. 1. /. float_of_int n2;
+        z_max := max !z_max !acc;
+        z_min := min !z_min !acc;
+        z_abs := max !z_abs (abs_float !acc)
+      done
+    end;
+
+    let d = match alternative with
+      | Less     -> -. !z_min
+      | Greater  -> !z_max
+      | TwoSided -> !z_abs
+    in
+
+    let pvalue = match alternative with
+      | Less | Greater ->
+        exp (-. 2. *. float_of_int (n1 * n2) /. float_of_int (n1 + n2) *.
+                  d *. d)
+      | TwoSided ->
+        (* Note(lebedev): we follow R here and treat two-sided P-value
+           as a probability that a random assignment of the pooled
+           data to two sets of the same sizes as the input data sets
+           has a KS test statistic at least as great as that of the
+           input data. *)
+        1. -. psmirnov2x d n1 n2
     in { test_statistic = d; test_pvalue = pvalue }
 end
 
