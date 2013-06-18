@@ -103,7 +103,7 @@ Document API
   Title:                API reference for Pareto
   Type:                 OCamlbuild (0.3)
   InstallDir:           $docdir/api
-  XOCamlbuildPath:      .
+  XOCamlbuildPath:      lib
   XOCamlbuildLibraries: pareto
 
 SourceRepository github

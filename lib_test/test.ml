@@ -1,3 +1,3 @@
 open OUnit
 
-let all () = TestList []
+let all () = TestList [Tests_test.test]

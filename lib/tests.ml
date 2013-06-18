@@ -25,6 +25,8 @@ module T = struct
 
   let one_sample v ?(mean=0.) ?(alternative=TwoSided) () =
     let n = float_of_int (Array.length v) in
+    (* Note(superbobry): R uses uncorrected sample variance, so the
+       exact value of t-statistic might be slightly different. *)
     let t = (Sample.mean v -. mean) *. sqrt (n /. Sample.variance v)
     in finalize (Distributions.T.create ~df:(n -. 1.)) t alternative
 
