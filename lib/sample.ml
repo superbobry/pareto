@@ -157,10 +157,10 @@ module Quantile = struct
     finalize vs h j
 
   let iqr ?param vs =
-    continuous_by ?param ~p:0.75 vs -. continous_by ?param ~p:0.25 vs
+    continuous_by ?param ~p:0.75 vs -. continuous_by ?param ~p:0.25 vs
 end
 
-let quantile ?p vs = Quantile.continous_by ?p vs
+let quantile ?p vs = Quantile.continuous_by ?p vs
 
 let iqr vs = Quantile.iqr vs
 

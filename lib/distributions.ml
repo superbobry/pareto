@@ -344,9 +344,9 @@ module Gamma = struct
     let mean = Sample.mean data in
     let gamma_shape =
       let s = (log mean) -. (Sample.mean (Array.map log data)) in
-      (3.0 -. s +. (sqrt ((s-.3.0)*(s-.3.0) +. 24.0))) /. (12.0 *. s)
+      (3.0 -. s +. (sqrt ((s-.3.0)*.(s-.3.0) +. 24.0))) /. (12.0 *. s)
     in
-    let gamma_scale = mean /. gamma_scale in
+    let gamma_scale = mean /. gamma_shape in
     { gamma_shape; gamma_scale; }
 end
 
