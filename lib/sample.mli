@@ -67,7 +67,7 @@ val histogram
 
 module Quantile : sig
   (** Parameters for the continious sample method. *)
-  type continous_param =
+  type continuous_param =
     | CADPW           (** Linear interpolation of the {e ECDF}. *)
     | Hazen           (** Hazen's definition. *)
     | SPSS            (** Definition used by the SPSS statistics application,
@@ -85,12 +85,12 @@ module Quantile : sig
   (** {e O(n log n)} Estimates sample quantile corresponding to the given
       probability [p], using the continuous sample method with given
       parameters. *)
-  val continous_by
-    : ?param:continous_param -> ?p:float -> float array -> float
+  val continuous_by
+    : ?param:continuous_param -> ?p:float -> float array -> float
 
   (** {e O(n log n)} Estimates interquantile range of a given sample,
       using the continuous sample method with given parameters. *)
-  val iqr : ?param:continous_param -> float array -> float
+  val iqr : ?param:continuous_param -> float array -> float
 end
 
 (** {e O(n log n)} Estimates sample quantile corresponding to the given
@@ -177,7 +177,7 @@ end
 
     The algorithm runs in {e O(1)} space and {e O(n)} time.
 
-    It is prefered for computing standard deviation, because roundoff
+    It is preferred for computing standard deviation, because roundoff
     errors in floating point operations might lead to taking a square
     root of a negative value.
 
