@@ -28,6 +28,13 @@ module type VarianceOpt = sig
   val variance_opt : t -> float option
 end
 
+module type MLE = sig
+  type t
+
+  val mle : float array -> t
+end
+
+
 module type BaseDistribution = sig
   type t
   type elt
@@ -89,6 +96,11 @@ module Normal = struct
   let generate ?(rng=default_rng) { normal_mean; normal_sd } =
     Randist.gaussian ~sigma:normal_sd rng +. normal_mean
   let sample = make_sampler generate
+
+  let mle data = 
+    let normal_mean = Sample.mean data in
+    let normal_sd   = Sample.sd ~mean:normal_mean data in
+    { normal_mean; normal_sd; }
 end
 
 module Uniform = struct
@@ -120,6 +132,11 @@ module Uniform = struct
   let generate ?(rng=default_rng) { uniform_lower; uniform_upper } =
     Randist.flat ~a:uniform_lower ~b:uniform_upper rng
   let sample = make_sampler generate
+
+  let mle data =
+    { uniform_lower = Sample.min data;
+      uniform_upper = Sample.max data;
+    }
 end
 
 module Exponential = struct
@@ -145,6 +162,8 @@ module Exponential = struct
   let generate ?(rng=default_rng) { exp_rate } =
     Randist.exponential ~mu:exp_rate rng
   let sample = make_sampler generate
+
+  let mle data = { exp_rate = 1.0 /. (Sample.mean data); }
 end
 
 module Poisson = struct
@@ -167,6 +186,8 @@ module Poisson = struct
   let generate ?(rng=default_rng) { poisson_rate } =
     Randist.poisson ~mu:poisson_rate rng
   let sample = make_sampler generate
+
+  let mle data = { poisson_rate = Sample.mean data; }
 end
 
 module Binomial = struct
@@ -314,6 +335,19 @@ module Gamma = struct
   let generate ?(rng=default_rng) { gamma_shape; gamma_scale } =
     Randist.gamma ~a:gamma_shape ~b:gamma_scale rng
   let sample = make_sampler generate
+
+  let mle data =
+    (* the shape parameter is an approximation not an MLE; apparently this is
+     * no more than 1.5% away, but requires a number of newton method moves to
+     * obtain an optimal value --I have heard 4 iterations is usually enough as
+     * the function is well behaved. This is not exposed in the MLI file. *)
+    let mean = Sample.mean data in
+    let gamma_shape =
+      let s = (log mean) -. (Sample.mean (Array.map log data)) in
+      (3.0 -. s +. (sqrt ((s-.3.0)*.(s-.3.0) +. 24.0))) /. (12.0 *. s)
+    in
+    let gamma_scale = mean /. gamma_shape in
+    { gamma_shape; gamma_scale; }
 end
 
 module Cauchy = struct
