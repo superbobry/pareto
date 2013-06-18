@@ -2,7 +2,7 @@
 # Inspired by
 #     http://blog.mlin.net/2013/02/testing-ocaml-projects-on-travis-ci.html
 
-DEBS=libgsl-dev
+DEBS=libgsl0-dev
 
 # OPAM version to install:
 export OPAM_VERSION=1.0.0
