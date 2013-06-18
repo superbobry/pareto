@@ -27,6 +27,12 @@ module type VarianceOpt = sig
   val variance_opt : t -> float option
 end
 
+module type MLE = sig
+  type t
+
+  val mle : float array -> t
+end
+
 module type BaseDistribution = sig
   type t
   type elt
@@ -56,12 +62,14 @@ module Normal : sig
   include ContinuousDistribution
   include Mean with type t := t
   include Variance with type t := t
+  include MLE with type t := t
 
   (** Creates normal distribution from parameters. *)
   val create   : mean:float -> sd:float -> t
 
   (** Standard normal distribution with 0 [mean] and [sd] equal to 1. *)
   val standard : t
+    
 end
 
 (** Random variate distributed uniformly in the interval. *)
@@ -69,6 +77,7 @@ module Uniform : sig
   include ContinuousDistribution
   include Mean with type t := t
   include Variance with type t := t
+  include MLE with type t := t
 
   (** Creates uniform distribution over a given interval. *)
   val create : lower:float -> upper:float -> t
@@ -83,6 +92,7 @@ module Exponential : sig
   include ContinuousDistribution
   include Mean with type t := t
   include Variance with type t := t
+  include MLE with type t := t
 
   (** Creates exponential distribution. [rate] must be positive. *)
   val create : rate:float -> t
@@ -97,6 +107,7 @@ module Poisson : sig
   include DiscreteDistribution
   include Mean with type t := t
   include Variance with type t := t
+  include MLE with type t := t
 
   (** Creates a Poisson distribution. [rate] must be positive. *)
   val create : rate:float -> t
