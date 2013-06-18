@@ -78,9 +78,38 @@ and t_test_two_sample_paired () =
        { test_statistic = -3.607401; test_pvalue = 0.997158 }];
   end
 
+and chisq_test_gof () =
+  let observed = [|42.; 24.; 10.; 10.|]
+  and expected = [|21.; 22.; 17.; 26.|]
+  in begin
+    assert_equal_test_result ~msg:"with uniform probabilities"
+      (ChiSquared.goodness_of_fit observed ())
+      { test_statistic = 32.139534; test_pvalue = 4.8908077607843233e-07 };
+
+    (* Note(superbobry): R doesn't have a version of the test with
+       frequences, thus we use 'scipy.stats.chisquare' as a reference. *)
+    assert_equal_test_result ~msg:"with given probabilities"
+      (ChiSquared.goodness_of_fit observed ~expected ())
+      { test_statistic = 33.910324; test_pvalue = 2.06945476533e-07 }
+  end
+
+and chisq_test_independence () =
+  let observed = [|
+    [|4.; 3.; 5.; 3.; 5.; 3.; 2.; 5.; 4.; 4.; 4.; 3.|];
+    [|2.; 2.; 1.; 2.; 3.; 1.; 2.; 3.; 2.; 1.; 1.; 3.|];
+    [|2.; 4.; 3.; 3.; 4.; 3.; 3.; 4.; 4.; 1.; 2.; 1.|];
+    [|3.; 5.; 4.; 3.; 4.; 4.; 3.; 3.; 3.; 4.; 4.; 4.|]
+  |] in begin
+    assert_equal_test_result ~msg:"with continuity correction"
+      (ChiSquared.independence observed ~correction:true ())
+      { test_statistic = 9.153073; test_pvalue = 1. };
+  end
+
 
 let test = "Tests" >::: [
     "one-sample t-test" >:: t_test_one_sample;
     "two-sample t-test for independent samples" >:: t_test_two_sample_independent;
     "two-sample t-test for paired samples" >:: t_test_two_sample_paired;
+    "X^2 test for goodness of fit" >:: chisq_test_gof;
+    "X^2 test for independence" >:: chisq_test_independence;
   ]

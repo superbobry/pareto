@@ -67,23 +67,22 @@ module ChiSquared = struct
       test_pvalue    = 1. -. cumulative_probability ~x:chisq d
     }
 
-  let goodness_of_fit observed ?(expected=[||]) ?(df=0) () =
+  let goodness_of_fit observed ?expected ?(df=0) () =
     let n = Array.length observed in
-    let k = Array.length expected in
-    let expected =
-      if k = 0
-      then Array.make n (Array.sum observed /. float_of_int n)
-      else if k != n
-      then invalid_arg "ChiSquared.goodness_of_fit: unequal length arrays"
-      else
-        (* TODO(superbobry): make sure we have wellformed frequencies. *)
-        expected
-    in
-
-    let chisq = ref 0. in
-    for i = 0 to n - 1 do
-      chisq := !chisq +. sqr (observed.(i) -. expected.(i)) /. expected.(i)
-    done;
+    let expected = match expected with
+      | Some expected ->
+        if Array.length expected <> n
+        then invalid_arg "ChiSquared.goodness_of_fit: unequal length arrays"
+        else
+          (* TODO(superbobry): make sure we have wellformed frequencies. *)
+          expected
+      | None ->
+        Array.make n (Array.sum observed /. float_of_int n)
+    and chisq = ref 0. in begin
+      for i = 0 to n - 1 do
+        chisq := !chisq +. sqr (observed.(i) -. expected.(i)) /. expected.(i)
+      done
+    end;
 
     finalize (Distributions.ChiSquared.create ~df:(n - 1 - df)) !chisq
 
