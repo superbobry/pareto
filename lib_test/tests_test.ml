@@ -26,6 +26,17 @@ let assert_equal_test_results ?(msg="")
         tr1 tr2
     ) expected [TwoSided; Less; Greater]
 
+let cmp_array ~cmp v1 v2 =
+  let n   = min (Array.length v1) (Array.length v2)
+  and res = ref true in
+  for i = 0 to n - 1 do
+    res := !res && cmp (Array.unsafe_get v1 i) (Array.unsafe_get v2 i)
+  done; !res
+
+let printer_array ~printer vs =
+  let inner = String.concat ", " Array.(to_list (map printer vs)) in
+  Printf.sprintf "[%s]" inner
+
 
 let t_test_one_sample () =
   let vs = [|0.88456; 0.43590; 0.95778; -1.05039; -0.38589;
@@ -236,6 +247,44 @@ and sign_test_two_sample () =
   end
 
 
+let test_hb_adjust () =
+  let pvalues =
+    [|0.000962882346117542; 0.00189844480724466; 0.0183097438104205;
+      0.0315318359604176; 0.0481693657349631; 0.105687877464594;
+      0.543211136961355; 0.565056666152251; 0.603476808731503;
+      0.955690764788587|]
+  and adjusted_pvalues =
+    [|0.00962882346117542; 0.0170860032652019; 0.146477950483364;
+      0.220722851722923; 0.289016194409779; 0.528439387322972;
+      1.; 1.; 1.; 1.|]
+  in begin
+    assert_equal
+      ~cmp:(cmp_array ~cmp:(cmp_float ~epsilon:1e-6))
+      ~printer:(printer_array ~printer:(Printf.sprintf "%.6f"))
+      adjusted_pvalues
+      Multiple.(adjust pvalues HolmBonferroni)
+  end
+
+and test_bh_adjust () =
+  let pvalues =
+    [|0.000962882346117542; 0.00189844480724466; 0.0183097438104205;
+      0.0315318359604176; 0.0481693657349631; 0.105687877464594;
+      0.543211136961355; 0.565056666152251; 0.603476808731503;
+      0.955690764788587|]
+  and adjusted_pvalues =
+    [|0.00949222403622329; 0.00949222403622329; 0.0610324793680683;
+      0.078829589901044; 0.0963387314699263; 0.176146462440991;
+      0.670529787479448; 0.670529787479448; 0.670529787479448;
+      0.955690764788587|]
+  in begin
+    assert_equal
+      ~cmp:(cmp_array ~cmp:(cmp_float ~epsilon:1e-6))
+      ~printer:(printer_array ~printer:(Printf.sprintf "%.6f"))
+      adjusted_pvalues
+      Multiple.(adjust pvalues BenjaminiHochberg)
+  end
+
+
 let test = "Tests" >::: [
     "one-sample t-test" >:: t_test_one_sample;
     "two-sample t-test for independent samples" >::
@@ -253,4 +302,7 @@ let test = "Tests" >::: [
       wilcoxon_signed_rank_test_two_samples;
     "one-sample sign test" >:: sign_test_one_sample;
     "two-sample sign test" >:: sign_test_two_sample;
+
+    "Holm-Bonferroni P-value adjustment" >:: test_hb_adjust;
+    "Benjamini-Hochberg P-value adjustment" >:: test_bh_adjust
   ]
