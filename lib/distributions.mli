@@ -69,7 +69,6 @@ module Normal : sig
 
   (** Standard normal distribution with 0 [mean] and [sd] equal to 1. *)
   val standard : t
-    
 end
 
 (** Random variate distributed uniformly in the interval. *)
@@ -147,7 +146,6 @@ module F : sig
   include ContinuousDistribution
   include MeanOpt with type t := t
   include VarianceOpt with type t := t
-
 
   (** Creates Fisher-Snedecor distribution with a given number of degrees
       of freedom. *)

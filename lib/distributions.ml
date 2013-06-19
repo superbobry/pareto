@@ -97,9 +97,9 @@ module Normal = struct
     Randist.gaussian ~sigma:normal_sd rng +. normal_mean
   let sample = make_sampler generate
 
-  let mle data = 
-    let normal_mean = Sample.mean data in
-    let normal_sd   = Sample.sd ~mean:normal_mean data in
+  let mle vs =
+    let normal_mean = Sample.mean vs in
+    let normal_sd   = Sample.sd ~mean:normal_mean vs in
     { normal_mean; normal_sd; }
 end
 
@@ -133,10 +133,8 @@ module Uniform = struct
     Randist.flat ~a:uniform_lower ~b:uniform_upper rng
   let sample = make_sampler generate
 
-  let mle data =
-    { uniform_lower = Sample.min data;
-      uniform_upper = Sample.max data;
-    }
+  let mle vs =
+    { uniform_lower = Sample.min vs; uniform_upper = Sample.max vs }
 end
 
 module Exponential = struct
@@ -163,7 +161,7 @@ module Exponential = struct
     Randist.exponential ~mu:exp_rate rng
   let sample = make_sampler generate
 
-  let mle data = { exp_rate = 1.0 /. (Sample.mean data); }
+  let mle vs = { exp_rate = 1. /. Sample.mean vs; }
 end
 
 module Poisson = struct
@@ -187,7 +185,7 @@ module Poisson = struct
     Randist.poisson ~mu:poisson_rate rng
   let sample = make_sampler generate
 
-  let mle data = { poisson_rate = Sample.mean data; }
+  let mle vs = { poisson_rate = Sample.mean vs; }
 end
 
 module Binomial = struct
@@ -336,15 +334,17 @@ module Gamma = struct
     Randist.gamma ~a:gamma_shape ~b:gamma_scale rng
   let sample = make_sampler generate
 
-  let mle data =
-    (* the shape parameter is an approximation not an MLE; apparently this is
-     * no more than 1.5% away, but requires a number of newton method moves to
-     * obtain an optimal value --I have heard 4 iterations is usually enough as
-     * the function is well behaved. This is not exposed in the MLI file. *)
-    let mean = Sample.mean data in
+  let mle vs =
+    (* Note(nrlucaroni): the shape parameter is an approximation not
+       an MLE; apparently this is no more than 1.5% away, but requires
+       a number of Newton method moves to obtain an optimal value.
+
+       I have heard 4 iterations is usually enough as the function
+       is well behaved. This is not exposed in the MLI file. *)
+    let mean = Sample.mean vs in
     let gamma_shape =
-      let s = (log mean) -. (Sample.mean (Array.map log data)) in
-      (3.0 -. s +. (sqrt ((s-.3.0)*.(s-.3.0) +. 24.0))) /. (12.0 *. s)
+      let s = log mean -. Sample.mean (Array.map log vs) in
+      (3. -. s +. sqrt ((s -. 3.) *. (s -. 3.) +. 24.)) /. (12. *. s)
     in
     let gamma_scale = mean /. gamma_shape in
     { gamma_shape; gamma_scale; }
