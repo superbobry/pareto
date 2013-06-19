@@ -372,20 +372,23 @@ module MannWhitneyU = struct
       let c  = Combi.make (int_of_float n) k in
       let c_n_k = Gsl.Sf.choose (int_of_float n) k in
       let le = ref 0 in
-      let gt = ref 0 in
+      let ge = ref 0 in
       begin
-        for _i = 0 to int_of_float c_n_k do
-          let cu = Array.sum_with (fun i -> ranks.(i)) (Combi.to_array c) -.
-                     float_of_int (k * (k + 1)) /. 2.
-          in incr (if cu <= u then le else gt);
-
-          Combi.next c;
+        for _i = 0 to int_of_float c_n_k - 1 do
+          let cu =
+            Array.sum_with (Array.unsafe_get ranks) (Combi.to_array c) -.
+              float_of_int (k * (k + 1)) /. 2.
+          in begin
+            if cu <= u then incr le;
+            if cu >= u then incr ge;
+            Combi.next c
+          end
         done;
 
         let pvalue = match alternative with
           | Less     -> float_of_int !le /. c_n_k
-          | Greater  -> float_of_int !gt /. c_n_k
-          | TwoSided -> 2. *. float_of_int (min !le !gt) /. c_n_k
+          | Greater  -> float_of_int !ge /. c_n_k
+          | TwoSided -> 2. *. float_of_int (min !le !ge) /. c_n_k
         in { test_statistic = u; test_pvalue = pvalue }
       end
 end
@@ -419,9 +422,9 @@ module WilcoxonT = struct
       let delta =
         if correction
         then match alternative with
-          | Less     -> -. 0.5
+          | Less     -> -0.5
           | Greater  -> 0.5
-          | TwoSided -> if w > mean then 0.5 else -. 0.5
+          | TwoSided -> if w > mean then 0.5 else -0.5
         else 0.
       in
 
@@ -437,23 +440,24 @@ module WilcoxonT = struct
     else
       (* Exact critical value. *)
       let le = ref 0 in
-      let gt = ref 0 in
+      let ge = ref 0 in
       let two_n = float_of_int (2 lsl (int_of_float nz)) in
       begin
         for i = 0 to int_of_float two_n - 1 do
           let pw = ref 0. in
           for j = 0 to int_of_float nz - 1 do
             if (i lsr j) land 1 = 1
-            then pw := !pw +. ranks.(j);
+            then pw := !pw +. Array.unsafe_get ranks j;
           done;
 
-          incr (if !pw <= w then le else gt);
+          if !pw <= w then incr le;
+          if !pw >= w then incr ge;
         done;
 
         let pvalue = match alternative with
           | Less     -> float_of_int !le /. two_n
-          | Greater  -> float_of_int !gt /. two_n
-          | TwoSided -> 2. *. float_of_int (min !le !gt) /. two_n
+          | Greater  -> float_of_int !ge /. two_n
+          | TwoSided -> 2. *. float_of_int (min !le !ge) /. two_n
         in { test_statistic = w; test_pvalue = pvalue }
       end
 
@@ -465,11 +469,11 @@ module Sign = struct
   let two_sample_paired v1 v2 ?(alternative=TwoSided) () =
     let n = Array.length v1 in
     if n = 0
-    then invalid_arg "WilcoxonT.two_sample_paired: no data";
+    then invalid_arg "Sign.two_sample_paired: no data";
     if n <> Array.length v2
-    then invalid_arg "WilcoxonT.two_sample_paired: unequal length arrays";
+    then invalid_arg "Sign.two_sample_paired: unequal length arrays";
 
-    let ds = Array.init n (fun i -> v2.(i) -. v1.(i)) in
+    let ds = Array.init n (fun i -> v1.(i) -. v2.(i)) in
     let (pi_plus, pi_minus) = Array.fold_left
         (fun (p, m) d ->
            if d > 0.
@@ -490,7 +494,7 @@ module Sign = struct
     in { test_statistic = float_of_int pi_plus; test_pvalue = min 1. pvalue }
 
   let one_sample vs ?(shift=0.) =
-    two_sample_paired (Array.make (Array.length vs) shift) vs
+    two_sample_paired vs (Array.make (Array.length vs) shift)
 end
 
 

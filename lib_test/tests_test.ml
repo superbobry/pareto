@@ -115,7 +115,7 @@ and ks_test_gof () =
          ~cumulative_probability:(fun x -> cumulative_probability standard ~x))
       [{ test_statistic = 0.232506; test_pvalue = 0.575175 };
        { test_statistic = 0.232506; test_pvalue = 0.293906 };
-       { test_statistic = 0.2137634; test_pvalue = 0.3516124 }];
+       { test_statistic = 0.2137634; test_pvalue = 0.3516124 }]
   end
 
 and ks_test_two_sample () =
@@ -128,16 +128,129 @@ and ks_test_two_sample () =
       (KolmogorovSmirnov.two_sample v1 v2)
       [{ test_statistic = 0.2; test_pvalue = 0.994457 };
        { test_statistic = 0.2; test_pvalue = 0.670320 };
-       { test_statistic = 0.1; test_pvalue = 0.904837 }];
+       { test_statistic = 0.1; test_pvalue = 0.904837 }]
+  end
+
+and mann_whitney_test_two_sample () =
+  (* Source: 'scipy/stats/tests/test_stats.py'. *)
+  let v1 = [|1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 1.; 2.; 1.; 1.; 2.; 1.; 1.;
+             2.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             2.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 3.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.|]
+  and v2 = [|1.; 1.; 1.; 1.; 1.; 1.; 1.; 2.; 1.; 2.; 1.; 1.; 1.;
+             1.; 2.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.; 2.; 1.; 1.; 3.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 2.; 1.; 2.; 1.; 1.; 1.; 1.;
+             1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.; 2.; 2.; 1.; 1.; 2.; 1.; 1.; 2.;
+             1.; 2.; 1.; 1.; 1.; 1.; 2.; 2.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.; 2.; 2.; 2.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 2.; 1.; 1.; 2.; 1.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.; 1.;
+             1.; 1.; 1.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 2.; 1.; 1.; 1.; 1.; 1.;
+             1.|]
+  in begin
+    assert_equal_test_results ~msg:"with continuity correction and ties"
+      (MannWhitneyU.two_sample_independent v1 v2 ~correction:true)
+      [{ test_statistic = 16980.5; test_pvalue = 0.0000564287 };
+       { test_statistic = 16980.5; test_pvalue = 0.0000282143 };
+       { test_statistic = 16980.5; test_pvalue = 0.999972 }];
+
+    assert_equal_test_results ~msg:"with continuity correction and no ties"
+      (MannWhitneyU.two_sample_independent
+         [|11; 4; 2; 5|] [|12; 3; 9; 7|] ~correction:true)
+      [{ test_statistic = 5.; test_pvalue = 0.4857143 };
+       { test_statistic = 5.; test_pvalue = 0.2428571 };
+       { test_statistic = 5.; test_pvalue = 0.8285714 }]
+  end
+
+and wilcoxon_signed_rank_test_one_sample () =
+  begin
+    (* Source: Sheskin, Example 6.1.
+
+       Note(superbobry): we don't cross-check statistic value with R
+       here, because R computes W = W-, while our implementation
+       follows Sheskin and defines W = min(W-, W+). I guess that's
+       why one-tailed P-values are flipped. *)
+    assert_equal_test_results ~msg:"with continuity correction and ties"
+      (WilcoxonT.one_sample [|9.; 10.; 8.; 4.; 8.; 3.; 0.; 10.; 15.; 9.|]
+         ~shift:5. ~correction:true)
+      [{ test_statistic = 11.; test_pvalue = 0.101575647 };
+       { test_statistic = 11.; test_pvalue = 0.0507878 };
+       { test_statistic = 11.; test_pvalue = 0.959035 }];
+
+    assert_equal_test_results ~msg:"with continuity correction and no ties"
+      (WilcoxonT.one_sample [|9.; 10.; 8.; 4.; 3.; 15.|]
+         ~shift:5. ~correction:true)
+      [{ test_statistic = 3.; test_pvalue = 0.15625 };
+       { test_statistic = 3.; test_pvalue = 0.078125 };
+       { test_statistic = 3.; test_pvalue = 0.953125 }]
+  end
+
+and wilcoxon_signed_rank_test_two_samples () =
+  let v1 = [|78.; 24.; 64.; 45.; 64.; 52.; 30.; 50.; 64.; 50.;
+             78.; 22.; 84.; 40.; 90.; 72.|]
+  and v2 = [|78.; 24.; 62.; 48.; 68.; 56.; 25.; 44.; 56.; 40.;
+             68.; 36.; 68.; 20.; 58.; 32.|]
+  in begin
+    assert_equal_test_results ~msg:"with continuity correction and ties"
+      (WilcoxonT.two_sample_paired v1 v2 ~correction:true)
+      [{ test_statistic = 19.; test_pvalue = 0.0382053143 };
+       { test_statistic = 19.; test_pvalue = 0.01910266 };
+       { test_statistic = 19.; test_pvalue = 0.983638 }]
+  end
+
+and sign_test_one_sample () =
+  (* Source: Sheskin, Example 9.7. *)
+  let vs =
+    [|230.; 167.; 250.; 345.; 442.; 190.; 200.; 248.; 289.; 262.; 301.|]
+  in begin
+    assert_equal_test_results
+      (Sign.one_sample vs ~shift:200.)
+      [{ test_statistic = 8.; test_pvalue = 0.109375 };
+       { test_statistic = 8.; test_pvalue = 0.9892578 };
+       { test_statistic = 8.; test_pvalue = 0.0546875 }]
+  end
+
+and sign_test_two_sample () =
+  (* Source: Sheskin, Example 19.1. *)
+  let v1 = [|9.; 2.; 1.; 4.; 6.; 4.; 7.; 8.; 5.; 1.|]
+  and v2 = [|8.; 2.; 3.; 2.; 3.; 0.; 4.; 5.; 4.; 0.|]
+  in begin
+    assert_equal_test_results
+      (Sign.two_sample_paired v1 v2)
+      [{ test_statistic = 8.; test_pvalue = 0.0390625 };
+       { test_statistic = 8.; test_pvalue = 0.9980468 };
+       { test_statistic = 8.; test_pvalue = 0.01953125 }]
   end
 
 
 let test = "Tests" >::: [
     "one-sample t-test" >:: t_test_one_sample;
-    "two-sample t-test for independent samples" >:: t_test_two_sample_independent;
+    "two-sample t-test for independent samples" >::
+      t_test_two_sample_independent;
     "two-sample t-test for paired samples" >:: t_test_two_sample_paired;
     "X^2 test for goodness of fit" >:: chisq_test_gof;
     "X^2 test for independence" >:: chisq_test_independence;
     "one-sample Kolmogorov-Smirnov test for goodness of fit" >:: ks_test_gof;
     "two-sample Kolmogorov-Smirnov test" >:: ks_test_two_sample;
+    "two-sample Mann-Whitney test for independent samples" >::
+      mann_whitney_test_two_sample;
+    "one-sample Wilcoxon signed-rank test" >::
+      wilcoxon_signed_rank_test_one_sample;
+    "two-sample Wilcoxon signed-rank test for paired samples" >::
+      wilcoxon_signed_rank_test_two_samples;
+    "one-sample sign test" >:: sign_test_one_sample;
+    "two-sample sign test" >:: sign_test_two_sample;
   ]
