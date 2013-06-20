@@ -27,7 +27,7 @@ and sample ?(rng=default_rng) ?(replace=false) ?size vs =
       if vs = [||] || not replace && Array.length vs < n
       then invalid_arg "Sample.sample: not enough elements to sample from"
       else Array.create n vs.(0)
-    | None      -> Array.copy vs
+    | None   -> Array.copy vs
   in begin
     if replace
     then Randist.sample rng ~src:vs ~dst
