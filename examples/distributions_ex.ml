@@ -9,12 +9,12 @@ let distribution_mean (type t)
   Printf.printf "E[X] = %.4f\n" (D.mean d)
 
 let distribution_quantile (type t)
-    (module D : ContinuousDistribution with type t = t)
+    (module D : ContinuousDistribution with type t = t and type elt = float)
     (d : t) () =
   Printf.printf "Q(0.5) = %.4f\n" (D.quantile ~p:0.5 d)
 
 let distribution_sample (type t)
-    (module D : DiscreteDistribution with type t = t)
+    (module D : DiscreteDistribution with type t = t and type elt = int)
     (d : t) () =
   print_int_array (D.sample ~size:10 d)
 

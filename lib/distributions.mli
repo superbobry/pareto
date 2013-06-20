@@ -28,9 +28,10 @@ module type VarianceOpt = sig
 end
 
 module type MLE = sig
+  type elt
   type t
 
-  val mle : float array -> t
+  val mle : elt array -> t
 end
 
 module type BaseDistribution = sig
@@ -42,27 +43,27 @@ module type BaseDistribution = sig
 end
 
 module type DiscreteDistribution = sig
-  include BaseDistribution with type elt := int
+  include BaseDistribution
 
-  val cumulative_probability : t -> n:int -> float
-  val probability : t -> n:int -> float
+  val cumulative_probability : t -> n:elt -> float
+  val probability : t -> n:elt -> float
 end
 
 module type ContinuousDistribution = sig
-  include BaseDistribution with type elt := float
+  include BaseDistribution
 
-  val cumulative_probability : t -> x:float -> float
-  val density  : t -> x:float -> float
-  val quantile : t -> p:float -> float
+  val cumulative_probability : t -> x:elt -> float
+  val density  : t -> x:elt -> float
+  val quantile : t -> p:float -> elt
 end
 
 
 (** The normal distribution. *)
 module Normal : sig
-  include ContinuousDistribution
+  include ContinuousDistribution with type elt = float
   include Mean with type t := t
   include Variance with type t := t
-  include MLE with type t := t
+  include MLE with type t := t and type elt := elt
 
   (** Creates normal distribution from parameters. *)
   val create   : mean:float -> sd:float -> t
@@ -73,10 +74,10 @@ end
 
 (** Random variate distributed uniformly in the interval. *)
 module Uniform : sig
-  include ContinuousDistribution
+  include ContinuousDistribution with type elt = float
   include Mean with type t := t
   include Variance with type t := t
-  include MLE with type t := t
+  include MLE with type t := t and type elt := elt
 
   (** Creates uniform distribution over a given interval. *)
   val create : lower:float -> upper:float -> t
@@ -88,10 +89,10 @@ end
     process, in which events occur continuously and independently at a
     constant average [rate]. *)
 module Exponential : sig
-  include ContinuousDistribution
+  include ContinuousDistribution with type elt = float
   include Mean with type t := t
   include Variance with type t := t
-  include MLE with type t := t
+  include MLE with type t := t and type elt := elt
 
   (** Creates exponential distribution. [rate] must be positive. *)
   val create : rate:float -> t
@@ -103,10 +104,10 @@ end
     fixed interval if these events occur with a known average [rate],
     and occur independently from each other within that interval. *)
 module Poisson : sig
-  include DiscreteDistribution
+  include DiscreteDistribution with type elt = int
   include Mean with type t := t
   include Variance with type t := t
-  include MLE with type t := t
+  include MLE with type t := t and type elt := elt
 
   (** Creates a Poisson distribution. [rate] must be positive. *)
   val create : rate:float -> t
@@ -115,10 +116,9 @@ end
 (** The binomial distribution.
 
     The probability distribution of the number of successes in a sequence
-    of independent Bernoulli [trials].
-*)
+    of independent Bernoulli [trials]. *)
 module Binomial : sig
-  include DiscreteDistribution
+  include DiscreteDistribution with type elt = int
   include Mean with type t := t
   include Variance with type t := t
 
@@ -132,7 +132,7 @@ end
     The probability distribution of sum of squares of [df] independent
     standard normal distributions. *)
 module ChiSquared : sig
-  include ContinuousDistribution
+  include ContinuousDistribution with type elt = float
   include Mean with type t := t
   include Variance with type t := t
 
@@ -143,7 +143,7 @@ end
 
 (** Fisher-Snedecor distribution. *)
 module F : sig
-  include ContinuousDistribution
+  include ContinuousDistribution with type elt = float
   include MeanOpt with type t := t
   include VarianceOpt with type t := t
 
@@ -154,7 +154,7 @@ end
 
 (* Student's t-distribution. *)
 module T : sig
-  include ContinuousDistribution
+  include ContinuousDistribution with type elt = float
   include MeanOpt with type t := t
   include VarianceOpt with type t := t
 
@@ -165,7 +165,7 @@ end
 
 (** The gamma distribution. *)
 module Gamma : sig
-  include ContinuousDistribution
+  include ContinuousDistribution with type elt = float
   include Mean with type t := t
   include Variance with type t := t
 
@@ -177,7 +177,7 @@ end
 
     It doesn't have mean and variance. *)
 module Cauchy : sig
-  include ContinuousDistribution
+  include ContinuousDistribution with type elt = float
 
   (** Creates Cauchy-Lorentz distribution from parameters. *)
   val create   : location:float -> scale:float -> t
@@ -188,7 +188,7 @@ end
 
 (** The beta distribution. *)
 module Beta : sig
-  include ContinuousDistribution
+  include ContinuousDistribution with type elt = float
   include Mean with type t := t
   include Variance with type t := t
 
@@ -201,7 +201,7 @@ end
     The probability distribution of the number of failures before the
     first success, supported on the set [[0, 1, ...]]. *)
 module Geometric : sig
-  include DiscreteDistribution
+  include DiscreteDistribution with type elt = int
   include Mean with type t := t
   include Variance with type t := t
 
@@ -216,10 +216,9 @@ end
     population contains [m] elements of "type 1" and [t - m] elements
     of "type 2". *)
 module Hypergeometric : sig
-  include DiscreteDistribution
+  include DiscreteDistribution with type elt = int
   include Mean with type t := t
   include Variance with type t := t
-
 
   (** Creates Hypergeometric distribution. *)
   val create : m:int -> t:int -> k:int -> t
@@ -230,7 +229,7 @@ end
     The probability distribution of the number of successes in a sequence
     of Bernoulli trials before a specified  number of [failures] occur. *)
 module NegativeBinomial : sig
-  include DiscreteDistribution
+  include DiscreteDistribution with type elt = int
   include Mean with type t := t
   include Variance with type t := t
 

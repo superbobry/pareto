@@ -30,8 +30,9 @@ end
 
 module type MLE = sig
   type t
+  type elt
 
-  val mle : float array -> t
+  val mle : elt array -> t
 end
 
 
@@ -44,18 +45,18 @@ module type BaseDistribution = sig
 end
 
 module type DiscreteDistribution = sig
-  include BaseDistribution with type elt := int
+  include BaseDistribution
 
-  val cumulative_probability : t -> n:int -> float
-  val probability : t -> n:int -> float
+  val cumulative_probability : t -> n:elt -> float
+  val probability : t -> n:elt -> float
 end
 
 module type ContinuousDistribution = sig
-  include BaseDistribution with type elt := float
+  include BaseDistribution
 
-  val cumulative_probability : t -> x:float -> float
-  val density  : t -> x:float -> float
-  val quantile : t -> p:float -> float
+  val cumulative_probability : t -> x:elt -> float
+  val density  : t -> x:elt -> float
+  val quantile : t -> p:float -> elt
 end
 
 
@@ -68,7 +69,8 @@ let make_sampler (generate : ?rng:Rng.t -> 'a -> 'b) =
 
 
 module Normal = struct
-  type t = {
+  type elt = float
+  type t   = {
     normal_mean : float;
     normal_sd   : float;
   }
@@ -104,7 +106,8 @@ module Normal = struct
 end
 
 module Uniform = struct
-  type t = {
+  type elt = float
+  type t   = {
     uniform_lower : float;
     uniform_upper : float
   }
@@ -138,7 +141,8 @@ module Uniform = struct
 end
 
 module Exponential = struct
-  type t = { exp_rate : float }
+  type elt = float
+  type t   = { exp_rate : float }
 
   let create ~rate =
     if rate > 0.
@@ -165,7 +169,8 @@ module Exponential = struct
 end
 
 module Poisson = struct
-  type t = { poisson_rate : float }
+  type elt = int
+  type t   = { poisson_rate : float }
 
   let create ~rate =
     if rate > 0.
@@ -185,11 +190,12 @@ module Poisson = struct
     Randist.poisson ~mu:poisson_rate rng
   let sample = make_sampler generate
 
-  let mle vs = { poisson_rate = Sample.mean vs; }
+  let mle vs = { poisson_rate = Sample.mean (Array.map float_of_int vs) }
 end
 
 module Binomial = struct
-  type t = {
+  type elt = int
+  type t   = {
     binomial_trials : int;
     binomial_p      : float
   }
@@ -217,7 +223,8 @@ module Binomial = struct
 end
 
 module ChiSquared = struct
-  type t = { chisq_df : float }
+  type elt = float
+  type t   = { chisq_df : float }
 
   let create ~df =
     if df <= 0
@@ -241,7 +248,8 @@ module ChiSquared = struct
 end
 
 module F = struct
-  type t = {
+  type elt = float
+  type t   = {
     f_df1 : float;
     f_df2 : float
   }
@@ -277,7 +285,8 @@ module F = struct
 end
 
 module T = struct
-  type t = { t_df : float }
+  type elt = float
+  type t   = { t_df : float }
 
   let create ~df =
     if df <= 0.
@@ -305,7 +314,8 @@ module T = struct
 end
 
 module Gamma = struct
-  type t = {
+  type elt = float
+  type t   = {
     gamma_shape : float;
     gamma_scale : float
   }
@@ -351,7 +361,8 @@ module Gamma = struct
 end
 
 module Cauchy = struct
-  type t = {
+  type elt = float
+  type t   = {
     cauchy_location : float;
     cauchy_scale    : float
   }
@@ -379,7 +390,8 @@ module Cauchy = struct
 end
 
 module Beta = struct
-  type t = {
+  type elt = float
+  type   t = {
     beta_alpha : float;
     beta_beta  : float
   }
@@ -411,7 +423,8 @@ module Beta = struct
 end
 
 module Geometric = struct
-  type t = { geometric_p : float }
+  type elt = int
+  type t   = { geometric_p : float }
 
   let create ~p =
     if p > 1.0 || p <= 0.
@@ -433,7 +446,8 @@ module Geometric = struct
 end
 
 module Hypergeometric = struct
-  type t = {
+  type elt = int
+  type t   = {
     hyper_m : int;
     hyper_t : int;
     hyper_k : int
@@ -473,7 +487,8 @@ module Hypergeometric = struct
 end
 
 module NegativeBinomial = struct
-  type t = {
+  type elt = int
+  type t   = {
     nbinomial_failures : int;
     nbinomial_p        : float
   }
