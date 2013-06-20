@@ -60,12 +60,11 @@ module type ContinuousDistribution = sig
 end
 
 
-let make_sampler (generate : ?rng:Rng.t -> 'a -> 'b) =
-  fun ?(rng=default_rng) ~size d ->
-    let rec go acc = function
+let make_sampler generate ?rng ~size d =
+  let rec go acc = function
     | 0 -> Array.of_list acc
-    | i -> go (generate ~rng d :: acc) (i - 1)
-    in go [] size
+    | i -> go (generate ?rng d :: acc) (i - 1)
+  in go [] size
 
 
 module Normal = struct
