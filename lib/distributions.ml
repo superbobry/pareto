@@ -3,29 +3,20 @@ open Internal
 module Randist = Gsl.Randist
 module Cdf = Gsl.Cdf
 
-
-module type Mean = sig
+module type Features = sig
   type t
+  type elt
 
-  val mean : t -> float
+  val mean     : t -> elt
+  val variance : t -> elt
 end
 
-module type MeanOpt = sig
+module type FeaturesOpt = sig
   type t
+  type elt
 
-  val mean_opt : t -> float option
-end
-
-module type Variance = sig
-  type t
-
-  val variance : t -> float
-end
-
-module type VarianceOpt = sig
-  type t
-
-  val variance_opt : t -> float option
+  val mean_opt     : t -> elt option
+  val variance_opt : t -> elt option
 end
 
 module type MLE = sig

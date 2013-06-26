@@ -4,9 +4,9 @@ open Common
 
 
 let distribution_mean (type t)
-    (module D : Mean with type t = t)
+    (module F : Features with type t = t and type elt = float)
     (d : t) () =
-  Printf.printf "E[X] = %.4f\n" (D.mean d)
+  Printf.printf "E[X] = %.4f\n" (F.mean d)
 
 let distribution_quantile (type t)
     (module D : ContinuousDistribution with type t = t and type elt = float)
