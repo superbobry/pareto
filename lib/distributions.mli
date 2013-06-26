@@ -3,31 +3,31 @@
 open Internal
 
 module type Features = sig
-  type t
   type elt
+  type t
 
   val mean     : t -> elt
   val variance : t -> elt
 end
 
 module type FeaturesOpt = sig
-  type t
   type elt
+  type t
 
   val mean_opt     : t -> elt option
   val variance_opt : t -> elt option
 end
 
 module type MLE = sig
-  type elt
   type t
+  type elt
 
   val mle : elt array -> t
 end
 
 module type BaseDistribution = sig
-  type t
   type elt
+  type t
 
   val generate : ?rng:Rng.t -> t -> elt
   val sample   : ?rng:Rng.t -> size:int -> t -> elt array

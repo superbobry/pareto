@@ -4,24 +4,24 @@ module Randist = Gsl.Randist
 module Cdf = Gsl.Cdf
 
 module type Features = sig
-  type t
   type elt
+  type t
 
   val mean     : t -> elt
   val variance : t -> elt
 end
 
 module type FeaturesOpt = sig
-  type t
   type elt
+  type t
 
   val mean_opt     : t -> elt option
   val variance_opt : t -> elt option
 end
 
 module type MLE = sig
-  type t
   type elt
+  type t
 
   val mle : elt array -> t
 end
@@ -52,10 +52,12 @@ end
 
 
 let make_sampler generate ?rng ~size d =
-  let rec go acc = function
-    | 0 -> Array.of_list acc
-    | i -> go (generate ?rng d :: acc) (i - 1)
-  in go [] size
+  let init = generate ?rng d in
+  let vs   = Array.make size init in begin
+    for i = 1 to size - 1 do
+      Array.unsafe_set vs i (generate ?rng d)
+    done; vs
+  end
 
 
 module Normal = struct
