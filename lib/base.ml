@@ -25,7 +25,7 @@ and sample ?(rng=default_rng) ?(replace=false) ?size vs =
   let dst = match size with
     | Some n ->
       if vs = [||] || not replace && Array.length vs < n
-      then invalid_arg "Sample.sample: not enough elements to sample from"
+      then invalid_arg "Base.sample: not enough elements to sample from"
       else Array.create n vs.(0)
     | None   -> Array.copy vs
   in begin
