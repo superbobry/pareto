@@ -204,6 +204,18 @@ module Poisson : sig
   val create : rate:float -> t
 end
 
+(** Bernoulli distribution.
+
+    The probability distribution, which takes value [1] with success
+    probability [p] and value [0] with failure probability [1 - p]. *)
+module Bernoulli : sig
+  include DiscreteDistribution with type elt = int
+  include Features with type t := t and type elt := float
+
+  (** Creates Bernoulli distribution with given success probability [p]. *)
+  val create : p:float -> t
+end
+
 (** The binomial distribution.
 
     The probability distribution of the number of successes in a sequence
@@ -271,6 +283,7 @@ val cauchy : location:float -> scale:float -> Cauchy.t
 val beta : alpha:float -> beta:float -> Beta.t
 
 val poisson : rate:float -> Poisson.t
+val bernoulli : p:float -> Bernoulli.t
 val binomial : trials:int -> p:float -> Binomial.t
 val geometric : p:float -> Geometric.t
 val hypergeometric : m:int -> t:int -> k:int -> Hypergeometric.t

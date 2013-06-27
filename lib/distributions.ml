@@ -470,6 +470,41 @@ module Poisson = struct
   let mle vs = { poisson_rate = Sample.mean (Array.map float_of_int vs) }
 end
 
+module Bernoulli = struct
+  type elt = int
+  type t   = { bernoulli_p : float }
+
+  let create ~p =
+    if p > 1.0 || p < 0.
+    then invalid_arg "Bernoulli.create: probability must be in range [0, 1]"
+    else { bernoulli_p = p }
+
+  let cumulative_probability { bernoulli_p = p } ~n =
+    if n < 0
+    then 0.
+    else if n < 1
+    then 1. -. p
+    else 1.
+
+  let probability { bernoulli_p = p } ~n =
+    if n = 0
+    then 1. -. p
+    else if n = 1
+    then p
+    else 0.
+
+  let mean { bernoulli_p = p } = p
+  and variance { bernoulli_p = p } = p *. (1. -. p)
+  and skewness { bernoulli_p = p } =
+    (1. -. 2. *. p) /. sqrt (p *. (1. -. p))
+  and kurtosis { bernoulli_p = p } =
+    (1. -. 6. *. p *. (1. -. p)) /. (p *. (1. -. p))
+
+  let generate ?(rng=default_rng) { bernoulli_p } =
+    Randist.bernoulli ~p:bernoulli_p rng
+  let sample = make_sampler generate
+end
+
 module Binomial = struct
   type elt = int
   type t   = {
@@ -634,6 +669,7 @@ and cauchy = Cauchy.create
 and beta = Beta.create
 
 let poisson = Poisson.create
+and bernoulli = Bernoulli.create
 and binomial = Binomial.create
 and geometric = Geometric.create
 and hypergeometric = Hypergeometric.create
