@@ -127,6 +127,7 @@ module Quantile = struct
     | NormalUnbiased
 
   let finalize vs h j =
+    let bound ?(a=0) ~b i = Pervasives.(min (max i a) b) in
     let n    = Array.length vs in
     let svs  = Vector.partial_sort (bound ~b:n (j + 1)) (Vector.of_array vs) in
     let item = fun i -> svs.(bound ~b:(n - 1) i) in

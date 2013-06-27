@@ -24,7 +24,7 @@ Library pareto
   CCOpt:             -O2 -Wall -pedantic -Wextra
   NativeOpt:         -w @a -warn-error -a
   ByteOpt:           -w @a -warn-error -a
-  BuildDepends:      gsl (>= 1.11.0)
+  BuildDepends:      gsl (>= 1.13.0)
 
 # Tests
 

@@ -520,7 +520,7 @@ module Multiple = struct
           Array.reorder iu cm adjusted_pvalues
         end
       | BenjaminiHochberg ->
-        let is = Array.sort_index (flip compare) pvalues in
+        let is = Array.sort_index (fun v1 v2 -> compare v2 v1) pvalues in
         let iu = Array.sort_index compare is in begin
           for i = 0 to m - 1 do
             let j = Array.unsafe_get is i in

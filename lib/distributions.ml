@@ -504,13 +504,8 @@ module Hypergeometric = struct
     then invalid_arg "Hypergeometric.create: k must be in range (0, t]"
     else { hyper_m = m; hyper_t = t; hyper_k = k }
 
-  (** FIXME(superbobry): remove this once gsl-1.14.0 is out. *)
-  external hypergeometric_P
-    : k:int -> n1:int -> n2:int -> t:int -> float
-    = "ml_gsl_cdf_hypergeometric_P"
-
   let cumulative_probability { hyper_m; hyper_t; hyper_k } ~n =
-    hypergeometric_P ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k ~k:n
+    Cdf.hypergeometric_P ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k ~k:n
 
   let probability { hyper_m; hyper_t; hyper_k } ~n =
     Randist.hypergeometric_pdf ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k n
@@ -560,13 +555,12 @@ module NegativeBinomial = struct
     else { nbinomial_failures = failures; nbinomial_p = p }
 
   let cumulative_probability { nbinomial_failures; nbinomial_p } ~n =
-    (** Interface inconsistency reported, see
-        https://bitbucket.org/mmottl/gsl-ocaml/issue/5 for details. *)
-    Cdf.negative_binomial_P ~n:(float_of_int nbinomial_failures)
-      ~p:nbinomial_p ~k:n
+    Cdf.negative_binomial_P
+      ~n:(float_of_int nbinomial_failures) ~p:nbinomial_p ~k:n
 
   let probability { nbinomial_failures; nbinomial_p } ~n =
-    Randist.negative_binomial_pdf ~n:nbinomial_failures ~p:nbinomial_p n
+    Randist.negative_binomial_pdf
+      ~n:(float_of_int nbinomial_failures) ~p:nbinomial_p n
 
   let mean { nbinomial_failures = r; nbinomial_p = p } =
     float_of_int r *. p /. (1. -. p)
@@ -578,7 +572,8 @@ module NegativeBinomial = struct
     6. /. float_of_int r +. sqr (1. +. p) /. (float_of_int r *. p)
 
   let generate ?(rng=default_rng) { nbinomial_failures; nbinomial_p } =
-    Randist.negative_binomial ~n:nbinomial_failures ~p:nbinomial_p rng
+    Randist.negative_binomial
+      ~n:(float_of_int nbinomial_failures) ~p:nbinomial_p rng
   let sample = make_sampler generate
 end
 

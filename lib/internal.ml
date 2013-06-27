@@ -46,22 +46,13 @@ end
 let sqr x = x *. x
 let cube x = x *. x *. x
 
-let flip f x y = f y x
-
 let is_nan (x : float) = x <> x
 let is_not_nan (x : float) = x = x
 
 let round x = int_of_float (floor (x +. 0.5))
 
-let float_of_bool b = if b then 1. else 0.
-
-let bound ?(a=0) ~b i = min (max i a) b
-
 let invalid_arg s = raise (Invalid_argument s)
 
-exception Not_implemented of string
-
-let not_implemented s = raise (Not_implemented s)
 
 module Array = struct
   include Array
