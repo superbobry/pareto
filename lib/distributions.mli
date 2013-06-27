@@ -8,6 +8,8 @@ module type Features = sig
 
   val mean     : t -> elt
   val variance : t -> elt
+  val skewness : t -> elt
+  val kurtosis : t -> elt
 end
 
 module type FeaturesOpt = sig
@@ -16,6 +18,8 @@ module type FeaturesOpt = sig
 
   val mean_opt     : t -> elt option
   val variance_opt : t -> elt option
+  val skewness_opt : t -> elt option
+  val kurtosis_opt : t -> elt option
 end
 
 module type MLE = sig
@@ -192,7 +196,7 @@ end
 (** The Hypergeometric distribution.
 
     The probability distribution of obtaining [k] elements of "type 1"
-    in [t] samples from a population without replacement, if the
+    in [t] samples from a population {b without} replacement, if the
     population contains [m] elements of "type 1" and [t - m] elements
     of "type 2". *)
 module Hypergeometric : sig

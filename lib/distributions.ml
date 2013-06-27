@@ -9,6 +9,8 @@ module type Features = sig
 
   val mean     : t -> elt
   val variance : t -> elt
+  val skewness : t -> elt
+  val kurtosis : t -> elt
 end
 
 module type FeaturesOpt = sig
@@ -17,6 +19,8 @@ module type FeaturesOpt = sig
 
   val mean_opt     : t -> elt option
   val variance_opt : t -> elt option
+  val skewness_opt : t -> elt option
+  val kurtosis_opt : t -> elt option
 end
 
 module type MLE = sig
@@ -25,7 +29,6 @@ module type MLE = sig
 
   val mle : elt array -> t
 end
-
 
 module type BaseDistribution = sig
   type t
@@ -86,6 +89,8 @@ module Normal = struct
 
   let mean { normal_mean; _ } = normal_mean
   and variance { normal_sd; _ } = sqr normal_sd
+  and skewness _d = 0.
+  and kurtosis _d = 0.
 
   let generate ?(rng=default_rng) { normal_mean; normal_sd } =
     Randist.gaussian ~sigma:normal_sd rng +. normal_mean
@@ -123,6 +128,8 @@ module Uniform = struct
     0.5 *. (uniform_lower +. uniform_upper)
   and variance { uniform_lower; uniform_upper } =
     sqr (uniform_upper -. uniform_lower) /. 12.
+  and skewness _d = 0.
+  and kurtosis _d = -6. /. 5.
 
   let generate ?(rng=default_rng) { uniform_lower; uniform_upper } =
     Randist.flat ~a:uniform_lower ~b:uniform_upper rng
@@ -152,6 +159,8 @@ module Exponential = struct
 
   let mean { exp_rate } = 1. /. exp_rate
   and variance { exp_rate } = 1. /. sqrt exp_rate
+  and skewness _d = 2.
+  and kurtosis _d = 6.
 
   let generate ?(rng=default_rng) { exp_rate } =
     Randist.exponential ~mu:exp_rate rng
@@ -177,6 +186,8 @@ module Poisson = struct
 
   let mean { poisson_rate } = poisson_rate
   and variance { poisson_rate } = poisson_rate
+  and skewness { poisson_rate } = 1. /. sqrt poisson_rate
+  and kurtosis { poisson_rate } = 1. /. poisson_rate
 
   let generate ?(rng=default_rng) { poisson_rate } =
     Randist.poisson ~mu:poisson_rate rng
@@ -208,6 +219,10 @@ module Binomial = struct
   let mean { binomial_trials = n; binomial_p = p } = float_of_int n *. p
   and variance { binomial_trials = n; binomial_p = p } =
     float_of_int n *. p *. (1. -. p)
+  and skewness { binomial_trials = n; binomial_p = p } =
+    (1. -. 2. *. p) /. sqrt (float_of_int n *. p *. (1. -. p))
+  and kurtosis { binomial_trials = n; binomial_p = p } =
+    (1. -. 6. *. p *. (1. -. p)) /. (float_of_int n *. p *. (1. -. p))
 
   let generate ?(rng=default_rng) { binomial_trials; binomial_p } =
     Randist.binomial ~n:binomial_trials ~p:binomial_p rng
@@ -233,6 +248,8 @@ module ChiSquared = struct
 
   let mean { chisq_df } = chisq_df
   and variance { chisq_df } = 2. *. chisq_df
+  and skewness { chisq_df } = sqrt (8. /. chisq_df)
+  and kurtosis { chisq_df } = 12. /. chisq_df
 
   let generate ?(rng=default_rng) { chisq_df } =
     Randist.chisq ~nu:chisq_df rng
@@ -262,14 +279,27 @@ module F = struct
     else Cdf.fdist_Pinv ~nu1:f_df1 ~nu2:f_df2 ~p
 
   let mean_opt { f_df2; _ } =
-    if f_df2 < 2.
+    if f_df2 <= 2.
     then None
     else Some (f_df2 /. (f_df2 -. 2.))
   and variance_opt { f_df1; f_df2 } =
-    if f_df2 < 4.
+    if f_df2 <= 4.
     then None
     else Some (2. *. sqr f_df2 *. (f_df1 +. f_df2 -. 2.) /.
           (f_df1 *. sqr (f_df2 -. 2.) *. (f_df2 -. 4.)))
+  and skewness_opt { f_df1; f_df2 } =
+    if f_df2 <= 6.
+    then None
+    else Some ((2. *. f_df1 +. f_df2 -. 2.) *. sqrt (8. *. (f_df2 -. 4.)) /.
+           ((f_df2 -. 6.) *. sqrt (f_df1 *. (f_df1 +. f_df2 -. 2.))))
+  and kurtosis_opt { f_df1; f_df2 } =
+    if f_df2 <= 8.
+    then None
+    else Some (12. *.
+                 (f_df1 *. (5. *. f_df2 -. 22.) *. (f_df1 +. f_df2 -. 2.) +.
+                    (f_df2 -. 4.) *. sqr (f_df2 -. 2.)) /.
+                 (f_df1 *. (f_df2 -. 6.) *. (f_df2 -. 8.) *.
+                    (f_df1 +. f_df2 -. 2.)))
 
   let generate ?(rng=default_rng) { f_df1; f_df2 } =
     Randist.fdist ~nu1:f_df1 ~nu2:f_df2 rng
@@ -298,6 +328,16 @@ module T = struct
     if t_df > 2.
     then Some (t_df /. (t_df -. 2.))
     else if t_df > 1.
+    then Some infinity
+    else None
+  and skewness_opt { t_df } =
+    if t_df > 3.
+    then Some 0.
+    else None
+  and kurtosis_opt { t_df } =
+    if t_df > 4.
+    then Some (6. /. (t_df -. 4.))
+    else if t_df > 2.
     then Some infinity
     else None
 
@@ -331,6 +371,8 @@ module Gamma = struct
 
   let mean { gamma_shape; gamma_scale } = gamma_shape *. gamma_scale
   and variance { gamma_shape; gamma_scale } = gamma_shape *. sqr gamma_scale
+  and skewness { gamma_shape; _ } = 2. /. sqrt gamma_shape
+  and kurtosis { gamma_shape; _ } = 6. /. gamma_shape
 
   let generate ?(rng=default_rng) { gamma_shape; gamma_scale } =
     Randist.gamma ~a:gamma_shape ~b:gamma_scale rng
@@ -403,11 +445,14 @@ module Beta = struct
     then invalid_arg "Beta.quantile: p must be in range [0, 1]"
     else Cdf.beta_Pinv ~a:beta_alpha ~b:beta_beta ~p
 
-  let mean { beta_alpha; beta_beta } =
-    beta_alpha /. (beta_alpha +. beta_beta)
-  and variance { beta_alpha; beta_beta } =
-    beta_alpha *. beta_beta /.
-      (sqr (beta_alpha +. beta_beta) *. (beta_alpha +. beta_beta +. 1.))
+  let mean { beta_alpha = a; beta_beta = b } = a /. (a +. b)
+  and variance { beta_alpha = a; beta_beta = b} =
+    a *. b /. (sqr (a +. b) *. (a +. b +. 1.))
+  and skewness { beta_alpha = a; beta_beta = b } =
+    2. *. (b -. a) *. sqrt (a +. b +. 1.) /. ((a +. b +. 2.) *. sqrt (a *. b))
+  and kurtosis { beta_alpha = a; beta_beta = b } =
+    6. *. (sqr (a -. b) *. (a +. b +. 1.) -. a *. b *. (a +. b +. 2.)) /.
+      (a *. b *. (a +. b +. 2.) *. (a +. b +. 3.))
 
   let generate ?(rng=default_rng) { beta_alpha; beta_beta } =
     Randist.beta ~a:beta_alpha ~b:beta_beta rng
@@ -430,7 +475,12 @@ module Geometric = struct
     Randist.geometric_pdf ~p:geometric_p n
 
   let mean { geometric_p } = 1. /. geometric_p
-  and variance { geometric_p } = (1. -. geometric_p) /. sqr geometric_p
+  and variance { geometric_p } =
+    (1. -. geometric_p) /. sqr geometric_p
+  and skewness { geometric_p } =
+    (2. -. geometric_p) /. sqrt (1. -. geometric_p)
+  and kurtosis { geometric_p } =
+    6. +. sqr geometric_p /. (1. -. geometric_p)
 
   let generate ?(rng=default_rng) { geometric_p } =
     Randist.geometric ~p:geometric_p rng
@@ -472,6 +522,22 @@ module Hypergeometric = struct
     and t = float_of_int hyper_t
     and k = float_of_int hyper_k
     in (k *. m /. t) *. (1. -. m /. t) *. (t -. k) /. (t -. 1.)
+  and skewness { hyper_m; hyper_t; hyper_k } =
+    let m = float_of_int hyper_m
+    and t = float_of_int hyper_t
+    and k = float_of_int hyper_k
+    in (t -. 2. *. m) *. sqrt (t -. 1.) *. (t -. 2. *. k) /.
+         (sqrt (k *. m *. (t -. m) *. (t -. k)) *. (t -. 2.))
+  and kurtosis { hyper_m; hyper_t; hyper_k } =
+    let m = float_of_int hyper_m
+    and t = float_of_int hyper_t
+    and k = float_of_int hyper_k
+    in ((t -. 1.) *. sqr t *.
+          (t *. (t +. 1.) -.
+             6. *. m *. (t -. m) -.
+             6. *. k *. (t -. k)) +.
+          6. *. k *. m *. (t -. m) *. (t -. k) *. (5. *. t -. 6.)) /.
+         (k *. m *. (t -. m) *. (t -. k) *. (t -. 2.) *. (t -. 3.))
 
   let generate ?(rng=default_rng) { hyper_m; hyper_t; hyper_k } =
     Randist.hypergeometric ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k rng
@@ -506,6 +572,10 @@ module NegativeBinomial = struct
     float_of_int r *. p /. (1. -. p)
   and variance { nbinomial_failures = r; nbinomial_p = p } =
     float_of_int r *. p *. sqr (1. -. p)
+  and skewness { nbinomial_failures = r; nbinomial_p = p } =
+    (1. +. p) /. sqrt (float_of_int r *. p)
+  and kurtosis { nbinomial_failures = r; nbinomial_p = p } =
+    6. /. float_of_int r +. sqr (1. +. p) /. (float_of_int r *. p)
 
   let generate ?(rng=default_rng) { nbinomial_failures; nbinomial_p } =
     Randist.negative_binomial ~n:nbinomial_failures ~p:nbinomial_p rng
