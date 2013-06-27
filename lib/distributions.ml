@@ -66,7 +66,7 @@ module Normal = struct
   type elt = float
   type t   = {
     normal_mean : float;
-    normal_sd   : float;
+    normal_sd   : float
   }
 
   let create ~mean ~sd =
@@ -99,6 +99,50 @@ module Normal = struct
     let normal_mean = Sample.mean vs in
     let normal_sd   = Sample.sd ~mean:normal_mean vs in
     { normal_mean; normal_sd; }
+end
+
+module LogNormal = struct
+  type elt = float
+  type t   = {
+    lognormal_mean : float;
+    lognormal_sd   : float
+  }
+
+  let create ~mean ~sd =
+    if sd > 0.
+    then { lognormal_mean = mean; lognormal_sd = sd }
+    else invalid_arg "LogNormal.create: standard deviation must be positive"
+
+  let cumulative_probability { lognormal_mean; lognormal_sd } ~x =
+    Cdf.lognormal_P ~zeta:lognormal_mean ~sigma:lognormal_sd ~x
+
+  let density { lognormal_mean; lognormal_sd } ~x =
+    Randist.lognormal_pdf ~zeta:lognormal_mean ~sigma:lognormal_sd x
+  and quantile { lognormal_mean; lognormal_sd } ~p =
+    if p < 0. || p > 1.
+    then invalid_arg "LogNormal.quantile: p must be in range [0, 1]"
+    else Cdf.lognormal_Pinv ~zeta:lognormal_mean ~sigma:lognormal_sd ~p
+
+  let mean { lognormal_mean; lognormal_sd } =
+    exp (lognormal_mean +. sqr lognormal_sd)
+  and variance { lognormal_mean; lognormal_sd } =
+    (exp (sqr lognormal_sd) -. 1.) *.
+      exp (2. *. lognormal_mean +. sqr lognormal_sd)
+  and skewness { lognormal_mean; lognormal_sd } =
+    let sd2 = sqr lognormal_sd in (exp sd2 -. 2.) *. sqrt (exp sd2 -. 1.)
+  and kurtosis { lognormal_mean; lognormal_sd } =
+    let sd2 = sqr lognormal_sd in
+    exp (4. *. sd2) +. 2. *. exp (3. *. sd2) +. 3. *. exp (2. *. sd2) -. 6.
+
+  let generate ?(rng=default_rng) { lognormal_mean; lognormal_sd } =
+    Randist.lognormal ~zeta:lognormal_mean ~sigma:lognormal_sd rng
+  let sample = make_sampler generate
+
+  let mle vs =
+    let log_vs = Array.map log vs in
+    let lognormal_mean = Sample.mean log_vs in
+    let lognormal_sd   = Sample.sd ~mean:lognormal_mean log_vs in
+    { lognormal_mean; lognormal_sd; }
 end
 
 module Uniform = struct
@@ -166,66 +210,6 @@ module Exponential = struct
   let sample = make_sampler generate
 
   let mle vs = { exp_rate = 1. /. Sample.mean vs; }
-end
-
-module Poisson = struct
-  type elt = int
-  type t   = { poisson_rate : float }
-
-  let create ~rate =
-    if rate > 0.
-    then { poisson_rate = rate }
-    else invalid_arg "Poisson.create: rate must be positive"
-
-  let cumulative_probability { poisson_rate } ~n =
-    Cdf.poisson_P ~mu:poisson_rate ~k:n
-
-  let probability { poisson_rate } ~n =
-    Randist.poisson_pdf ~mu:poisson_rate n
-
-  let mean { poisson_rate } = poisson_rate
-  and variance { poisson_rate } = poisson_rate
-  and skewness { poisson_rate } = 1. /. sqrt poisson_rate
-  and kurtosis { poisson_rate } = 1. /. poisson_rate
-
-  let generate ?(rng=default_rng) { poisson_rate } =
-    Randist.poisson ~mu:poisson_rate rng
-  let sample = make_sampler generate
-
-  let mle vs = { poisson_rate = Sample.mean (Array.map float_of_int vs) }
-end
-
-module Binomial = struct
-  type elt = int
-  type t   = {
-    binomial_trials : int;
-    binomial_p      : float
-  }
-
-  let create ~trials ~p =
-    if trials < 0
-    then invalid_arg "Binomial.create: number of trials must be non negative"
-    else if p > 1.0 || p < 0.
-    then invalid_arg "Binomial.create: probability must be in range [0, 1]"
-    else { binomial_trials = trials; binomial_p = p }
-
-  let cumulative_probability { binomial_trials; binomial_p } ~n =
-    Cdf.binomial_P ~n:binomial_trials ~p:binomial_p ~k:n
-
-  let probability { binomial_trials; binomial_p } ~n =
-    Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p n
-
-  let mean { binomial_trials = n; binomial_p = p } = float_of_int n *. p
-  and variance { binomial_trials = n; binomial_p = p } =
-    float_of_int n *. p *. (1. -. p)
-  and skewness { binomial_trials = n; binomial_p = p } =
-    (1. -. 2. *. p) /. sqrt (float_of_int n *. p *. (1. -. p))
-  and kurtosis { binomial_trials = n; binomial_p = p } =
-    (1. -. 6. *. p *. (1. -. p)) /. (float_of_int n *. p *. (1. -. p))
-
-  let generate ?(rng=default_rng) { binomial_trials; binomial_p } =
-    Randist.binomial ~n:binomial_trials ~p:binomial_p rng
-  let sample = make_sampler generate
 end
 
 module ChiSquared = struct
@@ -458,6 +442,67 @@ module Beta = struct
   let sample = make_sampler generate
 end
 
+
+module Poisson = struct
+  type elt = int
+  type t   = { poisson_rate : float }
+
+  let create ~rate =
+    if rate > 0.
+    then { poisson_rate = rate }
+    else invalid_arg "Poisson.create: rate must be positive"
+
+  let cumulative_probability { poisson_rate } ~n =
+    Cdf.poisson_P ~mu:poisson_rate ~k:n
+
+  let probability { poisson_rate } ~n =
+    Randist.poisson_pdf ~mu:poisson_rate n
+
+  let mean { poisson_rate } = poisson_rate
+  and variance { poisson_rate } = poisson_rate
+  and skewness { poisson_rate } = 1. /. sqrt poisson_rate
+  and kurtosis { poisson_rate } = 1. /. poisson_rate
+
+  let generate ?(rng=default_rng) { poisson_rate } =
+    Randist.poisson ~mu:poisson_rate rng
+  let sample = make_sampler generate
+
+  let mle vs = { poisson_rate = Sample.mean (Array.map float_of_int vs) }
+end
+
+module Binomial = struct
+  type elt = int
+  type t   = {
+    binomial_trials : int;
+    binomial_p      : float
+  }
+
+  let create ~trials ~p =
+    if trials < 0
+    then invalid_arg "Binomial.create: number of trials must be non negative"
+    else if p > 1.0 || p < 0.
+    then invalid_arg "Binomial.create: probability must be in range [0, 1]"
+    else { binomial_trials = trials; binomial_p = p }
+
+  let cumulative_probability { binomial_trials; binomial_p } ~n =
+    Cdf.binomial_P ~n:binomial_trials ~p:binomial_p ~k:n
+
+  let probability { binomial_trials; binomial_p } ~n =
+    Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p n
+
+  let mean { binomial_trials = n; binomial_p = p } = float_of_int n *. p
+  and variance { binomial_trials = n; binomial_p = p } =
+    float_of_int n *. p *. (1. -. p)
+  and skewness { binomial_trials = n; binomial_p = p } =
+    (1. -. 2. *. p) /. sqrt (float_of_int n *. p *. (1. -. p))
+  and kurtosis { binomial_trials = n; binomial_p = p } =
+    (1. -. 6. *. p *. (1. -. p)) /. (float_of_int n *. p *. (1. -. p))
+
+  let generate ?(rng=default_rng) { binomial_trials; binomial_p } =
+    Randist.binomial ~n:binomial_trials ~p:binomial_p rng
+  let sample = make_sampler generate
+end
+
 module Geometric = struct
   type elt = int
   type t   = { geometric_p : float }
@@ -578,16 +623,18 @@ end
 
 
 let normal = Normal.create
-let uniform = Uniform.create
-let exponential = Exponential.create
+and log_normal = LogNormal.create
+and uniform = Uniform.create
+and exponential = Exponential.create
+and chi_squared = ChiSquared.create
+and f = F.create
+and t = T.create
+and gamma = Gamma.create
+and cauchy = Cauchy.create
+and beta = Beta.create
+
 let poisson = Poisson.create
-let binomial = Binomial.create
-let chi_squared = ChiSquared.create
-let f = F.create
-let t = T.create
-let gamma = Gamma.create
-let cauchy = Cauchy.create
-let beta = Beta.create
-let geometric = Geometric.create
-let hypergeometric = Hypergeometric.create
-let negative_binomial = NegativeBinomial.create
+and binomial = Binomial.create
+and geometric = Geometric.create
+and hypergeometric = Hypergeometric.create
+and negative_binomial = NegativeBinomial.create

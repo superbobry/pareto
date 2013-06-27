@@ -89,6 +89,16 @@ module Normal : sig
   val standard : t
 end
 
+(** The log-normal distribution. *)
+module LogNormal : sig
+  include ContinuousDistribution with type elt = float
+  include Features with type t := t and type elt := float
+  include MLE with type t := t and type elt := float
+
+  (** Creates log-normal distribution from parameters. *)
+  val create : mean:float -> sd:float -> t
+end
+
 (** Random variate distributed uniformly in the interval. *)
 module Uniform : sig
   include ContinuousDistribution with type elt = float
@@ -250,16 +260,18 @@ end
 (** {2 Shortcuts for creating distributions} *)
 
 val normal : mean:float -> sd:float -> Normal.t
+val log_normal : mean:float -> sd:float -> LogNormal.t
 val uniform  : lower:float -> upper:float -> Uniform.t
 val exponential : rate:float -> Exponential.t
-val poisson : rate:float -> Poisson.t
-val binomial : trials:int -> p:float -> Binomial.t
 val chi_squared : df:int -> ChiSquared.t
 val f : df1:int -> df2:int -> F.t
 val t : df:float -> T.t
 val gamma  : shape:float -> scale:float -> Gamma.t
 val cauchy : location:float -> scale:float -> Cauchy.t
 val beta : alpha:float -> beta:float -> Beta.t
+
+val poisson : rate:float -> Poisson.t
+val binomial : trials:int -> p:float -> Binomial.t
 val geometric : p:float -> Geometric.t
 val hypergeometric : m:int -> t:int -> k:int -> Hypergeometric.t
 val negative_binomial : failures:int -> p:float -> NegativeBinomial.t
