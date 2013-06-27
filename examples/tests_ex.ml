@@ -35,7 +35,7 @@ let t_test_two_sample_independent () =
 let t_test_two_sample_paired () =
   let open Distributions.Normal in
   let v1 = sample ~size:10 standard in
-  let v2 = Array.map (fun x -> x +. generate standard) v1 in
+  let v2 = Array.mapi (fun i x -> x +. v1.(i)) (sample ~size:10 standard) in
   let { test_statistic = t; test_pvalue } = T.two_sample_paired v1 v2
       ~mean:0.1 ~alternative:TwoSided ()
   in begin

@@ -34,8 +34,7 @@ module type BaseDistribution = sig
   type t
   type elt
 
-  val generate : ?rng:Rng.t -> t -> elt
-  val sample   : ?rng:Rng.t -> size:int -> t -> elt array
+  val sample : ?rng:Rng.t -> size:int -> t -> elt array
 end
 
 module type DiscreteDistribution = sig

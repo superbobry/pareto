@@ -2,6 +2,7 @@
 
 open Internal
 
+(** Distribution features. *)
 module type Features = sig
   type elt
   type t
@@ -12,6 +13,8 @@ module type Features = sig
   val kurtosis : t -> elt
 end
 
+(** Distribution features, which are allowed to be undefined for some
+    combinations of distribution parameters. *)
 module type FeaturesOpt = sig
   type elt
   type t
@@ -26,32 +29,52 @@ module type MLE = sig
   type t
   type elt
 
+  (** Computes a MLE of distribution parameters from given data. *)
   val mle : elt array -> t
 end
 
-module type BaseDistribution = sig
-  type elt
-  type t
-
-  val generate : ?rng:Rng.t -> t -> elt
-  val sample   : ?rng:Rng.t -> size:int -> t -> elt array
-end
-
 module type DiscreteDistribution = sig
-  include BaseDistribution
+  type t
+  type elt
 
+  (** Samples [size] data points from the distribution. *)
+  val sample : ?rng:Rng.t -> size:int -> t -> elt array
+
+  (** Computes cumulative probability function for a given value [n],
+      i. e. [P(X <= n)], the probability that a random variable [X] will
+      be found at a value less than or equal to [n]. *)
   val cumulative_probability : t -> n:elt -> float
+
+  (** Computes probability mass function for a given value [n], i. e.
+      [P(X = n)], the probability that a random variable [X] is
+      {b exactly} equal to [n] *)
   val probability : t -> n:elt -> float
 end
 
 module type ContinuousDistribution = sig
-  include BaseDistribution
+  type t
+  type elt
 
+  (** Samples [size] data points from the distribution. *)
+  val sample : ?rng:Rng.t -> size:int -> t -> elt array
+
+  (** Computes cumulative probability function for a given value [n],
+      i. e. [P(X <= n)], the probability that a random variable [X] will
+      be found at a value less than or equal to [n]. *)
   val cumulative_probability : t -> x:elt -> float
+
+  (** Computes probability density function for a given value [n], i. e.
+      [P(X = n)], the probability that a random variable [X] is
+      {b exactly} equal to [n] *)
   val density  : t -> x:elt -> float
+
+  (** Computes inverse cumulative probability function for a given
+      probability [p]. *)
   val quantile : t -> p:float -> elt
 end
 
+
+(** {2 Continuous distributions} *)
 
 (** The normal distribution. *)
 module Normal : sig
@@ -90,33 +113,6 @@ module Exponential : sig
   val create : rate:float -> t
 end
 
-(** The Poisson distribution.
-
-    The probability distribution of a number of events occurring in a
-    fixed interval if these events occur with a known average [rate],
-    and occur independently from each other within that interval. *)
-module Poisson : sig
-  include DiscreteDistribution with type elt = int
-  include Features with type t := t and type elt := float
-  include MLE with type t := t and type elt := int
-
-  (** Creates a Poisson distribution. [rate] must be positive. *)
-  val create : rate:float -> t
-end
-
-(** The binomial distribution.
-
-    The probability distribution of the number of successes in a sequence
-    of independent Bernoulli [trials]. *)
-module Binomial : sig
-  include DiscreteDistribution with type elt = int
-  include Features with type t := t and type elt := float
-
-  (** Creates binomial distribution. Number of [trials] must be
-      non-negative. *)
-  val create : trials:int -> p:float -> t
-end
-
 (** The chi-squared distribution.
 
     The probability distribution of sum of squares of [df] independent
@@ -140,7 +136,7 @@ module F : sig
   val create : df1:int -> df2:int -> t
 end
 
-(* Student's t-distribution. *)
+(** Student's t-distribution. *)
 module T : sig
   include ContinuousDistribution with type elt = float
   include FeaturesOpt with type t := t and type elt := float
@@ -179,6 +175,36 @@ module Beta : sig
 
   (** Creates beta distribution. Both shape parameters must be positive. *)
   val create : alpha:float -> beta:float -> t
+end
+
+
+(** {2 Discrete distributions} *)
+
+(** The Poisson distribution.
+
+    The probability distribution of a number of events occurring in a
+    fixed interval if these events occur with a known average [rate],
+    and occur independently from each other within that interval. *)
+module Poisson : sig
+  include DiscreteDistribution with type elt = int
+  include Features with type t := t and type elt := float
+  include MLE with type t := t and type elt := int
+
+  (** Creates a Poisson distribution. [rate] must be positive. *)
+  val create : rate:float -> t
+end
+
+(** The binomial distribution.
+
+    The probability distribution of the number of successes in a sequence
+    of independent Bernoulli [trials]. *)
+module Binomial : sig
+  include DiscreteDistribution with type elt = int
+  include Features with type t := t and type elt := float
+
+  (** Creates binomial distribution. Number of [trials] must be
+      non-negative. *)
+  val create : trials:int -> p:float -> t
 end
 
 (** The Geometric distribution.
@@ -220,6 +246,8 @@ module NegativeBinomial : sig
   val create : failures:int -> p:float -> t
 end
 
+
+(** {2 Shortcuts for creating distributions} *)
 
 val normal : mean:float -> sd:float -> Normal.t
 val uniform  : lower:float -> upper:float -> Uniform.t

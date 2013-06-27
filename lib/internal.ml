@@ -70,7 +70,7 @@ module Array = struct
     end
 
   let reorder is src dst =
-    let n = Array.length src in
+    let n = length src in
     for i = 0 to n - 1 do
       let j = unsafe_get is i in unsafe_set dst i (unsafe_get src j)
     done
