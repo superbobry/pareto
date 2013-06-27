@@ -1,3 +1,5 @@
+module Randist = Gsl.Randist
+
 open Internal
 
 

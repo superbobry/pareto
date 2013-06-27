@@ -1,7 +1,4 @@
-
 module Rng = Gsl.Rng
-module Randist = Gsl.Randist
-module Cdf = Gsl.Cdf
 
 let default_rng = let open Rng in
   env_setup ();
