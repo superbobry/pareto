@@ -2,9 +2,7 @@ open OUnit
 
 open Pareto.Sample
 
-
-let assert_almost_equal ?(epsilon=1e-10) =
-  assert_equal ~cmp:(cmp_float ~epsilon) ~printer:(Printf.sprintf "%.10f")
+open Common
 
 
 let test_summary ~size () =
@@ -62,10 +60,34 @@ and test_quantile () =
     |]
   end
 
+and test_rank () =
+  let vs = [|4.; 19.; 11.; 18.; 2.; 12.; 13.; 16.; 0.; 2.;
+             2.; 7.; 1.; 17.; 16.; 19.; 11.; 12.; 19.; 4.|]
+  in begin
+    assert_equal
+      ~msg:"average" ~cmp:(cmp_array ~cmp:cmp_float)
+      ~printer:(printer_array ~printer:(Printf.sprintf "%.6f"))
+      (snd (rank ~ties_strategy:`Average vs))
+      [|6.5; 19.; 9.5; 17.; 4.; 11.5; 13.; 14.5; 1.; 4.; 4.;
+        8.; 2.; 16.; 14.5; 19.; 9.5; 11.5; 19.; 6.5|];
+    assert_equal
+      ~msg:"min" ~cmp:(cmp_array ~cmp:cmp_float)
+      ~printer:(printer_array ~printer:(Printf.sprintf "%.6f"))
+      (snd (rank ~ties_strategy:`Min vs))
+      [|6.; 18.; 9.; 17.; 3.; 11.; 13.; 14.; 1.; 3.; 3.; 8.;
+        2.; 16.; 14.; 18.; 9.; 11.; 18.; 6.|];
+    assert_equal
+      ~msg:"max" ~cmp:(cmp_array ~cmp:cmp_float)
+      ~printer:(printer_array ~printer:(Printf.sprintf "%.6f"))
+      (snd (rank ~ties_strategy:`Max vs))
+      [|7.; 20.; 10.; 17.; 5.; 12.; 13.; 15.; 1.; 5.; 5.; 8.;
+        2.; 16.; 15.; 20.; 10.; 12.; 20.; 7.|]
+  end
 
 let test = "Sample" >::: [
-    "sample summary statistics, n = 100" >:: test_summary ~size:100;
-    "sample summary statistics, n = 1000" >:: test_summary ~size:1000;
-    "sample summary statistics, n = 10000" >:: test_summary ~size:10000;
-    "sample quantiles" >:: test_quantile
+    "summary statistics, n = 100" >:: test_summary ~size:100;
+    "summary statistics, n = 1000" >:: test_summary ~size:1000;
+    "summary statistics, n = 10000" >:: test_summary ~size:10000;
+    "quantile" >:: test_quantile;
+    "rank" >:: test_rank
   ]
