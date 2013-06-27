@@ -187,6 +187,15 @@ module Beta : sig
   val create : alpha:float -> beta:float -> t
 end
 
+(** Logistic distribution. *)
+module Logistic : sig
+  include ContinuousDistribution with type elt = float
+  include Features with type t := t and type elt := float
+
+  (** Creates logistic distribution. *)
+  val create : location:float -> scale:float -> t
+end
+
 
 (** {2 Discrete distributions} *)
 
@@ -281,6 +290,7 @@ val t : df:float -> T.t
 val gamma  : shape:float -> scale:float -> Gamma.t
 val cauchy : location:float -> scale:float -> Cauchy.t
 val beta : alpha:float -> beta:float -> Beta.t
+val logistic : location:float -> scale:float -> Logistic.t
 
 val poisson : rate:float -> Poisson.t
 val bernoulli : p:float -> Bernoulli.t

@@ -128,9 +128,9 @@ module LogNormal = struct
   and variance { lognormal_mean; lognormal_sd } =
     (exp (sqr lognormal_sd) -. 1.) *.
       exp (2. *. lognormal_mean +. sqr lognormal_sd)
-  and skewness { lognormal_mean; lognormal_sd } =
+  and skewness { lognormal_sd; _ } =
     let sd2 = sqr lognormal_sd in (exp sd2 -. 2.) *. sqrt (exp sd2 -. 1.)
-  and kurtosis { lognormal_mean; lognormal_sd } =
+  and kurtosis { lognormal_sd; _ } =
     let sd2 = sqr lognormal_sd in
     exp (4. *. sd2) +. 2. *. exp (3. *. sd2) +. 3. *. exp (2. *. sd2) -. 6.
 
@@ -442,6 +442,39 @@ module Beta = struct
   let sample = make_sampler generate
 end
 
+module Logistic = struct
+  type elt = float
+  type t   = {
+    logistic_location : float;
+    logistic_scale    : float
+  }
+
+  let create ~location ~scale =
+    if scale <= 0.
+    then invalid_arg "Logistic.create: scale must be positive"
+    else { logistic_location = location; logistic_scale = scale }
+
+  let cumulative_probability { logistic_location; logistic_scale } ~x =
+    Cdf.logistic_P ~a:logistic_scale ~x:(x -. logistic_location)
+
+  let density { logistic_location; logistic_scale } ~x =
+    Randist.logistic_pdf ~a:logistic_scale (x -. logistic_location)
+  and quantile { logistic_location; logistic_scale } ~p =
+    if p < 0. || p > 1.
+    then invalid_arg "Logistic.quantile: p must be in range [0, 1]"
+    else Cdf.logistic_Pinv ~a:logistic_scale ~p +. logistic_location
+
+  let mean { logistic_location; _ } = logistic_location
+  and variance { logistic_scale; _ } =
+    sqr (logistic_scale *. Gsl.Math.pi) /. 3.
+  and skewness _d = 0.
+  and kurtosis _d = 1.2
+
+  let generate ?(rng=default_rng) { logistic_location; logistic_scale } =
+    Randist.logistic ~a:logistic_scale rng +. logistic_location
+  let sample = make_sampler generate
+end
+
 
 module Poisson = struct
   type elt = int
@@ -667,6 +700,7 @@ and t = T.create
 and gamma = Gamma.create
 and cauchy = Cauchy.create
 and beta = Beta.create
+and logistic = Logistic.create
 
 let poisson = Poisson.create
 and bernoulli = Bernoulli.create
