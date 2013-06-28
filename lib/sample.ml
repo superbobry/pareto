@@ -209,30 +209,30 @@ end
 
 
 module Correlation = struct
-  let pearson vs1 vs2 =
-    let n = Array.length vs1 in
-    if Array.length vs2 <> n
+  let pearson v1 v2 =
+    let n = Array.length v1 in
+    if Array.length v2 <> n
     then invalid_arg "Correlation.pearson: unequal length arrays";
 
-    let vs1_mean = mean vs1
-    and vs2_mean = mean vs2 in
-    let vs12_sd  = sd ~mean:vs2_mean vs1 *. sd ~mean:vs2_mean vs2
-    and acc      = ref 0. in
+    let v1_mean = mean v1
+    and v2_mean = mean v2 in
+    let v12_sd  = sd ~mean:v1_mean v1 *. sd ~mean:v2_mean v2
+    and acc     = ref 0. in
     for i = 0 to n - 1 do
-      let v1 = Array.unsafe_get vs1 i
-      and v2 = Array.unsafe_get vs2 i
-      in acc := !acc +. (v1 -. vs1_mean) *. (v2 -. vs2_mean)
-    done; !acc /. float_of_int (n - 1) /. vs12_sd
+      let v1 = Array.unsafe_get v1 i
+      and v2 = Array.unsafe_get v2 i
+      in acc := !acc +. (v1 -. v1_mean) *. (v2 -. v2_mean)
+    done; !acc /. float_of_int (n - 1) /. v12_sd
 
-  let spearman ?cmp vs1 vs2 =
-    let n = Array.length vs1 in
-    if Array.length vs2 <> n
+  let spearman ?cmp v1 v2 =
+    let n = Array.length v1 in
+    if Array.length v2 <> n
     then invalid_arg "Correlation.spearman: unequal length arrays"
     else
       (* Note(superbobry): according to Wikipedia, ties strategy is
          fixed to [`Average]. *)
       let f vs = snd (rank ~ties_strategy:`Average ?cmp vs) in
-      pearson (f vs1) (f vs2)
+      pearson (f v1) (f v2)
 
   module Auto = struct
     let pearson vs =

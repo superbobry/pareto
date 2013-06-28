@@ -84,10 +84,37 @@ and test_rank () =
         2.; 16.; 15.; 20.; 10.; 12.; 20.; 7.|]
   end
 
+and test_correlation () =
+  let v1 = [|0.0172824052698839; -0.454504077892448; 1.25946495815052;
+             1.34046889912174; 0.609915320636686; -0.217651830293509;
+             0.991287334206914; -0.186392670591343; 0.0266357683474309;
+             -1.45310338401619|]
+  and v2 = [|0.505340435184033; -1.42575172974959; -0.521196733941402;
+             -0.0185022933706756; 0.17230654109602; 1.67872553102743;
+             0.480586104798118; 0.910431368258919; 0.373583673677502;
+             -0.3494655448979|]
+  in begin
+    assert_almost_equal ~msg:"Pearson product-moment correlation"
+      (Correlation.pearson v1 v2) 0.02894452;
+    assert_almost_equal ~msg:"Spearman rank correlation"
+      (Correlation.spearman v1 v2) (-0.07878788);
+
+    assert_equal
+      ~msg:"Pearson product-moment self-correlation"
+      ~cmp:(cmp_array ~cmp:cmp_float)
+      ~printer:(printer_array ~printer:(Printf.sprintf "%.6f"))
+      (Correlation.Auto.pearson v1)
+      [|1.; 0.0975335049156232; 0.00331984882534066; -0.20666268433441;
+        0.179634622194576; -0.255208927944468; -0.289850963695003;
+        -0.233617717921346; 0.162004926236094; 0.0428473917235931|]
+  end
+
+
 let test = "Sample" >::: [
     "summary statistics, n = 100" >:: test_summary ~size:100;
     "summary statistics, n = 1000" >:: test_summary ~size:1000;
     "summary statistics, n = 10000" >:: test_summary ~size:10000;
     "quantile" >:: test_quantile;
-    "rank" >:: test_rank
+    "rank" >:: test_rank;
+    "correlation" >:: test_correlation
   ]
