@@ -56,8 +56,7 @@ let _correct_ties ranks =
           done;
 
           t := !t + (!d * !d * !d - !d)
-        end;
-        incr i
+        end; incr i
       done; float_of_int !t
     end
 
@@ -126,13 +125,6 @@ module Quantile = struct
     | MedianUnbiased
     | NormalUnbiased
 
-  let finalize vs h j =
-    let bound ?(a=0) ~b i = Pervasives.(min (max i a) b) in
-    let n    = Array.length vs in
-    let svs  = Vector.partial_sort (bound ~b:n (j + 1)) (Vector.of_array vs) in
-    let item = fun i -> svs.(bound ~b:(n - 1) i) in
-    (1. -. h) *. item (j - 1) +. h *. item j
-
   let continuous_by ?(param=S) ?(p=0.5) vs =
     if p < 0. || p > 1.
     then invalid_arg "Quantile.continuous_by: p must be in range [0, 1]";
@@ -155,7 +147,11 @@ module Quantile = struct
     let h    = if abs_float (nppm -. float_of_int j) < fuzz
                then 0.
                else nppm -. float_of_int j in
-    finalize vs h j
+    let bound ?(a=0) ~b i = Pervasives.(min (max i a) b) in
+    let n    = Array.length vs in
+    let svs  = Vector.partial_sort (bound ~b:n (j + 1)) (Vector.of_array vs) in
+    let item = fun i -> svs.(bound ~b:(n - 1) i) in
+    (1. -. h) *. item (j - 1) +. h *. item j
 
   let iqr ?param vs =
     continuous_by ?param ~p:0.75 vs -. continuous_by ?param ~p:0.25 vs
