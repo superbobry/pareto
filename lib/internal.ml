@@ -57,11 +57,7 @@ module Array = struct
   let range a b =
     if b <= a
     then [||]
-    else
-      let vs = make (b - a) 0 in
-      for i = a to b - 1 do
-        unsafe_set vs (i - a) i
-      done; vs
+    else Array.init (b-a) (fun i -> a+i)
 
   let sort_index cmp vs =
     let order = range 0 (length vs) in begin
