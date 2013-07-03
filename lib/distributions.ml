@@ -707,15 +707,16 @@ module Categorical = struct
     }
 
     let create dist =
-      let n = Array.length dist in
-      if n = 0
-      then invalid_arg "Categorical.Make: no data";
+      let n  = Array.length dist
+      and is =
+        Array.sort_index (fun (v1, _p1) (v2, _p2) -> Elt.compare v1 v2) dist
+      in if n = 0 then invalid_arg "Categorical.Make: no data";
 
-      let (v0, p0) = Array.unsafe_get dist 0 in
+      let (v0, p0) = Array.(unsafe_get dist (unsafe_get is 0)) in
       let vs       = Array.make n v0
       and probs    = Array.make n p0 in begin
         for i = 1 to n - 1 do
-          let (v, p) = Array.unsafe_get dist i in
+          let (v, p) = Array.(unsafe_get dist (unsafe_get is i)) in
           Array.unsafe_set vs i v;
           Array.unsafe_set probs i p
         done;

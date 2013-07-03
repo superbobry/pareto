@@ -8,7 +8,7 @@ open Common
 let test_categorical () =
   let module Strings = Categorical.Make(String) in
   let d =
-    Strings.create [|("A", 0.1); ("C", 0.3); ("G", 0.5); ("T", 0.1)|]
+    Strings.create [|("C", 0.3); ("A", 0.1); ("G", 0.5); ("T", 0.1)|]
   in begin
     assert_almost_equal ~msg:"Pr(X = A)" (Strings.probability d "A") 0.1;
     assert_almost_equal ~msg:"Pr(X = C)" (Strings.probability d "C") 0.3;
