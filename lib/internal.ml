@@ -78,8 +78,24 @@ module Array = struct
   let sum = fold_left (+.) 0.
   let sum_with f = fold_left (fun acc x -> acc +. f x) 0.
   let count p = sum_with (fun v -> if p v then 1. else 0.)
-  let for_all p = fold_left (fun acc x -> acc && p x) true
-  let exists p = fold_left (fun acc x -> acc || p x) false
+
+  let exists p vs =
+    let rec loop i =
+      if i < 0
+      then false
+      else if p (unsafe_get vs i)
+      then true
+      else loop (pred i)
+    in loop (length vs - 1)
+
+  let for_all p vs =
+    let rec loop i =
+      if i < 0
+      then true
+      else if p (unsafe_get vs i)
+      then loop (pred i)
+      else false
+    in loop (length vs - 1)
 
   let partition p vs =
     let (l, r) = fold_left
@@ -109,10 +125,16 @@ module Matrix = struct
     done
 
   let exists p m =
-    (* FIXME(superbobry): This may be too slow, rewrite with an exception? *)
-    let res = ref false in
-    iter (fun _i _j x -> res := !res || p x) m;
-    !res
+    let (nrow, ncol) = dims m in
+    let rec loop_columns i j =
+      if j < 0
+      then false
+      else p (get m i j) || loop_columns i (pred j)
+    and loop_rows i =
+      if i < 0
+      then false
+      else loop_columns i (ncol - 1) || loop_rows (pred i)
+    in loop_rows (nrow - 1)
 
   let abs m = iter (fun i j x -> set m i j (abs_float x)) m
 
