@@ -83,18 +83,14 @@ module Array = struct
     let rec loop i =
       if i < 0
       then false
-      else if p (unsafe_get vs i)
-      then true
-      else loop (pred i)
+      else p (unsafe_get vs i) || loop (pred i)
     in loop (length vs - 1)
 
   let for_all p vs =
     let rec loop i =
       if i < 0
       then true
-      else if p (unsafe_get vs i)
-      then loop (pred i)
-      else false
+      else p (unsafe_get vs i) && loop (pred i)
     in loop (length vs - 1)
 
   let partition p vs =
