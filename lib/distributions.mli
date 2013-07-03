@@ -272,11 +272,29 @@ module NegativeBinomial : sig
   include DiscreteDistribution with type elt = int
   include Features with type t := t and type elt := float
 
-  (** Creates negaive Binomial distribution with a given number of
+  (** Creates negative Binomial distribution with a given number of
       failures and success probability. *)
   val create : failures:int -> p:float -> t
 end
 
+module Categorical : sig
+  module type OrderedType = sig
+    type t
+
+    val compare : t -> t -> int
+  end
+
+  module type S = sig
+    include DiscreteDistribution
+
+    (** Creates a categorical distribution over values of type [elt],
+        where each value is given a probability, which defaults to [0]
+        for values not in the list. *)
+    val create : (elt * float) array -> t
+  end
+
+  module Make : functor (Elt : Map.OrderedType) -> S with type elt = Elt.t
+end
 
 (** {2 Shortcuts for creating distributions} *)
 

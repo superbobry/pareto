@@ -689,6 +689,75 @@ module NegativeBinomial = struct
   let sample = make_sampler generate
 end
 
+module Categorical = struct
+  module type OrderedType = Map.OrderedType
+
+  module type S = sig
+    include DiscreteDistribution
+
+    val create : (elt * float) array -> t
+  end
+
+  module Make (Elt : OrderedType) = struct
+    type elt = Elt.t
+    type t   = {
+      categorical_values : elt array;
+      categorical_probs  : float array;
+      categorical_d      : Randist.discrete
+    }
+
+    let create dist =
+      let n = Array.length dist in
+      if n = 0
+      then invalid_arg "Categorical.Make: no data";
+
+      let (v0, p0) = Array.unsafe_get dist 0 in
+      let vs       = Array.make n v0
+      and probs    = Array.make n p0 in begin
+        for i = 1 to n - 1 do
+          let (v, p) = Array.unsafe_get dist i in
+          Array.unsafe_set vs i v;
+          Array.unsafe_set probs i p
+        done;
+
+        (* Note(superbobry): ideally, we should check that given
+           probabilities sum up to 1., but I don't see how to do this
+           for floating point numbers. *)
+        {
+          categorical_values = vs;
+          categorical_probs  = probs;
+          categorical_d = Randist.discrete_preproc probs
+        }
+      end
+
+    let cumulative_probability { categorical_values; categorical_probs; _ } ~n =
+      match Base.search_sorted ~cmp:Elt.compare categorical_values n with
+        | Some pos ->
+          let acc = ref 0. in begin
+            for i = 0 to pos do
+              acc := !acc +. Array.unsafe_get categorical_probs i
+            done
+          end; !acc
+        | None ->
+          if Elt.compare n (Array.unsafe_get categorical_values 0) < 0
+          then 0.
+          else
+            (* Then it must be the case that forall vs : v > n. *)
+            1.
+
+    let probability { categorical_values; categorical_probs; _ } ~n =
+      match Base.search_sorted ~cmp:Elt.compare categorical_values n with
+        | Some pos -> Array.unsafe_get categorical_probs pos
+        | None     -> 0.
+
+    let generate ?(rng=default_rng) { categorical_values; categorical_d; _ } =
+      let pos = Randist.discrete rng categorical_d in
+      Array.unsafe_get categorical_values pos
+    let sample = make_sampler generate
+  end
+end
+
+
 
 let normal = Normal.create
 and log_normal = LogNormal.create

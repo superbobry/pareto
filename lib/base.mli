@@ -6,6 +6,11 @@ open Internal
 val cumulative : f:('a -> 'a -> 'a) -> 'a array -> 'a array
 
 
+(** {e O(log n)} Searches for the index of a given element [v] in array
+    [vs], sorted with a given comparison function [cmp]. *)
+val search_sorted : cmp:('a -> 'a -> int) -> 'a array -> 'a -> int option
+
+
 (** Creates an array of integers given a semiopen range [\[a, b)]. *)
 val range : ?a:int -> b:int -> int array
 

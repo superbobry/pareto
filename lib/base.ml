@@ -17,6 +17,24 @@ let cumulative ~f = function
     done; acc
 
 
+let search_sorted ~cmp vs v =
+  let rec loop l r =
+    (* We're looking for [v] in a semiclosed interval [l, r).
+       Invariants: mid < r,
+                   0 < l <= r. *)
+    if l >= r
+    then None
+    else
+      let mid = (r - l) / 2 + l in
+      let res = cmp v (Array.unsafe_get vs mid) in
+      if res = 0
+      then Some mid
+      else if res < 0
+      then loop l mid
+      else loop (mid + 1) r
+  in loop 0 (Array.length vs)
+
+
 let shuffle ?(rng=default_rng) vs =
   let svs = Array.copy vs in begin
     Randist.shuffle rng svs;
