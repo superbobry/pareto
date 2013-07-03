@@ -57,11 +57,7 @@ module Array = struct
   let range a b =
     if b <= a
     then [||]
-    else
-      let vs = make (b - a) 0 in
-      for i = a to b - 1 do
-        unsafe_set vs (i - a) i
-      done; vs
+    else Array.init (b-a) (fun i -> a+i)
 
   let sort_index cmp vs =
     let order = range 0 (length vs) in begin
@@ -108,11 +104,22 @@ module Matrix = struct
       done
     done
 
-  let exists p m =
-    (* FIXME(superbobry): This may be too slow, rewrite with an exception? *)
-    let res = ref false in
-    iter (fun _i _j x -> res := !res || p x) m;
-    !res
+  let exists =
+    let rec on_j p m i max_j j =
+      if j >= max_j then
+        false
+      else
+        (p (get m i j)) || on_j p m i max_j (j+1)
+    in
+    let rec on_i p m max_i max_j i =
+      if i >= max_i then
+        false
+      else
+        (on_j p m i max_j 0) || on_i p m max_i max_j (i+1)
+    in
+    fun p m ->
+      let (max_i, max_j) = dims m in
+      on_i p m max_i max_j 0
 
   let abs m = iter (fun i j x -> set m i j (abs_float x)) m
 
