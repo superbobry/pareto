@@ -1,7 +1,5 @@
 (** Commonly used probability distributions. *)
 
-open Internal
-
 (** Distribution features. *)
 module type Features = sig
   type elt
@@ -38,7 +36,7 @@ module type DiscreteDistribution = sig
   type elt
 
   (** Samples [size] data points from the distribution. *)
-  val sample : ?rng:Rng.t -> size:int -> t -> elt array
+  val sample : ?rng:Gsl.Rng.t -> size:int -> t -> elt array
 
   (** Computes cumulative probability function for a given value [n],
       i. e. [P(X <= n)], the probability that a random variable [X] will
@@ -56,7 +54,7 @@ module type ContinuousDistribution = sig
   type elt
 
   (** Samples [size] data points from the distribution. *)
-  val sample : ?rng:Rng.t -> size:int -> t -> elt array
+  val sample : ?rng:Gsl.Rng.t -> size:int -> t -> elt array
 
   (** Computes cumulative probability function for a given value [n],
       i. e. [P(X <= n)], the probability that a random variable [X] will

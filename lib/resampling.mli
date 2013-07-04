@@ -5,7 +5,7 @@ open Internal
 (** Repeatidly resamples a given data set with replacement, computing a
     statistical estimate over the resampled data. *)
 val resample
-  :  ?rng:Rng.t
+  :  ?rng:Gsl.Rng.t
   -> estimator:('a array -> 'b)
   -> n:int
   -> 'a array
@@ -29,7 +29,7 @@ module Bootstrap : sig
 
   (** Bias-corrected and accelerated (BCa) bootstrap. *)
   val bca
-    :  ?rng:Rng.t
+    :  ?rng:Gsl.Rng.t
     -> ?confidence_level:float
     -> estimator:(float array -> float)
     -> n:int

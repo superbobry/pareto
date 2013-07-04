@@ -1,7 +1,8 @@
 open Internal
 
-module Randist = Gsl.Randist
 module Cdf = Gsl.Cdf
+module Randist = Gsl.Randist
+module Rng = Gsl.Rng
 
 module type Features = sig
   type elt

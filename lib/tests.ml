@@ -97,8 +97,8 @@ module ChiSquared = struct
     let expected = Matrix.create m n in
     let open Gsl.Blas_flat in
     gemm ~ta:Trans ~tb:NoTrans ~alpha:(1. /. Matrix.sum observed) ~beta:1.
-      ~a:(Matrix.sum_by `Rows observed)
-      ~b:(Matrix.sum_by `Columns observed)
+      ~a:(Matrix.row_sums observed)
+      ~b:(Matrix.col_sums observed)
       ~c:expected;
 
     if Matrix.exists ((=) 0.) expected
@@ -117,7 +117,7 @@ module ChiSquared = struct
           memcpy ~src:expected ~dst:t;
           sub t observed;
           if df = 1 && correction then begin
-            abs t;  (* Use Yates' correction for continuity. *)
+            map t (abs_float);  (* Use Yates' correction for continuity. *)
             add_constant t (-. 0.5)
           end;
           mul_elements t t;

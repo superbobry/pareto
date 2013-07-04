@@ -1,6 +1,4 @@
-module Rng = Gsl.Rng
-
-let default_rng = let open Rng in
+let default_rng = let open Gsl.Rng in
   env_setup ();
   make (default ())
 
@@ -98,29 +96,20 @@ module Array = struct
         vs
     in (Array.of_list l, Array.of_list r)
 
-  (* Note(superbobry): remove this, not generic enough. *)
   let sum = fold_left (+.) 0.
+
+  (* Note(superbobry): remove this, not generic enough. *)
   let sum_with f = fold_left (fun acc x -> acc +. f x) 0.
 end
 
 module Vector = struct
   include Gsl.Vector_flat
 
-  let sort = Gsl.Gsl_sort.vector_flat
-  let sort_index = Gsl.Gsl_sort.vector_flat_index
   let partial_sort = Gsl.Gsl_sort.vector_flat_smallest
 end
 
 module Matrix = struct
   include Gsl.Matrix_flat
-
-  let iter f m =
-    let (nrow, ncol) = dims m in
-    for i = 0 to nrow - 1 do
-      for j = 0 to ncol - 1 do
-        f i j (get m i j)
-      done
-    done
 
   let exists p m =
     let (nrow, ncol) = dims m in
@@ -134,18 +123,43 @@ module Matrix = struct
       else loop_columns i (ncol - 1) || loop_rows (pred i)
     in loop_rows (nrow - 1)
 
-  let abs m = iter (fun i j x -> set m i j (abs_float x)) m
+  let map m f =
+    let (nrow, ncol) = dims m in begin
+      for i = 0 to nrow - 1 do
+        for j = 0 to ncol - 1 do
+          set m i j (f (get m i j))
+        done
+      done
+    end
 
-  let sum_by direction m =
+  let row_sums m =
     let (nrow, ncol) = dims m in
-    match direction with
-    | `Rows -> of_array (Array.map Array.sum (to_arrays m)) 1 nrow
-    | `Columns ->
-      let res = create ~init:0. 1 ncol in
-      iter (fun _i j x -> set res 0 j (get res 0 j +. x)) m;
-      res
+    let res = create ~init:0. 1 nrow in begin
+      for i = 0 to nrow - 1 do
+        for j = 0 to ncol - 1 do
+          set res 0 i (get res 0 i +. get m i j)
+        done
+      done; res
+    end
+  and col_sums m =
+    let (nrow, ncol) = dims m in
+    let res = create ~init:0. 1 ncol in begin
+      for j = 0 to ncol - 1 do
+        for i = 0 to nrow - 1 do
+          set res 0 j (get res 0 j +. get m i j)
+        done
+      done; res
+    end
 
-  let sum m = Array.sum (to_array (sum_by `Rows m))
+  let sum m =
+    let (nrow, ncol) = dims m in
+    let acc = ref 0. in begin
+      for i = 0 to nrow - 1 do
+        for j = 0 to ncol - 1 do
+          acc := !acc +. get m i j
+        done
+      done; ! acc
+    end
 
   let power m =
     let open Gsl.Blas_flat in
