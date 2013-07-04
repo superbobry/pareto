@@ -759,7 +759,6 @@ module Categorical = struct
 end
 
 
-
 let normal = Normal.create
 and log_normal = LogNormal.create
 and uniform = Uniform.create

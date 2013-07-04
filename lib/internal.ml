@@ -75,9 +75,7 @@ module Array = struct
       let j = unsafe_get is i in unsafe_set dst i (unsafe_get src j)
     done
 
-  let sum = fold_left (+.) 0.
-  let sum_with f = fold_left (fun acc x -> acc +. f x) 0.
-  let count p = sum_with (fun v -> if p v then 1. else 0.)
+  let count p = fold_left (fun acc v -> acc + if p v then 1 else 0) 0
 
   let exists p vs =
     let rec loop i =
@@ -99,6 +97,10 @@ module Array = struct
         ([], [])
         vs
     in (Array.of_list l, Array.of_list r)
+
+  (* Note(superbobry): remove this, not generic enough. *)
+  let sum = fold_left (+.) 0.
+  let sum_with f = fold_left (fun acc x -> acc +. f x) 0.
 end
 
 module Vector = struct

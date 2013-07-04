@@ -43,9 +43,12 @@ module Bootstrap = struct
       let sum_cubes   = Array.sum_with (fun v -> cube (jack_mean -. v)) jack in
       let sum_squares = Array.sum_with (fun v -> sqr  (jack_mean -. v)) jack in
       let accel = sum_cubes /. (6. *. (sum_squares ** 1.5)) in
+      let p     =
+        float_of_int (Array.count (fun v -> v < point) rvs) /. float_of_int n
+      in
+
       let open Distributions.Normal in
-      let bias  = quantile standard
-          ~p:(Array.count (fun v -> v < point) rvs /. float_of_int n)
+      let bias  = quantile standard ~p
       and z  = quantile standard ~p:((1. -. confidence_level) /. 2.) in
       let b1 = bias +. z
       and b2 = bias -. z in
