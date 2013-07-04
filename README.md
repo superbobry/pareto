@@ -7,7 +7,11 @@
 * Sample statistics, quantile estimation, kernel density estimation.
 * Resampling methods: jackknife, BCa bootstrap.
 
+**Note**: before using `pareto` make sure you understand some of the subtleties
+in OCaml GSL bindinds. See section **ERROR HANDLING** in GSL [README] [README].
+
 [gsl]: http://www.gnu.org/software/gsl
+[README]: https://bitbucket.org/mmottl/gsl-ocaml
 
 Installation
 ------------
@@ -34,6 +38,22 @@ $ ./configure --enable-examples
 $ make
 ```
 
+Here's a simple t-test:
+
+```ocaml
+open Statistics
+
+let open Distributions.Normal in
+let v = sample ~size:10 standard in
+let open Tests in
+let { test_statistic = t; test_pvalue } =
+  T.one_sample v ~mean:0. ~alternative:TwoSided ()
+in begin
+  printf "One-sample T-test for true mean = 0.0\n";
+  printf "t = %f, P-value: %f\n" t test_pvalue;
+end
+```
+
 ### Documentation _(optional)_
 
 To build API documentation:
@@ -53,23 +73,3 @@ $ make test
 
 [travis]: http://travis-ci.org/superbobry/pareto
 [travis-img]: https://secure.travis-ci.org/superbobry/pareto.png
-
-Examples
---------
-
-Examples for different `pareto` modules can be found in `examples/`
-directory. Here's a simple t-test:
-
-```ocaml
-open Statistics
-
-let open Distributions.Normal in
-let v = sample ~size:10 standard in
-let open Tests in
-let { test_statistic = t; test_pvalue } =
-  T.one_sample v ~mean:0. ~alternative:TwoSided ()
-in begin
-  printf "One-sample T-test for true mean = 0.0\n";
-  printf "t = %f, P-value: %f\n" t test_pvalue;
-end
-```
