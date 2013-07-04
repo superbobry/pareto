@@ -20,7 +20,7 @@ Version 0.2
 - Abstracted RV type into '*Distribution.elt'.
 - Added more distribution features: skewness and kurtosis, see
   'Distributions.Features' signature.
-- Added 'LogNormal', 'Bernoulli', 'Logistic' and 'Categorical distributions.
+- Added 'LogNormal', 'Bernoulli', 'Logistic' and 'Categorical' distributions.
 - Added a basic test suite against R and SciPy, thanks to Francois Berenger
   for the reminder.
 
