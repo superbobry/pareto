@@ -309,10 +309,13 @@ module KolmogorovSmirnov = struct
 
     let pvalue = match alternative with
       | Less | Greater ->
+        (* Note(superbobry): there's also a X^2 approximation for
+           one-sided hypothesis, see:
+           L. Goodman, Kolmogorov-Smirnov test for psycological research. *)
         exp (-. 2. *. float_of_int (n1 * n2) /. float_of_int (n1 + n2) *.
                   d *. d)
       | TwoSided ->
-        (* Note(lebedev): we follow R here and treat two-sided P-value
+        (* Note(superbobry): we follow R here and treat two-sided P-value
            as a probability that a random assignment of the pooled
            data to two sets of the same sizes as the input data sets
            has a KS test statistic at least as great as that of the
