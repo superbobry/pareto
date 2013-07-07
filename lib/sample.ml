@@ -259,26 +259,40 @@ end
 module Summary = struct
   type t = {
     k     : int;
-    m_k   : float;
-    s_k   : float;
+    m_1   : float;
+    m_2   : float;
+    m_3   : float;
+    m_4   : float;
     max_k : float;
     min_k : float
   }
 
-  let empty =
-    { k = 0; m_k = 0.0; s_k = 0.0; max_k = min_float; min_k = max_float }
+  let empty = {
+    m_1   = 0.0;
+    m_2   = 0.0;
+    m_3   = 0.0;
+    m_4   = 0.0;
+    k     = 0;
+    max_k = min_float;
+    min_k = max_float;
+  }
 
   let add t x_k =
-    let (m_k, s_k) =
-      if t.k = 0
-      then (x_k, 0.0)
-      else
-        let d    = x_k -. t.m_k in
-        let m_k1 = t.m_k +. (d /. float_of_int (succ t.k)) in
-        let s_k1 = t.s_k +. (d *. (x_k -. m_k1)) in
-        (m_k1, s_k1)
-    in {
-      k = succ t.k; m_k; s_k;
+    let n_k       = float_of_int (succ t.k) in
+    let delta     = x_k -. t.m_1 in
+    let delta_nk  = delta /. n_k in
+    let delta_m_2 = delta *. delta_nk *. float_of_int t.k in
+    {
+      m_1   = t.m_1 +. delta_nk;
+      m_2   = t.m_2 +. delta_m_2;
+      m_3   = t.m_3 +.
+                delta_m_2 *. delta_nk *. (n_k -. 2.) -.
+                (3. *. delta_nk *. t.m_2);
+      m_4   = t.m_4 +.
+                delta_m_2 *. sqr delta_nk *. (sqr n_k -. 3. *. n_k +. 3.) +.
+                6. *. sqr delta_nk *. t.m_2 -.
+                4. *. delta_nk *. t.m_3;
+      k     = succ t.k;
       min_k = Pervasives.min t.min_k x_k;
       max_k = Pervasives.max t.max_k x_k;
     }
@@ -286,14 +300,53 @@ module Summary = struct
   let size { k; _ } = k
 
   let min { min_k; _ } = if min_k = max_float then nan else min_k
-  let max { max_k; _ } = if max_k = min_float then nan else max_k
+  and max { max_k; _ } = if max_k = min_float then nan else max_k
 
-  let mean t = if t.k > 0 then t.m_k else nan
+  let mean t = if t.k > 0 then t.m_1 else nan
 
   let variance t = match t.k with
     (* Note(superbobry): we follow R and GSL here and treat variance
        of a single number undefined. *)
     | 0 | 1 -> nan
-    | _ -> t.s_k /. (float_of_int (t.k - 1))
+    | _ -> t.m_2 /. float_of_int (pred t.k)
   let sd t = sqrt (variance t)
+
+  let skewness t =
+    if t.k = 0
+    then nan
+    else sqrt (float_of_int t.k) *. t.m_3 /. (t.m_2 ** 1.5)
+  and kurtosis t =
+    if t.k = 0
+    then nan
+    else float_of_int t.k *. t.m_4 /. (t.m_2 *.  t.m_2) -. 3.
+
+  (* FIXME(superbobry): Summary should be a Monoid. *)
+  let combine t1 t2 =
+    if t1.k = 0
+    then t2
+    else if t2.k = 0
+    then t1
+    else
+      (* Note(superbobry): we can optimize it later, but right now I'd
+         rather have these formulas match Wikipedia _directly_. *)
+      let delta = t2.m_1 -. t1.m_1
+      and t1k   = float_of_int t1.k
+      and t2k   = float_of_int t2.k
+      and tnk   = float_of_int (t1.k + t2.k)
+      in {
+        m_1 = (t1k *. t1.m_1 +. t2k *. t2.m_1) /. tnk;
+        m_2 = t1.m_2 +. t2.m_2 +. sqr delta *. t1k *. t2k /. tnk;
+        m_3 = t1.m_3 +. t2.m_3
+              +. cube delta *. t1k *. t2k *. (t1k -. t2k) /. sqr tnk
+              +. 3. *. delta *. (t1k *. t2.m_2 -. t2k *. t1.m_2) /. tnk;
+        m_4 = t1.m_4 +. t2.m_4
+              +. ((delta ** 4.) *. t1k *. t2k *.
+                    (sqr t1k -. t1k *. t2k +. sqr t2k) /. cube tnk)
+              +. (6. *. sqr delta *.
+                    (sqr t1k *. t2.m_2 +. sqr t2k *.  t1.m_2) /. sqr tnk)
+              +. (4. *. delta *. (t1k *. t2.m_3 -. t2k *. t1.m_3) /. tnk);
+        k = t1.k + t2.k;
+        max_k = Pervasives.max t1.max_k t2.max_k;
+        min_k = Pervasives.min t1.min_k t2.min_k
+      }
 end

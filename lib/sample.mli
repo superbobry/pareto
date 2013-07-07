@@ -184,7 +184,9 @@ end
     {6 References}
 
     + D. E. Knuth, "The Art of Computer Programming, Volume 2:
-      Seminumerical Algorithms", 2nd edition, Section 4.2.2, p216. *)
+      Seminumerical Algorithms", 2nd edition, Section 4.2.2, p216.
+    + T. B. Terriberry, "Computing Higher-Order Moments Online", 2008,
+      http://people.xiph.org/~tterribe/notes/homs.html *)
 module Summary : sig
   type t
 
@@ -214,4 +216,18 @@ module Summary : sig
   (** Returns the standard deviation of the values that have been added
       or [nan] if the data set is empty. *)
   val sd : t -> float
+
+  (** Returns the skewness of the values that have been added or [nan] if
+      the data set is empty.
+
+      {b Note}: for small sample sizes estimated value might be inaccurate,
+      See issue #20. *)
+  val skewness : t -> float
+
+  (** Returns the excess kurtosis of the values that have been added
+      or [nan] if the data set is empty.
+
+      {b Note}: for small sample sizes estimated value might be inaccurate,
+      See issue #20. *)
+  val kurtosis : t -> float
 end

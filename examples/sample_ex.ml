@@ -102,8 +102,9 @@ let sample_summary () =
   let s  = Summary.(Array.fold_left add empty vs) in
   begin
     print_float_array vs;
-    printf "        mean = %f, sd = %f\n" (mean vs) (sd vs);
-    printf "Summary mean = %f, sd = %f\n" (Summary.mean s) (Summary.sd s);
+    printf "        kurtosis = %f, skewness = %f\n" (kurtosis vs) (skewness vs);
+    printf "Summary kurtosis = %f, skewness = %f\n"
+      (Summary.kurtosis s) (Summary.skewness s);
     print_newline ()
   end
 
