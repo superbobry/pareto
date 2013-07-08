@@ -20,6 +20,32 @@ let test_summary ~size () =
     assert_almost_equal ~msg:"sd" (Summary.sd s) (sd vs)
   end
 
+and test_combined_summary ~size () =
+  let vs =
+    let open Pareto.Distributions.Uniform in
+    sample ~size (create ~lower:(-42.) ~upper:42.)
+  in
+
+  let mid = size / 2 in
+  let v1  = Array.sub vs 0 mid
+  and v2  = Array.sub vs mid (size - mid) in
+  let s1  = Array.fold_left Summary.add Summary.empty v1
+  and s2  = Array.fold_left Summary.add Summary.empty v2 in
+  let s12 = Summary.Monoid.mappend s1 s2
+  and s   = Array.fold_left Summary.add Summary.empty vs in begin
+    assert_almost_equal ~msg:"min" (Summary.min s) (Summary.min s12);
+    assert_almost_equal ~msg:"max" (Summary.max s) (Summary.max s12);
+    assert_equal ~msg:"size" (Summary.size s) (Summary.size s12);
+    assert_almost_equal ~msg:"mean" (Summary.mean s) (Summary.mean s12);
+    assert_almost_equal ~msg:"variance"
+      (Summary.variance s) (Summary.variance s12);
+    assert_almost_equal ~msg:"sd" (Summary.sd s) (Summary.sd s12);
+    assert_almost_equal ~msg:"skewness"
+      (Summary.skewness s) (Summary.skewness s12);
+    assert_almost_equal ~msg:"kurtosis"
+      (Summary.kurtosis s) (Summary.kurtosis s12);
+  end
+
 and test_quantile () =
   let rec vs =
     [|0.952363286988083; 0.829666168783014; 0.563616484350936;
@@ -114,6 +140,9 @@ let test = "Sample" >::: [
     "summary statistics, n = 100" >:: test_summary ~size:100;
     "summary statistics, n = 1000" >:: test_summary ~size:1000;
     "summary statistics, n = 10000" >:: test_summary ~size:10000;
+    "combined summary, n = 100" >:: test_combined_summary ~size:100;
+    "combined summary, n = 1000" >:: test_combined_summary ~size:1000;
+    "combined summary, n = 10000" >:: test_combined_summary ~size:10000;
     "quantile" >:: test_quantile;
     "rank" >:: test_rank;
     "correlation" >:: test_correlation

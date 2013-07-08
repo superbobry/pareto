@@ -230,4 +230,6 @@ module Summary : sig
       {b Note}: for small sample sizes estimated value might be inaccurate,
       See issue #20. *)
   val kurtosis : t -> float
+
+  module Monoid : Algebra.Monoid.S with type t = t
 end
