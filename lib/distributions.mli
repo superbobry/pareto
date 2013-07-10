@@ -76,7 +76,12 @@ end
 
 (** The normal distribution. *)
 module Normal : sig
-  include ContinuousDistribution with type elt = float
+  type t = {
+    normal_mean : float;
+    normal_sd   : float
+  }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include Features with type t := t and type elt := float
   include MLE with type t := t and type elt := float
 
@@ -89,7 +94,12 @@ end
 
 (** The log-normal distribution. *)
 module LogNormal : sig
-  include ContinuousDistribution with type elt = float
+  type t = {
+    lognormal_mean : float;
+    lognormal_sd   : float
+  }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include Features with type t := t and type elt := float
   include MLE with type t := t and type elt := float
 
@@ -99,7 +109,12 @@ end
 
 (** Random variate distributed uniformly in the interval. *)
 module Uniform : sig
-  include ContinuousDistribution with type elt = float
+  type t = {
+    uniform_lower : float;
+    uniform_upper : float
+  }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include Features with type t := t and type elt := float
   include MLE with type t := t and type elt := float
 
@@ -113,7 +128,9 @@ end
     process, in which events occur continuously and independently at a
     constant average [rate]. *)
 module Exponential : sig
-  include ContinuousDistribution with type elt = float
+  type t = { exp_rate : float }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include Features with type t := t and type elt := float
   include MLE with type t := t and type elt := float
 
@@ -126,7 +143,9 @@ end
     The probability distribution of sum of squares of [df] independent
     standard normal distributions. *)
 module ChiSquared : sig
-  include ContinuousDistribution with type elt = float
+  type t = { chisq_df : float }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include Features with type t := t and type elt := float
 
   (** Construct chi-squared distribution. Number of degrees of freedom
@@ -136,7 +155,12 @@ end
 
 (** Fisher-Snedecor distribution. *)
 module F : sig
-  include ContinuousDistribution with type elt = float
+  type t = {
+    f_df1 : float;
+    f_df2 : float
+  }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include FeaturesOpt with type t := t and type elt := float
 
   (** Creates Fisher-Snedecor distribution with a given number of degrees
@@ -146,7 +170,9 @@ end
 
 (** Student's t-distribution. *)
 module T : sig
-  include ContinuousDistribution with type elt = float
+  type t = { t_df : float }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include FeaturesOpt with type t := t and type elt := float
 
   (** Creates Student's t-distribution with a given number of degrees
@@ -156,7 +182,12 @@ end
 
 (** The gamma distribution. *)
 module Gamma : sig
-  include ContinuousDistribution with type elt = float
+  type t = {
+    gamma_shape : float;
+    gamma_scale : float
+  }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include Features with type t := t and type elt := float
 
   (** Creates gamma distribution. Both shape and scale must be positive. *)
@@ -167,7 +198,12 @@ end
 
     It doesn't have mean and variance. *)
 module Cauchy : sig
-  include ContinuousDistribution with type elt = float
+  type t = {
+    cauchy_location : float;
+    cauchy_scale    : float
+  }
+
+  include ContinuousDistribution with type t := t and type elt = float
 
   (** Creates Cauchy-Lorentz distribution from parameters. *)
   val create   : location:float -> scale:float -> t
@@ -178,7 +214,12 @@ end
 
 (** The beta distribution. *)
 module Beta : sig
-  include ContinuousDistribution with type elt = float
+  type   t = {
+    beta_alpha : float;
+    beta_beta  : float
+  }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include Features with type t := t and type elt := float
 
   (** Creates beta distribution. Both shape parameters must be positive. *)
@@ -187,7 +228,12 @@ end
 
 (** Logistic distribution. *)
 module Logistic : sig
-  include ContinuousDistribution with type elt = float
+  type t = {
+    logistic_location : float;
+    logistic_scale    : float
+  }
+
+  include ContinuousDistribution with type t := t and type elt = float
   include Features with type t := t and type elt := float
 
   (** Creates logistic distribution. *)
@@ -203,7 +249,9 @@ end
     fixed interval if these events occur with a known average [rate],
     and occur independently from each other within that interval. *)
 module Poisson : sig
-  include DiscreteDistribution with type elt = int
+  type t = { poisson_rate : float }
+
+  include DiscreteDistribution with type t := t and type elt = int
   include Features with type t := t and type elt := float
   include MLE with type t := t and type elt := int
 
@@ -216,8 +264,11 @@ end
     The probability distribution, which takes value [1] with success
     probability [p] and value [0] with failure probability [1 - p]. *)
 module Bernoulli : sig
-  include DiscreteDistribution with type elt = int
+  type t = { bernoulli_p : float }
+
+  include DiscreteDistribution with type t := t and type elt = int
   include Features with type t := t and type elt := float
+  include MLE with type t := t and type elt := int
 
   (** Creates Bernoulli distribution with given success probability [p]. *)
   val create : p:float -> t
@@ -228,7 +279,12 @@ end
     The probability distribution of the number of successes in a sequence
     of independent Bernoulli [trials]. *)
 module Binomial : sig
-  include DiscreteDistribution with type elt = int
+  type t = {
+    binomial_trials : int;
+    binomial_p      : float
+  }
+
+  include DiscreteDistribution with type t := t and type elt = int
   include Features with type t := t and type elt := float
 
   (** Creates binomial distribution. Number of [trials] must be
@@ -241,7 +297,9 @@ end
     The probability distribution of the number of failures before the
     first success, supported on the set [[0, 1, ...]]. *)
 module Geometric : sig
-  include DiscreteDistribution with type elt = int
+  type t = { geometric_p : float }
+
+  include DiscreteDistribution with type t := t and type elt = int
   include Features with type t := t and type elt := float
 
   (** Creates Geometric distribution with a given probability of success. *)
@@ -255,7 +313,13 @@ end
     population contains [m] elements of "type 1" and [t - m] elements
     of "type 2". *)
 module Hypergeometric : sig
-  include DiscreteDistribution with type elt = int
+  type t = {
+    hyper_m : int;
+    hyper_t : int;
+    hyper_k : int
+  }
+
+  include DiscreteDistribution with type t := t and type elt = int
   include Features with type t := t and type elt := float
 
   (** Creates Hypergeometric distribution. *)
@@ -267,7 +331,12 @@ end
     The probability distribution of the number of successes in a sequence
     of Bernoulli trials before a specified  number of [failures] occur. *)
 module NegativeBinomial : sig
-  include DiscreteDistribution with type elt = int
+  type t = {
+    nbinomial_failures : int;
+    nbinomial_p        : float
+  }
+
+  include DiscreteDistribution with type t := t and type elt = int
   include Features with type t := t and type elt := float
 
   (** Creates negative Binomial distribution with a given number of
@@ -291,7 +360,9 @@ module Categorical : sig
     val create : (elt * float) array -> t
   end
 
-  module Make : functor (Elt : Map.OrderedType) -> S with type elt = Elt.t
+  module Make
+    :  functor (Elt : Map.OrderedType)
+    -> S with type elt = Elt.t
 end
 
 (** {2 Shortcuts for creating distributions} *)

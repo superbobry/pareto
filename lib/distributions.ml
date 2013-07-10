@@ -97,9 +97,9 @@ module Normal = struct
   let sample = make_sampler generate
 
   let mle vs =
-    let normal_mean = Sample.mean vs in
-    let normal_sd   = Sample.sd ~mean:normal_mean vs in
-    { normal_mean; normal_sd; }
+    let mean = Sample.mean vs in
+    let sd   = Sample.sd ~mean vs in
+    create ~mean ~sd
 end
 
 module LogNormal = struct
@@ -141,9 +141,9 @@ module LogNormal = struct
 
   let mle vs =
     let log_vs = Array.map log vs in
-    let lognormal_mean = Sample.mean log_vs in
-    let lognormal_sd   = Sample.sd ~mean:lognormal_mean log_vs in
-    { lognormal_mean; lognormal_sd; }
+    let mean   = Sample.mean log_vs in
+    let sd     = Sample.sd ~mean:mean log_vs in
+    create ~mean ~sd
 end
 
 module Uniform = struct
@@ -179,8 +179,7 @@ module Uniform = struct
     Randist.flat ~a:uniform_lower ~b:uniform_upper rng
   let sample = make_sampler generate
 
-  let mle vs =
-    { uniform_lower = Sample.min vs; uniform_upper = Sample.max vs }
+  let mle vs = create ~lower:(Sample.min vs) ~upper:(Sample.max vs)
 end
 
 module Exponential = struct
@@ -210,7 +209,7 @@ module Exponential = struct
     Randist.exponential ~mu:exp_rate rng
   let sample = make_sampler generate
 
-  let mle vs = { exp_rate = 1. /. Sample.mean vs; }
+  let mle vs = create ~rate:(1. /. Sample.mean vs)
 end
 
 module ChiSquared = struct
@@ -361,21 +360,6 @@ module Gamma = struct
   let generate ?(rng=default_rng) { gamma_shape; gamma_scale } =
     Randist.gamma ~a:gamma_shape ~b:gamma_scale rng
   let sample = make_sampler generate
-
-  let mle vs =
-    (* Note(nrlucaroni): the shape parameter is an approximation not
-       an MLE; apparently this is no more than 1.5% away, but requires
-       a number of Newton method moves to obtain an optimal value.
-
-       I have heard 4 iterations is usually enough as the function
-       is well behaved. This is not exposed in the MLI file. *)
-    let mean = Sample.mean vs in
-    let gamma_shape =
-      let s = log mean -. Sample.mean (Array.map log vs) in
-      (3. -. s +. sqrt ((s -. 3.) *. (s -. 3.) +. 24.)) /. (12. *. s)
-    in
-    let gamma_scale = mean /. gamma_shape in
-    { gamma_shape; gamma_scale; }
 end
 
 module Cauchy = struct
@@ -501,7 +485,7 @@ module Poisson = struct
     Randist.poisson ~mu:poisson_rate rng
   let sample = make_sampler generate
 
-  let mle vs = { poisson_rate = Sample.mean (Array.map float_of_int vs) }
+  let mle vs = create ~rate:(Sample.mean (Array.map float_of_int vs))
 end
 
 module Bernoulli = struct
@@ -537,6 +521,11 @@ module Bernoulli = struct
   let generate ?(rng=default_rng) { bernoulli_p } =
     Randist.bernoulli ~p:bernoulli_p rng
   let sample = make_sampler generate
+
+  let mle vs =
+    let n = Array.length vs
+    and y = Array.fold_left (+) 0 vs in
+    create ~p:(float_of_int y /. float_of_int n)
 end
 
 module Binomial = struct
@@ -704,7 +693,7 @@ module Categorical = struct
     type t   = {
       categorical_values : elt array;
       categorical_probs  : float array;
-      categorical_d      : Randist.discrete
+      categorical_cumsum : Randist.discrete
     }
 
     let create dist =
@@ -728,7 +717,7 @@ module Categorical = struct
         {
           categorical_values = vs;
           categorical_probs  = probs;
-          categorical_d = Randist.discrete_preproc probs
+          categorical_cumsum = Randist.discrete_preproc probs
         }
       end
 
@@ -752,8 +741,9 @@ module Categorical = struct
         | Some pos -> Array.unsafe_get categorical_probs pos
         | None     -> 0.
 
-    let generate ?(rng=default_rng) { categorical_values; categorical_d; _ } =
-      let pos = Randist.discrete rng categorical_d in
+    let generate ?(rng=default_rng)
+        { categorical_values; categorical_cumsum; _ } =
+      let pos = Randist.discrete rng categorical_cumsum in
       Array.unsafe_get categorical_values pos
     let sample = make_sampler generate
   end

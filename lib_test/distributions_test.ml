@@ -10,10 +10,10 @@ let test_categorical () =
   let d =
     Strings.create [|("C", 0.3); ("A", 0.1); ("G", 0.5); ("T", 0.1)|]
   in begin
-    assert_almost_equal ~msg:"Pr(X = A)" (Strings.probability d "A") 0.1;
-    assert_almost_equal ~msg:"Pr(X = C)" (Strings.probability d "C") 0.3;
-    assert_almost_equal ~msg:"Pr(X = G)" (Strings.probability d "G") 0.5;
-    assert_almost_equal ~msg:"Pr(X = T)" (Strings.probability d "T") 0.1;
+    assert_almost_equal ~msg:"Pr(X = A)" 0.1 (Strings.probability d "A");
+    assert_almost_equal ~msg:"Pr(X = C)" 0.3 (Strings.probability d "C");
+    assert_almost_equal ~msg:"Pr(X = G)" 0.5 (Strings.probability d "G");
+    assert_almost_equal ~msg:"Pr(X = T)" 0.1 (Strings.probability d "T");
 
     assert_almost_equal ~msg:"Pr(X <= A)"
       (Strings.cumulative_probability d "A") 0.1;
