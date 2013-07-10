@@ -321,11 +321,6 @@ module Summary = struct
     else float_of_int t.k *. t.m_4 /. (t.m_2 *.  t.m_2) -. 3.
 
   module Monoid = struct
-    (* HACK(superbobry): no non-recursive types in OCaml,
-       unfortunately. *)
-    type t2 = t
-    type t = t2
-
     let mempty = empty
     and mappend t1 t2 =
       if t1.k = 0
