@@ -10,7 +10,6 @@ val minmax : float array -> (float * float)
     largest and smallest elements of a sample. *)
 val range : float array -> float
 
-
 (** {e O(n k)} Computes an array of sample moments of order 1 to k, i. e.
     [E{X^1}, E{X^2}, ..., E{X^k}]. *)
 val moments : int -> float array -> float array
