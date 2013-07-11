@@ -10,6 +10,27 @@ let range vs =
   let (min, max) = minmax vs in
   max -. min
 
+let moments k vs =
+  let n = Array.length vs in
+  if n = 0
+  then Array.make k nan
+  else
+    let ms = Array.make k 0. in begin
+      for i = 0 to n - 1 do
+        let v   = Array.unsafe_get vs i in
+        let acc = ref v in
+        for p = 0 to k - 1 do
+          Array.unsafe_set ms p
+            (Array.unsafe_get ms p +. !acc);
+          acc := !acc *. v
+        done
+      done;
+
+      for p = 0 to k - 1 do
+        Array.unsafe_set ms p (Array.unsafe_get ms p /. float_of_int n)
+      done; ms
+    end
+
 let mean vs = Stats.mean vs
 let variance ?mean vs = Stats.variance ?mean vs
 let sd ?mean vs = Stats.sd ?mean vs
@@ -301,14 +322,6 @@ module Summary = struct
 
   let min { min_k; _ } = if min_k = max_float then nan else min_k
   and max { max_k; _ } = if max_k = min_float then nan else max_k
-
-  let moment t = function
-    | _ when t.k = 0 -> nan
-    | 1 -> t.m_1
-    | 2 -> t.m_2
-    | 3 -> t.m_3
-    | 4 -> t.m_4
-    | _ -> invalid_arg "Sample.moment: moment order must be in range [1, 4]"
 
   let mean t = if t.k > 0 then t.m_1 else nan
 

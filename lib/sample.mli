@@ -10,6 +10,11 @@ val minmax : float array -> (float * float)
     largest and smallest elements of a sample. *)
 val range : float array -> float
 
+
+(** {e O(n k)} Computes an array of sample moments of order 1 to k, i. e.
+    [E{X^1}, E{X^2}, ..., E{X^k}]. *)
+val moments : int -> float array -> float array
+
 (** {e O(n)} Computes sample's arithmetic mean. *)
 val mean : float array -> float
 
@@ -204,11 +209,6 @@ module Summary : sig
 
   (** Returns the number of available values. *)
   val size : t -> int
-
-  (** Returns [i]-th sample moment of the values that have been added
-      or [nan] if the data set is empty. Only moments of order [1-4] are
-      supported. *)
-  val moment : t -> int -> float
 
   (** Returns the arithmetic mean of the values that have been added
       or [nan] if the data set is empty. *)

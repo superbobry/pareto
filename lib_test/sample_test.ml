@@ -135,6 +135,21 @@ and test_correlation () =
         -0.233617717921346; 0.162004926236094; 0.0428473917235931|]
   end
 
+and test_moments () =
+  let vs =
+    let open Pareto.Distributions.Uniform in
+    sample ~size:1024 (create ~lower:(-42.) ~upper:42.)
+  in
+
+  let k  = 8 in
+  let ms = Pareto.Sample.moments k vs in
+  for p = 1 to k do
+    assert_almost_equal ~msg:(string_of_int p)
+      (Array.fold_left (+.) 0.
+         (Array.map (fun v -> v ** float_of_int p) vs) /. 1024.)
+      ms.(p - 1)
+  done
+
 
 let test = "Sample" >::: [
     "summary statistics, n = 100" >:: test_summary ~size:100;
@@ -145,5 +160,6 @@ let test = "Sample" >::: [
     "combined summary, n = 10000" >:: test_combined_summary ~size:10000;
     "quantile" >:: test_quantile;
     "rank" >:: test_rank;
-    "correlation" >:: test_correlation
+    "correlation" >:: test_correlation;
+    "moments" >:: test_moments
   ]
