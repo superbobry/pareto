@@ -176,6 +176,10 @@ module F : sig
   (** Creates Fisher-Snedecor distribution with a given number of degrees
       of freedom. *)
   val create : df1:int -> df2:int -> t
+
+  (** Creates Fisher-Snedecor distribution with parameters, estimated
+      with method of moments. *)
+  val mme : float array -> t
 end
 
 (** Student's t-distribution. *)
@@ -188,6 +192,10 @@ module T : sig
   (** Creates Student's t-distribution with a given number of degrees
       of freedom. *)
   val create : df:float -> t
+
+  (** Creates Student's t-distribution with parameters, estimated with
+      method of moments. *)
+  val mme : float array -> t
 end
 
 (** The gamma distribution. *)
@@ -202,6 +210,10 @@ module Gamma : sig
 
   (** Creates gamma distribution. Both shape and scale must be positive. *)
   val create : shape:float -> scale:float -> t
+
+  (** Creates gamma distribution with parameters, estimated with method
+      of moments. *)
+  val mme : float array -> t
 end
 
 (** The Cauchy-Lorentz distribution.
@@ -224,7 +236,7 @@ end
 
 (** The beta distribution. *)
 module Beta : sig
-  type   t = {
+  type t = {
     beta_alpha : float;
     beta_beta  : float
   }
@@ -234,6 +246,10 @@ module Beta : sig
 
   (** Creates beta distribution. Both shape parameters must be positive. *)
   val create : alpha:float -> beta:float -> t
+
+  (** Creates beta distribution with parameters, estimated with method
+      of moments. *)
+  val mme : float array -> t
 end
 
 (** Logistic distribution. *)
@@ -248,6 +264,10 @@ module Logistic : sig
 
   (** Creates logistic distribution. *)
   val create : location:float -> scale:float -> t
+
+  (** Creates logistic distribution with parameters, estimated with method
+      of moments. *)
+  val mme : float array -> t
 end
 
 
@@ -366,6 +386,10 @@ module NegativeBinomial : sig
   (** Creates negative Binomial distribution with a given number of
       failures and success probability. *)
   val create : failures:int -> p:float -> t
+
+  (** Creates negative Binomial distribution with parameters, estimated
+      with method of moments. *)
+  val mme : int array -> t
 end
 
 module Categorical : sig

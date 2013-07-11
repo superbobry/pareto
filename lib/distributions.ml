@@ -284,6 +284,15 @@ module F = struct
   let generate ?(rng=default_rng) { f_df1; f_df2 } =
     Randist.fdist ~nu1:f_df1 ~nu2:f_df2 rng
   let sample = make_sampler generate
+
+  let mme vs =
+    let mean     = Sample.mean vs in
+    let variance = Sample.variance ~mean vs in
+    let df1 =
+      -2 * round (sqr mean /. (sqr mean *. (mean -. 1.) +.
+                                 mean *. variance -. 2. *. variance))
+    and df2 = 2 * round (mean /. (mean -. 1.)) in
+    create ~df1 ~df2
 end
 
 module T = struct
@@ -323,6 +332,12 @@ module T = struct
 
   let generate ?(rng=default_rng) { t_df } = Randist.tdist ~nu:t_df rng
   let sample = make_sampler generate
+
+  let mme vs =
+    let variance = Sample.variance vs in
+    if abs_float variance = infinity
+    then invalid_arg "T.mme: infinite sample"
+    else create ~df:(2. *. variance /. (variance -. 1.))
 end
 
 module Gamma = struct
@@ -357,6 +372,11 @@ module Gamma = struct
   let generate ?(rng=default_rng) { gamma_shape; gamma_scale } =
     Randist.gamma ~a:gamma_shape ~b:gamma_scale rng
   let sample = make_sampler generate
+
+  let mme vs =
+    let mean     = Sample.mean vs in
+    let variance = Sample.variance ~mean vs in
+    create ~shape:(sqr mean /. variance) ~scale:(mean /. variance)
 end
 
 module Cauchy = struct
@@ -422,6 +442,12 @@ module Beta = struct
   let generate ?(rng=default_rng) { beta_alpha; beta_beta } =
     Randist.beta ~a:beta_alpha ~b:beta_beta rng
   let sample = make_sampler generate
+
+  let mme vs =
+    let mean     = Sample.mean vs in
+    let variance = Sample.variance ~mean vs in
+    create ~alpha:(mean *. (sqr mean -. mean +. variance) /. variance)
+      ~beta:((mean -. 1.) *. (sqr mean -. mean +. variance) /. variance)
 end
 
 module Logistic = struct
@@ -455,6 +481,12 @@ module Logistic = struct
   let generate ?(rng=default_rng) { logistic_location; logistic_scale } =
     Randist.logistic ~a:logistic_scale rng +. logistic_location
   let sample = make_sampler generate
+
+  let mme vs =
+    let mean     = Sample.mean vs in
+    let variance = Sample.variance ~mean vs in
+    let open Gsl.Math in
+    create ~location:mean ~scale:(sqrt (3. *. variance) /. pi)
 end
 
 
@@ -685,6 +717,13 @@ module NegativeBinomial = struct
     Randist.negative_binomial
       ~n:(float_of_int nbinomial_failures) ~p:nbinomial_p rng
   let sample = make_sampler generate
+
+  let mme vs =
+    let vs       = Array.map float_of_int vs in
+    let mean     = Sample.mean vs in
+    let variance = Sample.variance ~mean vs in
+    create ~failures:(round (sqr mean /. (variance -. mean)))
+      ~p:(1. -. mean /. variance)
 end
 
 module Categorical = struct
