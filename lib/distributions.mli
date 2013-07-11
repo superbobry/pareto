@@ -1,44 +1,28 @@
 (** Commonly used probability distributions. *)
 
-(** Distribution features. *)
-module type Features = sig
-  type elt
-  type t
+module Features : sig
+  (** Distribution features. *)
+  module type S = sig
+    type elt
+    type t
 
-  val mean     : t -> elt
-  val variance : t -> elt
-  val skewness : t -> elt
-  val kurtosis : t -> elt
-end
+    val mean     : t -> elt
+    val variance : t -> elt
+    val skewness : t -> elt
+    val kurtosis : t -> elt
+  end
 
-(** Distribution features, which are allowed to be undefined for some
-    combinations of distribution parameters. *)
-module type FeaturesOpt = sig
-  type elt
-  type t
+  (** Distribution features, which are allowed to be undefined for some
+      combinations of distribution parameters. *)
+  module type Opt = sig
+    type elt
+    type t
 
-  val mean_opt     : t -> elt option
-  val variance_opt : t -> elt option
-  val skewness_opt : t -> elt option
-  val kurtosis_opt : t -> elt option
-end
-
-(** Maximum likelihood estimator of distributon parameters. *)
-module type MLE = sig
-  type elt
-  type t
-
-  (** Computes a MLE of distribution parameters from given data. *)
-  val mle : elt array -> t
-end
-
-module type MME = sig
-(** Method of moments estimator of distributon parameters. *)
-  type elt
-  type t
-
-  (** Computes a MME of distribution parameters from given data. *)
-  val mme : elt array -> t
+    val mean_opt     : t -> elt option
+    val variance_opt : t -> elt option
+    val skewness_opt : t -> elt option
+    val kurtosis_opt : t -> elt option
+  end
 end
 
 module type DiscreteDistribution = sig
@@ -92,14 +76,17 @@ module Normal : sig
   }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include Features with type t := t and type elt := float
-  include MLE with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
   (** Creates normal distribution from parameters. *)
   val create   : mean:float -> sd:float -> t
 
   (** Standard normal distribution with 0 [mean] and [sd] equal to 1. *)
   val standard : t
+
+  (** Creates normal distribution with a MLE of parameters, estimated
+      from given data. *)
+  val mle : float array -> t
 end
 
 (** The log-normal distribution. *)
@@ -110,11 +97,14 @@ module LogNormal : sig
   }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include Features with type t := t and type elt := float
-  include MLE with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
   (** Creates log-normal distribution from parameters. *)
   val create : mean:float -> sd:float -> t
+
+  (** Creates log-normal distribution with a MLE of parameters, estimated
+      from given data. *)
+  val mle : float array -> t
 end
 
 (** Random variate distributed uniformly in the interval. *)
@@ -125,11 +115,14 @@ module Uniform : sig
   }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include Features with type t := t and type elt := float
-  include MLE with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
   (** Creates uniform distribution over a given interval. *)
   val create : lower:float -> upper:float -> t
+
+  (** Creates uniform distribution with a MLE of parameters, estimated
+      from given data. *)
+  val mle : float array -> t
 end
 
 (** The exponential distribution.
@@ -141,11 +134,14 @@ module Exponential : sig
   type t = { exp_rate : float }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include Features with type t := t and type elt := float
-  include MLE with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
   (** Creates exponential distribution. [rate] must be positive. *)
   val create : rate:float -> t
+
+  (** Creates exponential distribution with a MLE of parameters, estimated
+      from given data. *)
+  val mle : float array -> t
 end
 
 (** The chi-squared distribution.
@@ -156,12 +152,15 @@ module ChiSquared : sig
   type t = { chisq_df : float }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include Features with type t := t and type elt := float
-  include MME with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
-  (** Construct chi-squared distribution. Number of degrees of freedom
+  (** Creates chi-squared distribution. Number of degrees of freedom
       must be positive. *)
   val create : df:int -> t
+
+  (** Creates chi-squared distribution with parameters, estimated with
+      method of moments. *)
+  val mme : float array -> t
 end
 
 (** Fisher-Snedecor distribution. *)
@@ -172,7 +171,7 @@ module F : sig
   }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include FeaturesOpt with type t := t and type elt := float
+  include Features.Opt with type t := t and type elt := float
 
   (** Creates Fisher-Snedecor distribution with a given number of degrees
       of freedom. *)
@@ -184,7 +183,7 @@ module T : sig
   type t = { t_df : float }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include FeaturesOpt with type t := t and type elt := float
+  include Features.Opt with type t := t and type elt := float
 
   (** Creates Student's t-distribution with a given number of degrees
       of freedom. *)
@@ -199,7 +198,7 @@ module Gamma : sig
   }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include Features with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
   (** Creates gamma distribution. Both shape and scale must be positive. *)
   val create : shape:float -> scale:float -> t
@@ -231,7 +230,7 @@ module Beta : sig
   }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include Features with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
   (** Creates beta distribution. Both shape parameters must be positive. *)
   val create : alpha:float -> beta:float -> t
@@ -245,7 +244,7 @@ module Logistic : sig
   }
 
   include ContinuousDistribution with type t := t and type elt = float
-  include Features with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
   (** Creates logistic distribution. *)
   val create : location:float -> scale:float -> t
@@ -263,11 +262,14 @@ module Poisson : sig
   type t = { poisson_rate : float }
 
   include DiscreteDistribution with type t := t and type elt = int
-  include Features with type t := t and type elt := float
-  include MLE with type t := t and type elt := int
+  include Features.S with type t := t and type elt := float
 
   (** Creates a Poisson distribution. [rate] must be positive. *)
   val create : rate:float -> t
+
+  (** Creates a Poisson distribution with a MLE of parameters, estimated
+      from given data. *)
+  val mle : int array -> t
 end
 
 (** Bernoulli distribution.
@@ -278,11 +280,14 @@ module Bernoulli : sig
   type t = { bernoulli_p : float }
 
   include DiscreteDistribution with type t := t and type elt = int
-  include Features with type t := t and type elt := float
-  include MLE with type t := t and type elt := int
+  include Features.S with type t := t and type elt := float
 
   (** Creates Bernoulli distribution with given success probability [p]. *)
   val create : p:float -> t
+
+  (** Creates a Bernoulli distribution with a MLE of parameters, estimated
+      from given data. *)
+  val mle : int array -> t
 end
 
 (** The binomial distribution.
@@ -296,12 +301,15 @@ module Binomial : sig
   }
 
   include DiscreteDistribution with type t := t and type elt = int
-  include Features with type t := t and type elt := float
-  include MME with type t := t and type elt := int
+  include Features.S with type t := t and type elt := float
 
   (** Creates binomial distribution. Number of [trials] must be
       non-negative. *)
   val create : trials:int -> p:float -> t
+
+  (** Creates binomial distribution with parameters, estimated with
+      method of moments. *)
+  val mme : int array -> t
 end
 
 (** The Geometric distribution.
@@ -312,11 +320,14 @@ module Geometric : sig
   type t = { geometric_p : float }
 
   include DiscreteDistribution with type t := t and type elt = int
-  include Features with type t := t and type elt := float
-  include MME with type t := t and type elt := int
+  include Features.S with type t := t and type elt := float
 
   (** Creates Geometric distribution with a given probability of success. *)
   val create : p:float -> t
+
+  (** Creates Geometric distribution with parameters, estimated with
+      method of moments. *)
+  val mme : int array -> t
 end
 
 (** The Hypergeometric distribution.
@@ -333,7 +344,7 @@ module Hypergeometric : sig
   }
 
   include DiscreteDistribution with type t := t and type elt = int
-  include Features with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
   (** Creates Hypergeometric distribution. *)
   val create : m:int -> t:int -> k:int -> t
@@ -350,7 +361,7 @@ module NegativeBinomial : sig
   }
 
   include DiscreteDistribution with type t := t and type elt = int
-  include Features with type t := t and type elt := float
+  include Features.S with type t := t and type elt := float
 
   (** Creates negative Binomial distribution with a given number of
       failures and success probability. *)

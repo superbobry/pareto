@@ -4,38 +4,26 @@ module Cdf = Gsl.Cdf
 module Randist = Gsl.Randist
 module Rng = Gsl.Rng
 
-module type Features = sig
-  type elt
-  type t
+module Features = struct
+  module type S = sig
+    type elt
+    type t
 
-  val mean     : t -> elt
-  val variance : t -> elt
-  val skewness : t -> elt
-  val kurtosis : t -> elt
-end
+    val mean     : t -> elt
+    val variance : t -> elt
+    val skewness : t -> elt
+    val kurtosis : t -> elt
+  end
 
-module type FeaturesOpt = sig
-  type elt
-  type t
+  module type Opt = sig
+    type elt
+    type t
 
-  val mean_opt     : t -> elt option
-  val variance_opt : t -> elt option
-  val skewness_opt : t -> elt option
-  val kurtosis_opt : t -> elt option
-end
-
-module type MLE = sig
-  type elt
-  type t
-
-  val mle : elt array -> t
-end
-
-module type MME = sig
-  type elt
-  type t
-
-  val mme : elt array -> t
+    val mean_opt     : t -> elt option
+    val variance_opt : t -> elt option
+    val skewness_opt : t -> elt option
+    val kurtosis_opt : t -> elt option
+  end
 end
 
 module type BaseDistribution = sig
