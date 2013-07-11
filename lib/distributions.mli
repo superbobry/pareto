@@ -23,17 +23,27 @@ module type FeaturesOpt = sig
   val kurtosis_opt : t -> elt option
 end
 
+(** Maximum likelihood estimator of distributon parameters. *)
 module type MLE = sig
-  type t
   type elt
+  type t
 
   (** Computes a MLE of distribution parameters from given data. *)
   val mle : elt array -> t
 end
 
-module type DiscreteDistribution = sig
-  type t
+module type MME = sig
+(** Method of moments estimator of distributon parameters. *)
   type elt
+  type t
+
+  (** Computes a MME of distribution parameters from given data. *)
+  val mme : elt array -> t
+end
+
+module type DiscreteDistribution = sig
+  type elt
+  type t
 
   (** Samples [size] data points from the distribution. *)
   val sample : ?rng:Gsl.Rng.t -> size:int -> t -> elt array
@@ -50,8 +60,8 @@ module type DiscreteDistribution = sig
 end
 
 module type ContinuousDistribution = sig
-  type t
   type elt
+  type t
 
   (** Samples [size] data points from the distribution. *)
   val sample : ?rng:Gsl.Rng.t -> size:int -> t -> elt array
@@ -147,6 +157,7 @@ module ChiSquared : sig
 
   include ContinuousDistribution with type t := t and type elt = float
   include Features with type t := t and type elt := float
+  include MME with type t := t and type elt := float
 
   (** Construct chi-squared distribution. Number of degrees of freedom
       must be positive. *)
@@ -286,6 +297,7 @@ module Binomial : sig
 
   include DiscreteDistribution with type t := t and type elt = int
   include Features with type t := t and type elt := float
+  include MME with type t := t and type elt := int
 
   (** Creates binomial distribution. Number of [trials] must be
       non-negative. *)
@@ -301,6 +313,7 @@ module Geometric : sig
 
   include DiscreteDistribution with type t := t and type elt = int
   include Features with type t := t and type elt := float
+  include MME with type t := t and type elt := int
 
   (** Creates Geometric distribution with a given probability of success. *)
   val create : p:float -> t

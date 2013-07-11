@@ -31,9 +31,16 @@ module type MLE = sig
   val mle : elt array -> t
 end
 
-module type BaseDistribution = sig
-  type t
+module type MME = sig
   type elt
+  type t
+
+  val mme : elt array -> t
+end
+
+module type BaseDistribution = sig
+  type elt
+  type t
 
   val sample : ?rng:Rng.t -> size:int -> t -> elt array
 end
@@ -237,6 +244,8 @@ module ChiSquared = struct
   let generate ?(rng=default_rng) { chisq_df } =
     Randist.chisq ~nu:chisq_df rng
   let sample = make_sampler generate
+
+  let mme vs = create ~df:(round (Sample.mean vs))
 end
 
 module F = struct
@@ -559,6 +568,13 @@ module Binomial = struct
   let generate ?(rng=default_rng) { binomial_trials; binomial_p } =
     Randist.binomial ~n:binomial_trials ~p:binomial_p rng
   let sample = make_sampler generate
+
+  let mme vs =
+    let vs   = Array.map float_of_int vs in
+    let mean = Sample.mean vs in
+    let variance = Sample.variance ~mean vs in
+    create ~trials:(round (sqr mean /. (mean -. variance)))
+      ~p:(1. -. variance /. mean)
 end
 
 module Geometric = struct
@@ -587,6 +603,10 @@ module Geometric = struct
   let generate ?(rng=default_rng) { geometric_p } =
     Randist.geometric ~p:geometric_p rng
   let sample = make_sampler generate
+
+  let mme vs =
+    let n = Array.length vs in
+    create ~p:(float_of_int n /. float_of_int (Array.fold_left (+) 0 vs))
 end
 
 module Hypergeometric = struct
