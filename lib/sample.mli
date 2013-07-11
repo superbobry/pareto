@@ -205,6 +205,11 @@ module Summary : sig
   (** Returns the number of available values. *)
   val size : t -> int
 
+  (** Returns [i]-th sample moment of the values that have been added
+      or [nan] if the data set is empty. Only moments of order [1-4] are
+      supported. *)
+  val moment : t -> int -> float
+
   (** Returns the arithmetic mean of the values that have been added
       or [nan] if the data set is empty. *)
   val mean : t -> float

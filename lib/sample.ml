@@ -302,6 +302,14 @@ module Summary = struct
   let min { min_k; _ } = if min_k = max_float then nan else min_k
   and max { max_k; _ } = if max_k = min_float then nan else max_k
 
+  let moment t = function
+    | _ when t.k = 0 -> nan
+    | 1 -> t.m_1
+    | 2 -> t.m_2
+    | 3 -> t.m_3
+    | 4 -> t.m_4
+    | _ -> invalid_arg "Sample.moment: moment order must be in range [1, 4]"
+
   let mean t = if t.k > 0 then t.m_1 else nan
 
   let variance t = match t.k with
