@@ -6,11 +6,12 @@ Here you can see the full list of changes between each pareto release.
 Version 0.2
 -----------
 
-- Added online summary statistics, see 'Sample.Summary' module. Thanks to
-  Nicholas Lucaroni!
+- Added summary statistics, see 'Sample.Summary' module. Thanks to Nicholas
+  Lucaroni!
 - Added MLE for distributions which have a closed-form MLE. Thanks to Nicholas
   Lucaroni, once again! For distributions, which don't have a closed-form
-  solution, we currently provide method of moments estimates.
+  solution, we currently provide method of moments estimates. Exceptions are:
+  'Cauchy' and 'Hypergeomteric' distributions.
 - Added Pearson product-moment correlation and autocorrelation and Spearman
   rank correlation.
 - Added GSL wrappers for computing sample skewness and kurtosis.
