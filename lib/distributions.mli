@@ -406,6 +406,10 @@ module Categorical : sig
         where each value is given a probability, which defaults to [0]
         for values not in the list. *)
     val create : (elt * float) array -> t
+
+    (** Creates a categorical distribution with a MLE of parameters,
+        estimated from given data. *)
+    val mle : elt array -> t
   end
 
   module Make

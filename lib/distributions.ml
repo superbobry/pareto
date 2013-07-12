@@ -733,6 +733,8 @@ module Categorical = struct
     include DiscreteDistribution
 
     val create : (elt * float) array -> t
+
+    val mle : elt array -> t
   end
 
   module Make (Elt : OrderedType) = struct
@@ -793,6 +795,24 @@ module Categorical = struct
       let pos = Randist.discrete rng categorical_cumsum in
       Array.unsafe_get categorical_values pos
     let sample = make_sampler generate
+
+    let mle vs =
+      let n = Array.length vs in
+      if n = 0
+      then invalid_arg "Categorical.Make.mle: no data"
+      else
+        let counts = Hashtbl.create 8 in begin
+          for i = 0 to n - 1 do
+            let v = Array.unsafe_get vs i in
+            if Hashtbl.mem counts v
+            then Hashtbl.replace counts v (Hashtbl.find counts v + 1)
+            else Hashtbl.add counts v 1
+          done;
+
+          let dist = Hashtbl.fold (fun k v dist ->
+              ((k, float_of_int v /. float_of_int n) :: dist)) counts []
+          in create (Array.of_list dist)
+        end
   end
 end
 
