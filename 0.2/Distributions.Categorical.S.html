@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Distributions.Categorical.OrderedType.html">
+<link rel="Up" href="Distributions.Categorical.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><title>Distributions.Categorical.S</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Distributions.Categorical.OrderedType.html" title="Distributions.Categorical.OrderedType">Previous</a>
+&nbsp;<a class="up" href="Distributions.Categorical.html" title="Distributions.Categorical">Up</a>
+&nbsp;</div>
+<h1>Module type <a href="type_Distributions.Categorical.S.html">Distributions.Categorical.S</a></h1>
+<pre><span class="keyword">module type</span> S = <code class="code">sig</code> <a href="Distributions.Categorical.S.html">..</a> <code class="code">end</code></pre><hr width="100%">
+<pre><span class="keyword">include</span> <a href="Distributions.DiscreteDistribution.html">Distributions.DiscreteDistribution</a></pre>
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">(elt * float) array -> t</code></pre><div class="info">
+Creates a categorical distribution over values of type <code class="code">elt</code>,
+        where each value is given a probability, which defaults to <code class="code">0</code>
+        for values not in the list.<br>
+</div>
+<pre><span id="VALmle"><span class="keyword">val</span> mle</span> : <code class="type">elt array -> t</code></pre><div class="info">
+Creates a categorical distribution with a MLE of parameters,
+        estimated from given data.<br>
+</div>
+</body></html>

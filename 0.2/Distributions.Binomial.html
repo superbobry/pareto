@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Distributions.Bernoulli.html">
+<link rel="next" href="Distributions.Geometric.html">
+<link rel="Up" href="Distributions.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><title>Distributions.Binomial</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Distributions.Bernoulli.html" title="Distributions.Bernoulli">Previous</a>
+&nbsp;<a class="up" href="Distributions.html" title="Distributions">Up</a>
+&nbsp;<a class="post" href="Distributions.Geometric.html" title="Distributions.Geometric">Next</a>
+</div>
+<h1>Module <a href="type_Distributions.Binomial.html">Distributions.Binomial</a></h1>
+<pre><span class="keyword">module</span> Binomial: <code class="code">sig</code> <a href="Distributions.Binomial.html">..</a> <code class="code">end</code></pre><div class="info">
+The binomial distribution.
+<p>
+
+    The probability distribution of the number of successes in a sequence
+    of independent Bernoulli <code class="code">trials</code>.<br>
+</div>
+<hr width="100%">
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.binomial_trials">binomial_trials</span>&nbsp;:<code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.binomial_p">binomial_p</span>&nbsp;:<code class="type">float</code>;</code></td>
+
+</tr></table>
+}
+
+
+<pre><span class="keyword">include</span> <a href="Distributions.DiscreteDistribution.html">Distributions.DiscreteDistribution</a></pre>
+<pre><span class="keyword">include</span> <a href="Distributions.Features.S.html">Distributions.Features.S</a></pre>
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">trials:int -> p:float -> <a href="Distributions.Binomial.html#TYPEt">t</a></code></pre><div class="info">
+Creates binomial distribution. Number of <code class="code">trials</code> must be
+      non-negative.<br>
+</div>
+<pre><span id="VALmme"><span class="keyword">val</span> mme</span> : <code class="type">int array -> <a href="Distributions.Binomial.html#TYPEt">t</a></code></pre><div class="info">
+Creates binomial distribution with parameters, estimated with
+      method of moments.<br>
+</div>
+</body></html>

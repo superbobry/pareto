@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="Distributions.ContinuousDistribution.html">
+<link rel="Up" href="Distributions.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><title>Distributions.DiscreteDistribution</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Distributions.html" title="Distributions">Up</a>
+&nbsp;<a class="post" href="Distributions.ContinuousDistribution.html" title="Distributions.ContinuousDistribution">Next</a>
+</div>
+<h1>Module type <a href="type_Distributions.DiscreteDistribution.html">Distributions.DiscreteDistribution</a></h1>
+<pre><span class="keyword">module type</span> DiscreteDistribution = <code class="code">sig</code> <a href="Distributions.DiscreteDistribution.html">..</a> <code class="code">end</code></pre><hr width="100%">
+<pre><span id="TYPEelt"><span class="keyword">type</span> <code class="type"></code>elt</span> </pre>
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> </pre>
+
+<pre><span id="VALsample"><span class="keyword">val</span> sample</span> : <code class="type">?rng:Gsl.Rng.t -><br>       size:int -><br>       <a href="Distributions.DiscreteDistribution.html#TYPEt">t</a> -><br>       <a href="Distributions.DiscreteDistribution.html#TYPEelt">elt</a> array</code></pre><div class="info">
+Samples <code class="code">size</code> data points from the distribution.<br>
+</div>
+<pre><span id="VALcumulative_probability"><span class="keyword">val</span> cumulative_probability</span> : <code class="type"><a href="Distributions.DiscreteDistribution.html#TYPEt">t</a> -><br>       n:<a href="Distributions.DiscreteDistribution.html#TYPEelt">elt</a> -> float</code></pre><div class="info">
+Computes cumulative probability function for a given value <code class="code">n</code>,
+      i. e. <code class="code">P(X &lt;= n)</code>, the probability that a random variable <code class="code">X</code> will
+      be found at a value less than or equal to <code class="code">n</code>.<br>
+</div>
+<pre><span id="VALprobability"><span class="keyword">val</span> probability</span> : <code class="type"><a href="Distributions.DiscreteDistribution.html#TYPEt">t</a> -><br>       n:<a href="Distributions.DiscreteDistribution.html#TYPEelt">elt</a> -> float</code></pre><div class="info">
+Computes probability mass function for a given value <code class="code">n</code>, i. e.
+      <code class="code">P(X = n)</code>, the probability that a random variable <code class="code">X</code> is
+      <b>exactly</b> equal to <code class="code">n</code><br>
+</div>
+</body></html>

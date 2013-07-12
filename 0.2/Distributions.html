@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Algebra.html">
+<link rel="next" href="Resampling.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><link title="Continuous distributions" rel="Section" href="#2_Continuousdistributions">
+<link title="Discrete distributions" rel="Section" href="#2_Discretedistributions">
+<link title="Shortcuts for creating distributions" rel="Section" href="#2_Shortcutsforcreatingdistributions">
+<title>Distributions</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Algebra.html" title="Algebra">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Resampling.html" title="Resampling">Next</a>
+</div>
+<h1>Module <a href="type_Distributions.html">Distributions</a></h1>
+<pre><span class="keyword">module</span> Distributions: <code class="code">sig</code> <a href="Distributions.html">..</a> <code class="code">end</code></pre><div class="info">
+Commonly used probability distributions.<br>
+</div>
+<hr width="100%">
+<pre><span class="keyword">module</span> <a href="Distributions.Features.html">Features</a>: <code class="code">sig</code> <a href="Distributions.Features.html">..</a> <code class="code">end</code></pre><pre><span class="keyword">module type</span> <a href="Distributions.DiscreteDistribution.html">DiscreteDistribution</a> = <code class="code">sig</code> <a href="Distributions.DiscreteDistribution.html">..</a> <code class="code">end</code></pre><pre><span class="keyword">module type</span> <a href="Distributions.ContinuousDistribution.html">ContinuousDistribution</a> = <code class="code">sig</code> <a href="Distributions.ContinuousDistribution.html">..</a> <code class="code">end</code></pre><br>
+<h2 id="2_Continuousdistributions">Continuous distributions</h2><br>
+<pre><span class="keyword">module</span> <a href="Distributions.Normal.html">Normal</a>: <code class="code">sig</code> <a href="Distributions.Normal.html">..</a> <code class="code">end</code></pre><div class="info">
+The normal distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.LogNormal.html">LogNormal</a>: <code class="code">sig</code> <a href="Distributions.LogNormal.html">..</a> <code class="code">end</code></pre><div class="info">
+The log-normal distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Uniform.html">Uniform</a>: <code class="code">sig</code> <a href="Distributions.Uniform.html">..</a> <code class="code">end</code></pre><div class="info">
+Random variate distributed uniformly in the interval.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Exponential.html">Exponential</a>: <code class="code">sig</code> <a href="Distributions.Exponential.html">..</a> <code class="code">end</code></pre><div class="info">
+The exponential distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.ChiSquared.html">ChiSquared</a>: <code class="code">sig</code> <a href="Distributions.ChiSquared.html">..</a> <code class="code">end</code></pre><div class="info">
+The chi-squared distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.F.html">F</a>: <code class="code">sig</code> <a href="Distributions.F.html">..</a> <code class="code">end</code></pre><div class="info">
+Fisher-Snedecor distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.T.html">T</a>: <code class="code">sig</code> <a href="Distributions.T.html">..</a> <code class="code">end</code></pre><div class="info">
+Student's t-distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Gamma.html">Gamma</a>: <code class="code">sig</code> <a href="Distributions.Gamma.html">..</a> <code class="code">end</code></pre><div class="info">
+The gamma distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Cauchy.html">Cauchy</a>: <code class="code">sig</code> <a href="Distributions.Cauchy.html">..</a> <code class="code">end</code></pre><div class="info">
+The Cauchy-Lorentz distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Beta.html">Beta</a>: <code class="code">sig</code> <a href="Distributions.Beta.html">..</a> <code class="code">end</code></pre><div class="info">
+The beta distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Logistic.html">Logistic</a>: <code class="code">sig</code> <a href="Distributions.Logistic.html">..</a> <code class="code">end</code></pre><div class="info">
+Logistic distribution.
+</div>
+<br>
+<h2 id="2_Discretedistributions">Discrete distributions</h2><br>
+<pre><span class="keyword">module</span> <a href="Distributions.Poisson.html">Poisson</a>: <code class="code">sig</code> <a href="Distributions.Poisson.html">..</a> <code class="code">end</code></pre><div class="info">
+The Poisson distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Bernoulli.html">Bernoulli</a>: <code class="code">sig</code> <a href="Distributions.Bernoulli.html">..</a> <code class="code">end</code></pre><div class="info">
+Bernoulli distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Binomial.html">Binomial</a>: <code class="code">sig</code> <a href="Distributions.Binomial.html">..</a> <code class="code">end</code></pre><div class="info">
+The binomial distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Geometric.html">Geometric</a>: <code class="code">sig</code> <a href="Distributions.Geometric.html">..</a> <code class="code">end</code></pre><div class="info">
+The Geometric distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Hypergeometric.html">Hypergeometric</a>: <code class="code">sig</code> <a href="Distributions.Hypergeometric.html">..</a> <code class="code">end</code></pre><div class="info">
+The Hypergeometric distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.NegativeBinomial.html">NegativeBinomial</a>: <code class="code">sig</code> <a href="Distributions.NegativeBinomial.html">..</a> <code class="code">end</code></pre><div class="info">
+Negative Binomial distribution.
+</div>
+<pre><span class="keyword">module</span> <a href="Distributions.Categorical.html">Categorical</a>: <code class="code">sig</code> <a href="Distributions.Categorical.html">..</a> <code class="code">end</code></pre><br>
+<h2 id="2_Shortcutsforcreatingdistributions">Shortcuts for creating distributions</h2><br>
+<pre><span id="VALnormal"><span class="keyword">val</span> normal</span> : <code class="type">mean:float -> sd:float -> <a href="Distributions.Normal.html#TYPEt">Normal.t</a></code></pre><pre><span id="VALlog_normal"><span class="keyword">val</span> log_normal</span> : <code class="type">mean:float -> sd:float -> <a href="Distributions.LogNormal.html#TYPEt">LogNormal.t</a></code></pre><pre><span id="VALuniform"><span class="keyword">val</span> uniform</span> : <code class="type">lower:float -> upper:float -> <a href="Distributions.Uniform.html#TYPEt">Uniform.t</a></code></pre><pre><span id="VALexponential"><span class="keyword">val</span> exponential</span> : <code class="type">rate:float -> <a href="Distributions.Exponential.html#TYPEt">Exponential.t</a></code></pre><pre><span id="VALchi_squared"><span class="keyword">val</span> chi_squared</span> : <code class="type">df:int -> <a href="Distributions.ChiSquared.html#TYPEt">ChiSquared.t</a></code></pre><pre><span id="VALf"><span class="keyword">val</span> f</span> : <code class="type">df1:int -> df2:int -> <a href="Distributions.F.html#TYPEt">F.t</a></code></pre><pre><span id="VALt"><span class="keyword">val</span> t</span> : <code class="type">df:float -> <a href="Distributions.T.html#TYPEt">T.t</a></code></pre><pre><span id="VALgamma"><span class="keyword">val</span> gamma</span> : <code class="type">shape:float -> scale:float -> <a href="Distributions.Gamma.html#TYPEt">Gamma.t</a></code></pre><pre><span id="VALcauchy"><span class="keyword">val</span> cauchy</span> : <code class="type">location:float -> scale:float -> <a href="Distributions.Cauchy.html#TYPEt">Cauchy.t</a></code></pre><pre><span id="VALbeta"><span class="keyword">val</span> beta</span> : <code class="type">alpha:float -> beta:float -> <a href="Distributions.Beta.html#TYPEt">Beta.t</a></code></pre><pre><span id="VALlogistic"><span class="keyword">val</span> logistic</span> : <code class="type">location:float -> scale:float -> <a href="Distributions.Logistic.html#TYPEt">Logistic.t</a></code></pre><pre><span id="VALpoisson"><span class="keyword">val</span> poisson</span> : <code class="type">rate:float -> <a href="Distributions.Poisson.html#TYPEt">Poisson.t</a></code></pre><pre><span id="VALbernoulli"><span class="keyword">val</span> bernoulli</span> : <code class="type">p:float -> <a href="Distributions.Bernoulli.html#TYPEt">Bernoulli.t</a></code></pre><pre><span id="VALbinomial"><span class="keyword">val</span> binomial</span> : <code class="type">trials:int -> p:float -> <a href="Distributions.Binomial.html#TYPEt">Binomial.t</a></code></pre><pre><span id="VALgeometric"><span class="keyword">val</span> geometric</span> : <code class="type">p:float -> <a href="Distributions.Geometric.html#TYPEt">Geometric.t</a></code></pre><pre><span id="VALhypergeometric"><span class="keyword">val</span> hypergeometric</span> : <code class="type">m:int -> t:int -> k:int -> <a href="Distributions.Hypergeometric.html#TYPEt">Hypergeometric.t</a></code></pre><pre><span id="VALnegative_binomial"><span class="keyword">val</span> negative_binomial</span> : <code class="type">failures:int -> p:float -> <a href="Distributions.NegativeBinomial.html#TYPEt">NegativeBinomial.t</a></code></pre></body></html>

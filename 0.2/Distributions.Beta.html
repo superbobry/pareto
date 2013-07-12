@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Distributions.Cauchy.html">
+<link rel="next" href="Distributions.Logistic.html">
+<link rel="Up" href="Distributions.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><title>Distributions.Beta</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Distributions.Cauchy.html" title="Distributions.Cauchy">Previous</a>
+&nbsp;<a class="up" href="Distributions.html" title="Distributions">Up</a>
+&nbsp;<a class="post" href="Distributions.Logistic.html" title="Distributions.Logistic">Next</a>
+</div>
+<h1>Module <a href="type_Distributions.Beta.html">Distributions.Beta</a></h1>
+<pre><span class="keyword">module</span> Beta: <code class="code">sig</code> <a href="Distributions.Beta.html">..</a> <code class="code">end</code></pre><div class="info">
+The beta distribution.<br>
+</div>
+<hr width="100%">
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.beta_alpha">beta_alpha</span>&nbsp;:<code class="type">float</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.beta_beta">beta_beta</span>&nbsp;:<code class="type">float</code>;</code></td>
+
+</tr></table>
+}
+
+
+<pre><span class="keyword">include</span> <a href="Distributions.ContinuousDistribution.html">Distributions.ContinuousDistribution</a></pre>
+<pre><span class="keyword">include</span> <a href="Distributions.Features.S.html">Distributions.Features.S</a></pre>
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">alpha:float -> beta:float -> <a href="Distributions.Beta.html#TYPEt">t</a></code></pre><div class="info">
+Creates beta distribution. Both shape parameters must be positive.<br>
+</div>
+<pre><span id="VALmme"><span class="keyword">val</span> mme</span> : <code class="type">float array -> <a href="Distributions.Beta.html#TYPEt">t</a></code></pre><div class="info">
+Creates beta distribution with parameters, estimated with method
+      of moments.<br>
+</div>
+</body></html>

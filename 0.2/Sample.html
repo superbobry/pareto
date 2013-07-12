@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Resampling.html">
+<link rel="next" href="Tests.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><title>Sample</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Resampling.html" title="Resampling">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Tests.html" title="Tests">Next</a>
+</div>
+<h1>Module <a href="type_Sample.html">Sample</a></h1>
+<pre><span class="keyword">module</span> Sample: <code class="code">sig</code> <a href="Sample.html">..</a> <code class="code">end</code></pre><div class="info">
+Commonly used sample statistics.<br>
+</div>
+<hr width="100%">
+<pre><span id="VALmin"><span class="keyword">val</span> min</span> : <code class="type">float array -> float</code></pre><pre><span id="VALmax"><span class="keyword">val</span> max</span> : <code class="type">float array -> float</code></pre><pre><span id="VALminmax"><span class="keyword">val</span> minmax</span> : <code class="type">float array -> float * float</code></pre><pre><span id="VALrange"><span class="keyword">val</span> range</span> : <code class="type">float array -> float</code></pre><div class="info">
+<em>O(n)</em> Computes sample's range, i. e. the difference between the
+    largest and smallest elements of a sample.<br>
+</div>
+<pre><span id="VALmoments"><span class="keyword">val</span> moments</span> : <code class="type">int -> float array -> float array</code></pre><div class="info">
+<em>O(n k)</em> Computes an array of sample moments of order 1 to k, i. e.
+    <code class="code">E{X^1}, E{X^2}, ..., E{X^k}</code>.<br>
+</div>
+<pre><span id="VALmean"><span class="keyword">val</span> mean</span> : <code class="type">float array -> float</code></pre><div class="info">
+<em>O(n)</em> Computes sample's arithmetic mean.<br>
+</div>
+<pre><span id="VALvariance"><span class="keyword">val</span> variance</span> : <code class="type">?mean:float -> float array -> float</code></pre><div class="info">
+<em>O(n)</em> Computes unbiased estimate of a sample's variance, also
+    known as the <em>sample variance</em>, where the denominator is <code class="code">n - 1</code>.<br>
+</div>
+<pre><span id="VALsd"><span class="keyword">val</span> sd</span> : <code class="type">?mean:float -> float array -> float</code></pre><div class="info">
+<em>O(n)</em> Computes sample's standard deviation.<br>
+</div>
+<pre><span id="VALskewness"><span class="keyword">val</span> skewness</span> : <code class="type">?mean:float -> ?sd:float -> float array -> float</code></pre><div class="info">
+<em>O(n)</em> Computes the skewness of a sample, which is a measure of
+    asymmetry of its distribution.<br>
+</div>
+<pre><span id="VALkurtosis"><span class="keyword">val</span> kurtosis</span> : <code class="type">?mean:float -> ?sd:float -> float array -> float</code></pre><div class="info">
+<em>O(n)</em> Computes the excess kurtosis of a sample, which is a
+    measure of a "peakedness" of its distribution.<br>
+</div>
+<pre><span id="VALrank"><span class="keyword">val</span> rank</span> : <code class="type">?ties_strategy:[ `Average | `Max | `Min ] -><br>       ?cmp:('a -> 'a -> int) -> 'a array -> float * float array</code></pre><div class="info">
+<em>O(n log n)</em> Computes sample's ranks, <code class="code">ties_strategy</code> controls
+    which ranks are assigned to equal values:
+<p>
+<ul>
+<li><code class="code">`Average</code> the average of ranks should be assigned to each value.
+      <b>Default</b>.</li>
+<li><code class="code">`Min</code> the minimum of ranks is assigned to each value.</li>
+<li><code class="code">`Max</code> the maximum of ranks is assigned to each value.</li>
+</ul>
+
+    Returns a pair, where the first element is ties correction factor
+    and second is an array of sample ranks.
+<p>
+
+    <b>References</b>
+<p>
+<OL>
+<li>P. R. Freeman, "Algorithm AS 26: Ranking an array of numbers",
+      Vol. 19, Applied Statistics, pp111-113, 1970.</li>
+</OL>
+<br>
+</div>
+<pre><span id="VALhistogram"><span class="keyword">val</span> histogram</span> : <code class="type">?n_bins:int -><br>       ?range:float * float -><br>       ?weights:float array -><br>       ?density:bool -> float array -> float array * float array</code></pre><div class="info">
+<em>O(n)</em> Computes histogram of a data set. Bin sizes are uniform,
+    based on a given <code class="code">range</code>, whic defaults to
+    <code class="code">(min - k, max + k)</code>, where <code class="code">k = (min - max) / (bins - 1) * 2</code>.
+    This behaviour is copied from the excellent
+    <a href=" http://github.com/bos/statistics"> statistics</a> library by
+    Brian O'Sullivan.<br>
+</div>
+<pre><span class="keyword">module</span> <a href="Sample.Quantile.html">Quantile</a>: <code class="code">sig</code> <a href="Sample.Quantile.html">..</a> <code class="code">end</code></pre><pre><span id="VALquantile"><span class="keyword">val</span> quantile</span> : <code class="type">ps:float array -> float array -> float array</code></pre><div class="info">
+<em>O(n log n)</em> Estimates sample quantile corresponding to the given
+    probability <code class="code">p</code>, using the continuous sample method with default
+    parameters.<br>
+</div>
+<pre><span id="VALiqr"><span class="keyword">val</span> iqr</span> : <code class="type">float array -> float</code></pre><div class="info">
+<em>O(n log n)</em> Estimates interquantile range of a given sample,
+    using the continuous sample method with given parameters.<br>
+</div>
+<pre><span class="keyword">module</span> <a href="Sample.KDE.html">KDE</a>: <code class="code">sig</code> <a href="Sample.KDE.html">..</a> <code class="code">end</code></pre><pre><span class="keyword">module</span> <a href="Sample.Correlation.html">Correlation</a>: <code class="code">sig</code> <a href="Sample.Correlation.html">..</a> <code class="code">end</code></pre><pre><span class="keyword">module</span> <a href="Sample.Summary.html">Summary</a>: <code class="code">sig</code> <a href="Sample.Summary.html">..</a> <code class="code">end</code></pre><div class="info">
+Calculates summary statistics over a possibly infinite stream of data.
+</div>
+</body></html>

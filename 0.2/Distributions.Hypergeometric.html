@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Distributions.Geometric.html">
+<link rel="next" href="Distributions.NegativeBinomial.html">
+<link rel="Up" href="Distributions.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><title>Distributions.Hypergeometric</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Distributions.Geometric.html" title="Distributions.Geometric">Previous</a>
+&nbsp;<a class="up" href="Distributions.html" title="Distributions">Up</a>
+&nbsp;<a class="post" href="Distributions.NegativeBinomial.html" title="Distributions.NegativeBinomial">Next</a>
+</div>
+<h1>Module <a href="type_Distributions.Hypergeometric.html">Distributions.Hypergeometric</a></h1>
+<pre><span class="keyword">module</span> Hypergeometric: <code class="code">sig</code> <a href="Distributions.Hypergeometric.html">..</a> <code class="code">end</code></pre><div class="info">
+The Hypergeometric distribution.
+<p>
+
+    The probability distribution of obtaining <code class="code">k</code> elements of "type 1"
+    in <code class="code">t</code> samples from a population <b>without</b> replacement, if the
+    population contains <code class="code">m</code> elements of "type 1" and <code class="code">t - m</code> elements
+    of "type 2".<br>
+</div>
+<hr width="100%">
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.hyper_m">hyper_m</span>&nbsp;:<code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.hyper_t">hyper_t</span>&nbsp;:<code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.hyper_k">hyper_k</span>&nbsp;:<code class="type">int</code>;</code></td>
+
+</tr></table>
+}
+
+
+<pre><span class="keyword">include</span> <a href="Distributions.DiscreteDistribution.html">Distributions.DiscreteDistribution</a></pre>
+<pre><span class="keyword">include</span> <a href="Distributions.Features.S.html">Distributions.Features.S</a></pre>
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">m:int -> t:int -> k:int -> <a href="Distributions.Hypergeometric.html#TYPEt">t</a></code></pre><div class="info">
+Creates Hypergeometric distribution.<br>
+</div>
+</body></html>

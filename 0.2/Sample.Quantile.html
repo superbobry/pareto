@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="Sample.KDE.html">
+<link rel="Up" href="Sample.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><title>Sample.Quantile</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Sample.html" title="Sample">Up</a>
+&nbsp;<a class="post" href="Sample.KDE.html" title="Sample.KDE">Next</a>
+</div>
+<h1>Module <a href="type_Sample.Quantile.html">Sample.Quantile</a></h1>
+<pre><span class="keyword">module</span> Quantile: <code class="code">sig</code> <a href="Sample.Quantile.html">..</a> <code class="code">end</code></pre><hr width="100%">
+<pre><code><span id="TYPEcontinuous_param"><span class="keyword">type</span> <code class="type"></code>continuous_param</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontinuous_param.CADPW"><span class="constructor">CADPW</span></span></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Linear interpolation of the <em>ECDF</em>.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontinuous_param.Hazen"><span class="constructor">Hazen</span></span></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Hazen's definition.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontinuous_param.SPSS"><span class="constructor">SPSS</span></span></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Definition used by the SPSS statistics application,
+                          also known as Weibull's definition.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontinuous_param.S"><span class="constructor">S</span></span></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Definition used by the S statistics application.org
+                          Interpolation points divide the sample range into
+                          <code class="code">n - 1</code> intervals. <b>Default</b>.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontinuous_param.MedianUnbiased"><span class="constructor">MedianUnbiased</span></span></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Median unbiased definition. The resulting quantile
+                          estimates are approximately median unbiased
+                          regardless of the distribution of <code class="code">vs</code></td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcontinuous_param.NormalUnbiased"><span class="constructor">NormalUnbiased</span></span></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Normal unbiased definition. An approximately unbiased
+                          estimate if the empirical distribution approximates
+                          the normal distribution.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr></table>
+
+<div class="info">
+Parameters for the continious sample method.<br>
+</div>
+
+<pre><span id="VALcontinuous_by"><span class="keyword">val</span> continuous_by</span> : <code class="type">?param:<a href="Sample.Quantile.html#TYPEcontinuous_param">continuous_param</a> -><br>       ps:float array -> float array -> float array</code></pre><div class="info">
+<em>O(n log n)</em> Estimates sample quantile corresponding to the given
+      probability <code class="code">p</code>, using the continuous sample method with given
+      parameters.<br>
+</div>
+<pre><span id="VALiqr"><span class="keyword">val</span> iqr</span> : <code class="type">?param:<a href="Sample.Quantile.html#TYPEcontinuous_param">continuous_param</a> -> float array -> float</code></pre><div class="info">
+<em>O(n log n)</em> Estimates interquantile range of a given sample,
+      using the continuous sample method with given parameters.<br>
+</div>
+</body></html>

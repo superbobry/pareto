@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="Up" href="Resampling.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><title>Resampling.Bootstrap</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Resampling.html" title="Resampling">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Resampling.Bootstrap.html">Resampling.Bootstrap</a></h1>
+<pre><span class="keyword">module</span> Bootstrap: <code class="code">sig</code> <a href="Resampling.Bootstrap.html">..</a> <code class="code">end</code></pre><hr width="100%">
+<pre><code><span id="TYPEestimate"><span class="keyword">type</span> <code class="type"></code>estimate</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTestimate.point">point</span>&nbsp;:<code class="type">float</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Point estimate.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTestimate.lower_bound">lower_bound</span>&nbsp;:<code class="type">float</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Lower bound of the estimate confidence
+                                   interval</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTestimate.upper_bound">upper_bound</span>&nbsp;:<code class="type">float</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Upper bound of the estimate confidence
+                                   interval</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTestimate.confidence_level">confidence_level</span>&nbsp;:<code class="type">float</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >Condifence level corresponding to the
+                                   above intervals.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr></table>
+}
+
+
+<pre><span id="VALbca"><span class="keyword">val</span> bca</span> : <code class="type">?rng:Gsl.Rng.t -><br>       ?confidence_level:float -><br>       estimator:(float array -> float) -><br>       n_iter:int -> float array -> <a href="Resampling.Bootstrap.html#TYPEestimate">estimate</a></code></pre><div class="info">
+Bias-corrected and accelerated (BCa) bootstrap.<br>
+</div>
+</body></html>

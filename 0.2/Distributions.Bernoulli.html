@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Distributions.Poisson.html">
+<link rel="next" href="Distributions.Binomial.html">
+<link rel="Up" href="Distributions.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Base" rel="Chapter" href="Base.html">
+<link title="Algebra" rel="Chapter" href="Algebra.html">
+<link title="Distributions" rel="Chapter" href="Distributions.html">
+<link title="Resampling" rel="Chapter" href="Resampling.html">
+<link title="Sample" rel="Chapter" href="Sample.html">
+<link title="Tests" rel="Chapter" href="Tests.html"><title>Distributions.Bernoulli</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Distributions.Poisson.html" title="Distributions.Poisson">Previous</a>
+&nbsp;<a class="up" href="Distributions.html" title="Distributions">Up</a>
+&nbsp;<a class="post" href="Distributions.Binomial.html" title="Distributions.Binomial">Next</a>
+</div>
+<h1>Module <a href="type_Distributions.Bernoulli.html">Distributions.Bernoulli</a></h1>
+<pre><span class="keyword">module</span> Bernoulli: <code class="code">sig</code> <a href="Distributions.Bernoulli.html">..</a> <code class="code">end</code></pre><div class="info">
+Bernoulli distribution.
+<p>
+
+    The probability distribution, which takes value <code class="code">1</code> with success
+    probability <code class="code">p</code> and value <code class="code">0</code> with failure probability <code class="code">1 - p</code>.<br>
+</div>
+<hr width="100%">
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.bernoulli_p">bernoulli_p</span>&nbsp;:<code class="type">float</code>;</code></td>
+
+</tr></table>
+}
+
+
+<pre><span class="keyword">include</span> <a href="Distributions.DiscreteDistribution.html">Distributions.DiscreteDistribution</a></pre>
+<pre><span class="keyword">include</span> <a href="Distributions.Features.S.html">Distributions.Features.S</a></pre>
+<pre><span id="VALcreate"><span class="keyword">val</span> create</span> : <code class="type">p:float -> <a href="Distributions.Bernoulli.html#TYPEt">t</a></code></pre><div class="info">
+Creates Bernoulli distribution with given success probability <code class="code">p</code>.<br>
+</div>
+<pre><span id="VALmle"><span class="keyword">val</span> mle</span> : <code class="type">int array -> <a href="Distributions.Bernoulli.html#TYPEt">t</a></code></pre><div class="info">
+Creates a Bernoulli distribution with a MLE of parameters, estimated
+      from given data.<br>
+</div>
+</body></html>
