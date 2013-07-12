@@ -56,7 +56,7 @@ module T = struct
     let n = Array.length v1 in
     if n <> Array.length v2
     then invalid_arg "T.two_sample_paired: unequal length arrays";
-    one_sample (Array.mapi (fun i x -> x -. v2.(i)) v1) ~mean ~alternative ()
+    one_sample (Array.mapi ~f:(fun i x -> x -. v2.(i)) v1) ~mean ~alternative ()
 end
 
 module ChiSquared = struct
@@ -77,7 +77,7 @@ module ChiSquared = struct
           (* TODO(superbobry): make sure we have wellformed frequencies. *)
           expected
       | None ->
-        Array.make n (Array.fold_left (+.) 0. observed /. float_of_int n)
+        Array.(make n (fold_left observed ~f:(+.) ~init:0. /. float_of_int n))
     and chisq = ref 0. in begin
       for i = 0 to n - 1 do
         chisq := !chisq +. sqr (observed.(i) -. expected.(i)) /. expected.(i)
@@ -179,7 +179,7 @@ module KolmogorovSmirnov = struct
     let n = Array.length vs in
     if n < 1 then invalid_arg "KolmogorovSmirnov.goodness_of_fit: no data";
 
-    let is       = Array.sort_index compare vs in
+    let is       = Array.sort_index ~cmp:compare vs in
     let ds_plus  = ref min_float
     and ds_minus = ref min_float in begin
       for i = 0 to n - 1 do
@@ -273,7 +273,7 @@ module KolmogorovSmirnov = struct
     then invalid_arg "KolmogorovSmirnov.two_sample: no data";
 
     let vs = Array.append v1 v2 in
-    let is = Array.sort_index compare vs in
+    let is = Array.sort_index ~cmp:compare vs in
     let has_ties = ref false in
     for i = 1 to n1 + n2 - 1 do
       let j = Array.unsafe_get is i in
@@ -284,7 +284,7 @@ module KolmogorovSmirnov = struct
     if !has_ties
     then invalid_arg "KolmogorovSmirnov.two_sample: ties are not allowed";
 
-    let is    = Array.sort_index compare vs in
+    let is    = Array.sort_index ~cmp:compare vs in
     let acc   = ref 0.
     and z_max = ref neg_infinity
     and z_min = ref infinity
@@ -334,9 +334,13 @@ module MannWhitneyU = struct
 
     let n  = n1 +. n2 in
     let (t, ranks) = Sample.rank (Array.append v1 v2) in
-    let w1 = Array.fold_left (+.) 0. (Array.sub ranks 0 (int_of_float n1)) in
-    let w2 = Array.fold_left (+.) 0.
-        (Array.sub ranks (int_of_float n1) (int_of_float n2)) in
+    let w1 = Array.(fold_left (sub ranks ~pos:0 ~len:(int_of_float n1))
+                      ~f:(+.) ~init:0.)
+    and w2 = Array.(fold_left (sub ranks ~pos:(int_of_float n1)
+                                 ~len:(int_of_float n2))
+                      ~f:(+.) ~init:0.)
+    in
+
     let u1 = w1 -. n1 *. (n1 +. 1.) /. 2. in
     let u2 = w2 -. n2 *. (n2 +. 1.) /. 2. in
     let u  = min u1 u2 in
@@ -379,9 +383,9 @@ module MannWhitneyU = struct
       let ge = ref 0 in
       begin
         for _i = 0 to int_of_float c_n_k - 1 do
-          let cu = Array.fold_left
-              (fun acc i -> acc +. Array.unsafe_get ranks i) 0.
-              (Combi.to_array c) -. float_of_int (k * (k + 1)) /. 2.
+          let cu = Array.fold_left (Combi.to_array c) ~init:0.
+              ~f:(fun acc i -> acc +. Array.unsafe_get ranks i) -.
+                     float_of_int (k * (k + 1)) /. 2.
           in begin
             if cu <= u then incr le;
             if cu >= u then incr ge;
@@ -405,13 +409,15 @@ module WilcoxonT = struct
     if n <> Array.length v2
     then invalid_arg "WilcoxonT.two_sample_paired: unequal length arrays";
 
-    let d  = Array.init n (fun i -> v2.(i) -. v1.(i)) in
-    let (zeros, non_zeros) = Array.partition ((=) 0.) d in
+    let d  = Array.init n ~f:(fun i -> v2.(i) -. v1.(i)) in
+    let (zeros, non_zeros) = Array.partition ~f:((=) 0.) d in
     let nz = float_of_int (Array.length non_zeros) in
     let (t, ranks) = Sample.rank non_zeros
         ~cmp:(fun d1 d2 -> compare (abs_float d1) (abs_float d2)) in
-    let w_plus  = Array.fold_left (+.) 0.
-        (Array.mapi (fun i v -> if v > 0. then ranks.(i) else 0.) non_zeros) in
+    let w_plus  =
+      Array.fold_left ~f:(+.) ~init:0.
+        (Array.mapi non_zeros
+           ~f:(fun i v -> if v > 0. then ranks.(i) else 0.)) in
     let w_minus = nz *. (nz +. 1.) /. 2. -. w_plus in
 
     (* Following Sheskin, W is computed as a minimum of W+ and W-. *)
@@ -477,14 +483,13 @@ module Sign = struct
     if n <> Array.length v2
     then invalid_arg "Sign.two_sample_paired: unequal length arrays";
 
-    let ds = Array.init n (fun i -> v1.(i) -. v2.(i)) in
-    let (pi_plus, pi_minus) = Array.fold_left
-        (fun (p, m) d ->
-           if d > 0.
-           then (succ p, m)
-           else if d < 0. then (p, succ m)
-           else (p, m))
-        (0, 0) ds
+    let ds = Array.init n ~f:(fun i -> v1.(i) -. v2.(i)) in
+    let (pi_plus, pi_minus) = Array.fold_left ds ~init:(0, 0)
+        ~f:(fun (p, m) d ->
+            if d > 0.
+            then (succ p, m)
+            else if d < 0. then (p, succ m)
+            else (p, m))
     in
 
     let open Distributions.Binomial in
@@ -512,8 +517,8 @@ module Multiple = struct
     let adjusted_pvalues = Array.make m 0. in
     begin match how with
       | HolmBonferroni ->
-        let is = Array.sort_index compare pvalues in
-        let iu = Array.sort_index compare is in begin
+        let is = Array.sort_index ~cmp:compare pvalues in
+        let iu = Array.sort_index ~cmp:compare is in begin
           for i = 0 to m - 1 do
             let j = Array.unsafe_get is i in
             Array.unsafe_set adjusted_pvalues i
@@ -521,11 +526,11 @@ module Multiple = struct
           done;
 
           let cm = Base.cumulative ~f:max adjusted_pvalues in
-          Array.reorder iu cm adjusted_pvalues
+          Base.reorder iu ~src:cm ~dst:adjusted_pvalues
         end
       | BenjaminiHochberg ->
-        let is = Array.sort_index (fun v1 v2 -> compare v2 v1) pvalues in
-        let iu = Array.sort_index compare is in begin
+        let is = Array.sort_index ~cmp:(fun v1 v2 -> compare v2 v1) pvalues in
+        let iu = Array.sort_index ~cmp:compare is in begin
           for i = 0 to m - 1 do
             let j = Array.unsafe_get is i in
             Array.unsafe_set adjusted_pvalues i
@@ -533,7 +538,7 @@ module Multiple = struct
           done;
 
           let cm = Base.cumulative ~f:min adjusted_pvalues in
-          Array.reorder iu cm adjusted_pvalues
+          Base.reorder iu ~src:cm ~dst:adjusted_pvalues
         end
     end; adjusted_pvalues
 end

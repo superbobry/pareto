@@ -270,6 +270,17 @@ module Logistic : sig
   val mme : float array -> t
 end
 
+(** Empirical distribution. *)
+(* module Empirical : sig *)
+(*   type t *)
+
+(*   include ContinuousDistribution with type t := t and type elt = float *)
+(*   include Features.S with type t := t and type elt := float *)
+
+(*   (\** Creates empirical distribution from a given sample. *\) *)
+(*   val create : float array -> t *)
+(* end *)
+
 
 (** {2 Discrete distributions} *)
 

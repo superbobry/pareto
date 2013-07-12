@@ -64,7 +64,7 @@ let _correct_ties ranks =
     and t = ref 0
     and d = ref 0
     and i = ref 0 in begin
-      Array.sort (fun r1 r2 ->
+      Array.sort ~cmp:(fun r1 r2 ->
           compare (int_of_float r1) (int_of_float r2)) sorted;
 
       while !i < n - 1 do
@@ -83,7 +83,7 @@ let _correct_ties ranks =
 
 let rank ?(ties_strategy=`Average) ?(cmp=compare) vs =
   let n     = Array.length vs in
-  let order = Array.sort_index cmp vs in
+  let order = Array.sort_index ~cmp vs in
   let ranks = Array.make n 0. in
   let d     = ref 0 in begin
     for i = 0 to n - 1 do
@@ -154,9 +154,9 @@ module Quantile = struct
     | NormalUnbiased
 
   let continuous_by ?(param=S) ~ps vs =
-    if Array.exists (fun p -> p < 0. || p > 1.) ps
+    if Array.exists ~f:(fun p -> p < 0. || p > 1.) ps
     then invalid_arg "Quantile.continuous_by: p must be in range [0, 1]";
-    if Array.exists is_nan vs
+    if Array.exists ~f:is_nan vs
     then invalid_arg "Quantile.continuous_by: sample contains NaNs";
 
     let (a, b) = match param with
@@ -257,7 +257,7 @@ module KDE = struct
       for i = 0 to n_points - 1 do
         let p = Array.unsafe_get points i in
         Array.unsafe_set pdf i
-          (f *. Array.fold_left (fun acc v -> acc +. k h p v) 0. vs)
+          (f *. Array.fold_left ~f:(fun acc v -> acc +. k h p v) ~init:0. vs)
       done; (points, pdf)
     end
 end
@@ -305,7 +305,7 @@ module Correlation = struct
           done; !acc /. float_of_int n
         in
 
-        let ac  = Array.init n acf in
+        let ac  = Array.init n ~f:acf in
         let ac0 = ac.(0) in begin
           for i = 0 to n - 1 do
             Array.unsafe_set ac i (Array.unsafe_get ac i /. ac0)

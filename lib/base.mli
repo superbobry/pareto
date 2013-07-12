@@ -9,6 +9,11 @@ val cumulative : f:('a -> 'a -> 'a) -> 'a array -> 'a array
 val search_sorted : cmp:('a -> 'a -> int) -> 'a array -> 'a -> int option
 
 
+(** {e O(n)} Reorders values in [src] into [dst], according to a given
+    permutation of indices. *)
+val reorder : int array -> src:'a array -> dst:'a array -> unit
+
+
 (** Creates an array of integers given a semiopen range [\[a, b)]. *)
 val range : ?a:int -> b:int -> int array
 

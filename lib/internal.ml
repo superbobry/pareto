@@ -1,3 +1,5 @@
+open StdLabels
+
 let default_rng = let open Gsl.Rng in
   env_setup ();
   make (default ())
@@ -24,7 +26,7 @@ module Combi = struct
 
   let to_array { data; _ } =
     let len = Array1.dim data in
-    Array.init len (Array1.get data)
+    Array.init len ~f:(Array1.get data)
 
   external prev : t -> unit = "ml_gsl_combination_prev"
   external next : t -> unit = "ml_gsl_combination_next"
@@ -62,39 +64,33 @@ module Array = struct
         unsafe_set vs (i - a) i
       done; vs
 
-  let sort_index cmp vs =
+  let sort_index ~cmp vs =
     let order = range 0 (length vs) in begin
-      sort (fun i j -> cmp (unsafe_get vs i) (unsafe_get vs j)) order;
+      sort ~cmp:(fun i j -> cmp (unsafe_get vs i) (unsafe_get vs j)) order;
       order
     end
 
-  let reorder is src dst =
-    let n = length src in
-    for i = 0 to n - 1 do
-      let j = unsafe_get is i in unsafe_set dst i (unsafe_get src j)
-    done
+  let count ~f =
+    fold_left ~f:(fun acc v -> acc + if f v then 1 else 0) ~init:0
 
-  let count p = fold_left (fun acc v -> acc + if p v then 1 else 0) 0
-
-  let exists p vs =
+  let exists ~f vs =
     let rec loop i =
       if i < 0
       then false
-      else p (unsafe_get vs i) || loop (pred i)
+      else f (unsafe_get vs i) || loop (pred i)
     in loop (length vs - 1)
 
-  let for_all p vs =
+  let for_all ~f vs =
     let rec loop i =
       if i < 0
       then true
-      else p (unsafe_get vs i) && loop (pred i)
+      else f (unsafe_get vs i) && loop (pred i)
     in loop (length vs - 1)
 
-  let partition p vs =
-    let (l, r) = fold_left
-        (fun (l, r) x -> if p x then (x :: l, r) else (l, x :: r))
-        ([], [])
-        vs
+  let partition ~f vs =
+    let (l, r) = fold_left vs
+        ~init:([], [])
+        ~f:(fun (l, r) x -> if f x then (x :: l, r) else (l, x :: r))
     in (Array.of_list l, Array.of_list r)
 end
 

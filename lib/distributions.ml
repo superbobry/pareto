@@ -135,7 +135,7 @@ module LogNormal = struct
   let sample = make_sampler generate
 
   let mle vs =
-    let log_vs = Array.map log vs in
+    let log_vs = Array.map ~f:log vs in
     let mean   = Sample.mean log_vs in
     let sd     = Sample.sd ~mean:mean log_vs in
     create ~mean ~sd
@@ -489,6 +489,13 @@ module Logistic = struct
     create ~location:mean ~scale:(sqrt (3. *. variance) /. pi)
 end
 
+module Empirical = struct
+  type t
+
+  let create bins vs =
+    ()
+end
+
 
 module Poisson = struct
   type elt = int
@@ -514,7 +521,7 @@ module Poisson = struct
     Randist.poisson ~mu:poisson_rate rng
   let sample = make_sampler generate
 
-  let mle vs = create ~rate:(Sample.mean (Array.map float_of_int vs))
+  let mle vs = create ~rate:(Sample.mean (Array.map ~f:float_of_int vs))
 end
 
 module Bernoulli = struct
@@ -553,7 +560,7 @@ module Bernoulli = struct
 
   let mle vs =
     let n = Array.length vs
-    and y = Array.fold_left (+) 0 vs in
+    and y = Array.fold_left ~f:(+) ~init:0 vs in
     create ~p:(float_of_int y /. float_of_int n)
 end
 
@@ -590,7 +597,7 @@ module Binomial = struct
   let sample = make_sampler generate
 
   let mme vs =
-    let vs   = Array.map float_of_int vs in
+    let vs   = Array.map ~f:float_of_int vs in
     let mean = Sample.mean vs in
     let variance = Sample.variance ~mean vs in
     create ~trials:(round (sqr mean /. (mean -. variance)))
@@ -626,7 +633,9 @@ module Geometric = struct
 
   let mme vs =
     let n = Array.length vs in
-    create ~p:(float_of_int n /. float_of_int (Array.fold_left (+) 0 vs))
+    let p = float_of_int n /.
+              float_of_int (Array.fold_left ~f:(+) ~init:0 vs)
+    in create ~p
 end
 
 module Hypergeometric = struct
@@ -719,7 +728,7 @@ module NegativeBinomial = struct
   let sample = make_sampler generate
 
   let mme vs =
-    let vs       = Array.map float_of_int vs in
+    let vs       = Array.map ~f:float_of_int vs in
     let mean     = Sample.mean vs in
     let variance = Sample.variance ~mean vs in
     create ~failures:(round (sqr mean /. (variance -. mean)))
@@ -748,7 +757,8 @@ module Categorical = struct
     let create dist =
       let n  = Array.length dist
       and is =
-        Array.sort_index (fun (v1, _p1) (v2, _p2) -> Elt.compare v1 v2) dist
+        Array.sort_index dist
+          ~cmp:(fun (v1, _p1) (v2, _p2) -> Elt.compare v1 v2)
       in if n = 0 then invalid_arg "Categorical.Make: no data";
 
       let (v0, p0) = Array.(unsafe_get dist (unsafe_get is 0)) in

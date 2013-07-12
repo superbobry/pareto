@@ -5,7 +5,6 @@ open Internal
 
 let range ?(a=0) ~b = Array.range a b
 
-
 let cumulative ~f = function
   | [||] -> [||]
   | xs   ->
@@ -15,6 +14,15 @@ let cumulative ~f = function
       Array.unsafe_set acc i
         (f (Array.unsafe_get acc (i - 1)) (Array.unsafe_get xs i))
     done; acc
+
+
+
+let reorder is ~src ~dst =
+  let n = Array.length src in
+  for i = 0 to n - 1 do
+    let j = Array.unsafe_get is i in
+    Array.unsafe_set dst i (Array.unsafe_get src j)
+  done
 
 
 let search_sorted ~cmp vs v =
