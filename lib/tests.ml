@@ -87,21 +87,21 @@ module ChiSquared = struct
     finalize (Distributions.ChiSquared.create ~df:(n - 1 - df)) !chisq
 
   let independence observed ?(correction=false) () =
-    let observed = Matrix.of_arrays observed in
-    let (m, n) = Matrix.dims observed in
+    let observed = Matrix_flat.of_arrays observed in
+    let (m, n) = Matrix_flat.dims observed in
     if m = 0 || n = 0 then invalid_arg "ChiSquared.independence: no data"
-    else if Matrix.exists (fun x -> x < 0.) observed
+    else if Matrix_flat.exists ~f:(fun x -> x < 0.) observed
     then invalid_arg ("ChiSquared.independence: observed values must " ^
                       "be non negative");
 
-    let expected = Matrix.create m n in
+    let expected = Matrix_flat.create m n in
     let open Gsl.Blas_flat in
-    gemm ~ta:Trans ~tb:NoTrans ~alpha:(1. /. Matrix.sum observed) ~beta:1.
-      ~a:(Matrix.row_sums observed)
-      ~b:(Matrix.col_sums observed)
+    gemm ~ta:Trans ~tb:NoTrans ~alpha:(1. /. Matrix_flat.sum observed) ~beta:1.
+      ~a:(Matrix_flat.row_sums observed)
+      ~b:(Matrix_flat.col_sums observed)
       ~c:expected;
 
-    if Matrix.exists ((=) 0.) expected
+    if Matrix_flat.exists ~f:((=) 0.) expected
     then invalid_arg ("ChiSquared.independence: computed expected " ^
                       " frequencies matrix has a zero element");
 
@@ -112,12 +112,12 @@ module ChiSquared = struct
       { test_statistic = 0.; test_pvalue = 1. }
     | df ->
       let chisq =
-        let open Matrix in
+        let open Matrix_flat in
         let t = create m n in begin
           memcpy ~src:expected ~dst:t;
           sub t observed;
           if df = 1 && correction then begin
-            map t (abs_float);  (* Use Yates' correction for continuity. *)
+            map t ~f:abs_float;  (* Use Yates' correction for continuity. *)
             add_constant t (-. 0.5)
           end;
           mul_elements t t;
@@ -132,11 +132,11 @@ module KolmogorovSmirnov = struct
     let k    = floor (float_of_int n *. d) +. 1. in
     let h    = k -. float_of_int n *. d in
     let size = 2 * int_of_float k - 1 in
-    let m    = Matrix.create ~init:0. size size in begin
+    let m    = Matrix_flat.create ~init:0. size size in begin
       (* Set all element in the lower triangle to 1. *)
       for i = 0 to size - 1 do
         for j = max 0 (i - 1) to size - 1 do
-          Matrix.set m (size - 1 - i) (size - 1 - j) 1.
+          Matrix_flat.set m (size - 1 - i) (size - 1 - j) 1.
         done
       done;
 
@@ -150,15 +150,16 @@ module KolmogorovSmirnov = struct
 
       (* Correct first column and bottom row. *)
       for i = 0 to size - 1 do
-        Matrix.set m i 0 (Matrix.get m i 0 -. Array.get h_powers i);
-        Matrix.set m (size - 1) i
-          (Matrix.get m (size - 1) i -. Array.get h_powers (size - 1 - i))
+        Matrix_flat.set m i 0 (Matrix_flat.get m i 0 -. Array.get h_powers i);
+        Matrix_flat.set m (size - 1) i
+          (Matrix_flat.get m (size - 1) i -. Array.get h_powers (size - 1 - i))
       done;
 
       (* Correct bottom left element if needed. *)
       if 2. *. h > 1.
-      then Matrix.set m (size - 1) 0
-          (Matrix.get m (size - 1) 0 +. (2. *. h -. 1.) ** float_of_int size);
+      then Matrix_flat.set m (size - 1) 0
+          (Matrix_flat.get m (size - 1) 0 +.
+             (2. *. h -. 1.) ** float_of_int size);
 
       (* Here come factorials! *)
       let facts = Array.make size 1 in
@@ -168,8 +169,8 @@ module KolmogorovSmirnov = struct
 
       for i = 0 to size - 1 do
         for j = i + 1 to size - 1 do
-          Matrix.set m (size - 1 - i) (size - 1 - j)
-            (Matrix.get m (size - 1 - i) (size - 1 - j) /.
+          Matrix_flat.set m (size - 1 - i) (size - 1 - j)
+            (Matrix_flat.get m (size - 1 - i) (size - 1 - j) /.
                float_of_int (Array.unsafe_get facts (j - i)))
         done
       done
@@ -224,9 +225,9 @@ module KolmogorovSmirnov = struct
         else
           (* FIXME(superbobry): control for overflow in matrix power
              calculation. *)
-          let h   = Matrix.power (create_h n d) n in
+          let h   = Matrix_flat.power (create_h n d) n in
           let k   = int_of_float (ceil (float_of_int n *. d)) in
-          let acc = ref (Matrix.get h (k - 1) (k - 1)) in begin
+          let acc = ref (Matrix_flat.get h (k - 1) (k - 1)) in begin
             for i = 1 to n do
               acc := !acc *. float_of_int i /. float_of_int n
             done

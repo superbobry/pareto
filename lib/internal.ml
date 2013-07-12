@@ -39,8 +39,6 @@ module Combi = struct
     with Error.Gsl_exn (Error.FAILURE, _) -> false
 end
 
-let ident x = x
-
 let sqr x = x *. x
 let cube x = x *. x *. x
 
@@ -55,17 +53,13 @@ let invalid_arg s = raise (Invalid_argument s)
 module Array = struct
   include Array
 
-  let range a b =
-    if b <= a
-    then [||]
-    else
-      let vs = make (b - a) 0 in
-      for i = a to b - 1 do
-        unsafe_set vs (i - a) i
-      done; vs
-
   let sort_index ~cmp vs =
-    let order = range 0 (length vs) in begin
+    let n     = length vs in
+    let order = Array.make n 0 in begin
+      for i = 0 to n - 1 do
+        Array.unsafe_set order i i
+      done;
+
       sort ~cmp:(fun i j -> cmp (unsafe_get vs i) (unsafe_get vs j)) order;
       order
     end
@@ -94,23 +88,22 @@ module Array = struct
     in (Array.of_list l, Array.of_list r)
 end
 
-
-module Matrix = struct
+module Matrix_flat = struct
   include Gsl.Matrix_flat
 
-  let exists p m =
+  let exists m ~f =
     let (nrow, ncol) = dims m in
     let rec loop_columns i j =
       if j < 0
       then false
-      else p (get m i j) || loop_columns i (pred j)
+      else f (get m i j) || loop_columns i (pred j)
     and loop_rows i =
       if i < 0
       then false
       else loop_columns i (ncol - 1) || loop_rows (pred i)
     in loop_rows (nrow - 1)
 
-  let map m f =
+  let map m ~f =
     let (nrow, ncol) = dims m in begin
       for i = 0 to nrow - 1 do
         for j = 0 to ncol - 1 do

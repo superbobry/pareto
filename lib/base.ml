@@ -3,7 +3,16 @@ module Randist = Gsl.Randist
 open Internal
 
 
-let range ?(a=0) ~b = Array.range a b
+let range ?(a=0) ~b =
+  if b <= a
+  then [||]
+  else
+    let vs = Array.make (b - a) 0 in begin
+      for i = a to b - 1 do
+        Array.unsafe_set vs (i - a) i
+      done; vs
+    end
+
 
 let cumulative ~f = function
   | [||] -> [||]
