@@ -27,6 +27,23 @@ Library pareto
   ByteOpt:           -w @a -warn-error -a
   BuildDepends:      gsl (>= 1.13.0)
 
+# Benchmarks
+
+Flag benchmarks
+  Description: Build benchmarks
+  Default:     false
+
+
+Executable bench_kde
+  Path:               benchmarks
+  MainIs:             bench_kde.ml
+  Build$:             flag(benchmarks)
+  CompiledObject:     best
+  Install:            false
+  BuildDepends:       pareto
+                    , core_bench (= 109.32.00)
+                    , threads
+
 # Tests
 
 Executable test_runner
