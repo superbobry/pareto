@@ -489,13 +489,6 @@ module Logistic = struct
     create ~location:mean ~scale:(sqrt (3. *. variance) /. pi)
 end
 
-module Empirical = struct
-  type t
-
-  let create bins vs =
-    ()
-end
-
 
 module Poisson = struct
   type elt = int
