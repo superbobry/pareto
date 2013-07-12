@@ -53,12 +53,11 @@ and test_quantile () =
       0.374802467851785; 0.349201461890657; 0.89384498325876;
       0.431750792813907|]
   and go ~param ~msg expected =
-    Array.iteri (fun i p ->
-        assert_almost_equal
-          ~epsilon:1e-14 ~msg:(msg ^ Printf.sprintf " %.2f" p)
-          (Quantile.continuous_by ~param ~p vs) expected.(i)
-      )
-      [|0.; 0.25; 0.5; 0.75; 1.|]
+    assert_equal
+      ~msg ~cmp:(cmp_array ~cmp:cmp_float)
+      ~printer:(printer_array ~printer:(Printf.sprintf "%.6f"))
+      (Quantile.continuous_by ~param ~ps:[|0.; 0.25; 0.5; 0.75; 1.|] vs)
+      expected
   in begin
     go ~param:Quantile.CADPW ~msg:"type 4" [|
       0.0833841367636058; 0.362001964871221; 0.431750792813907;

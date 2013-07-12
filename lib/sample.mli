@@ -90,7 +90,7 @@ module Quantile : sig
       probability [p], using the continuous sample method with given
       parameters. *)
   val continuous_by
-    : ?param:continuous_param -> ?p:float -> float array -> float
+    : ?param:continuous_param -> ps:float array -> float array -> float array
 
   (** {e O(n log n)} Estimates interquantile range of a given sample,
       using the continuous sample method with given parameters. *)
@@ -100,7 +100,7 @@ end
 (** {e O(n log n)} Estimates sample quantile corresponding to the given
     probability [p], using the continuous sample method with default
     parameters. *)
-val quantile : ?p:float -> float array -> float
+val quantile : ps:float array -> float array -> float array
 
 (** {e O(n log n)} Estimates interquantile range of a given sample,
     using the continuous sample method with given parameters. *)

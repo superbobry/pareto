@@ -50,13 +50,11 @@ let sample_kde () =
   end
 
 let sample_quantiles () =
-  let vs = random_array 10 in begin
+  let vs = random_array 10
+  and ps = [|0.; 0.25; 0.75; 1.|] in begin
     print_float_array vs;
-    for i = 0 to 4 do
-      printf "%4d%%: %9.5f\n"
-        (25 * i)
-        (Sample.quantile ~p:(0.25 *. float_of_int i) vs)
-    done;
+    print_float_array ps;
+    print_float_array (Sample.quantile ~ps vs);
     print_newline ()
   end
 

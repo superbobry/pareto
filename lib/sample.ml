@@ -146,8 +146,8 @@ module Quantile = struct
     | MedianUnbiased
     | NormalUnbiased
 
-  let continuous_by ?(param=S) ?(p=0.5) vs =
-    if p < 0. || p > 1.
+  let continuous_by ?(param=S) ~ps vs =
+    if Array.exists (fun p -> p < 0. || p > 1.) ps
     then invalid_arg "Quantile.continuous_by: p must be in range [0, 1]";
     if Array.exists is_nan vs
     then invalid_arg "Quantile.continuous_by: sample contains NaNs";
@@ -161,24 +161,44 @@ module Quantile = struct
       | NormalUnbiased -> (3. /. 8., 3. /. 8.)
     in
 
-    let n    = Array.length vs in
-    let nppm = a +. p *. (float_of_int n +. 1. -. a -. b) in
-    let fuzz = epsilon_float *. 4. in
-    let j    = int_of_float (floor (nppm +. fuzz)) in
-    let h    = if abs_float (nppm -. float_of_int j) < fuzz
-               then 0.
-               else nppm -. float_of_int j in
+    let n     = Array.length vs in
+    let fuzz  = epsilon_float *. 4.
+    and js    = Array.make n 0.
+    and hs    = Array.make n 0. in begin
+      for i = 0 to Array.length ps - 1 do
+        let p    = Array.unsafe_get ps i in
+        let nppm = a +. p *. (float_of_int n +. 1. -. a -. b) in
+        let j    = floor (nppm +. fuzz) in
+        let h    = if abs_float (nppm -. j) < fuzz
+                   then 0.
+                   else nppm -. j
+        in begin
+          Array.unsafe_set js i j;
+          Array.unsafe_set hs i h;
+        end
+      done
+    end;
+
     let bound ?(a=0) ~b i = Pervasives.(min (max i a) b) in
-    let n    = Array.length vs in
-    let svs  = Vector.partial_sort (bound ~b:n (j + 1)) (Vector.of_array vs) in
-    let item = fun i -> svs.(bound ~b:(n - 1) i) in
-    (1. -. h) *. item (j - 1) +. h *. item j
+    let svs = Vector.partial_sort
+        (bound ~b:n (int_of_float (max js) + 1)) (Vector.of_array vs) in
+    let item = fun i -> svs.(bound ~b:(n - 1) i)
+    and qs  = Array.make n 0. in begin
+      for i = 0 to Array.length ps - 1 do
+        let j = int_of_float (Array.unsafe_get js i) in
+        let h = Array.unsafe_get hs i in
+        let q = (1. -. h) *. item (j - 1) +. h *. item j in
+        Array.unsafe_set qs i q
+      done; qs
+    end
 
   let iqr ?param vs =
-    continuous_by ?param ~p:0.75 vs -. continuous_by ?param ~p:0.25 vs
+    match continuous_by ?param ~ps:[|0.25; 0.75|] vs with
+      | [|q25; q75|] -> q75 -. q25
+      | _            -> assert false  (* Impossible. *)
 end
 
-let quantile ?p vs = Quantile.continuous_by ?p vs
+let quantile ~ps vs = Quantile.continuous_by ~ps vs
 
 let iqr vs = Quantile.iqr vs
 
