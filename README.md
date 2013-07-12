@@ -62,7 +62,7 @@ To build API documentation:
 $ make doc
 ```
 
-### Tests _(optional)_ [![Build Status][travis-img]][travis]
+### Tests _(optional)_ [![Build Status][status-image]][status]
 
 To build and run tests:
 
@@ -71,5 +71,5 @@ $ ./configure --enable-tests
 $ make test
 ```
 
-[travis]: http://travis-ci.org/superbobry/pareto
-[travis-img]: https://secure.travis-ci.org/superbobry/pareto.png
+[status]: https://drone.io/github.com/superbobry/pareto/latest
+[status-image]: https://drone.io/github.com/superbobry/pareto/status.png

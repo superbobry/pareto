@@ -1,2 +1,0 @@
-language: c
-script: bash -ex .travis.sh
