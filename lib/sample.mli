@@ -44,7 +44,7 @@ val kurtosis : ?mean:float -> ?sd:float -> float array -> float
     Returns a pair, where the first element is ties correction factor
     and second is an array of sample ranks.
 
-    {6 References}
+    {b References}
 
     + P. R. Freeman, "Algorithm AS 26: Ranking an array of numbers",
       Vol. 19, Applied Statistics, pp111-113, 1970. *)

@@ -1,3 +1,5 @@
+(** Algebraic structures. *)
+
 (** A monoid is a type with an id and an associative binary operation. *)
 module Monoid = struct
   module type S = sig
