@@ -183,7 +183,7 @@ module Quantile = struct
     let svs = Vector.partial_sort
         (bound ~b:n (int_of_float (max js) + 1)) (Vector.of_array vs) in
     let item = fun i -> svs.(bound ~b:(n - 1) i)
-    and qs  = Array.make n 0. in begin
+    and qs  = Array.make (Array.length ps) 0. in begin
       for i = 0 to Array.length ps - 1 do
         let j = int_of_float (Array.unsafe_get js i) in
         let h = Array.unsafe_get hs i in
@@ -195,7 +195,7 @@ module Quantile = struct
   let iqr ?param vs =
     match continuous_by ?param ~ps:[|0.25; 0.75|] vs with
       | [|q25; q75|] -> q75 -. q25
-      | _            -> assert false  (* Impossible. *)
+      | vs            -> assert false  (* Impossible. *)
 end
 
 let quantile ~ps vs = Quantile.continuous_by ~ps vs
