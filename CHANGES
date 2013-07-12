@@ -6,6 +6,8 @@ Here you can see the full list of changes between each pareto release.
 Version 0.2
 -----------
 
+Released on July 13th, 2013
+
 - Added summary statistics, see 'Sample.Summary' module. Thanks to Nicholas
   Lucaroni!
 - Added MLE for distributions which have a closed-form MLE. Thanks to Nicholas
@@ -14,12 +16,12 @@ Version 0.2
   'Cauchy' and 'Hypergeomteric' distributions.
 - Added Pearson product-moment correlation and autocorrelation and Spearman
   rank correlation.
-- Added GSL wrappers for computing sample skewness and kurtosis.
 - Added Kolmogorov-Smirnov test for goodness of fit and two-sample test.
 - Added function, which adjusts P-values for multiple comparisons. Currently,
   two procedures are supported: Benjamini-Hochberg, which controls for FDR and
   Holm-Bonferroni, which controls for FWER.
 - Abstracted RV type into '*Distribution.elt'.
+- Added GSL wrappers for computing sample skewness and kurtosis.
 - Added more distribution features: skewness and kurtosis, see
   'Distributions.Features' signature.
 - Added 'LogNormal', 'Bernoulli', 'Logistic' and 'Categorical' distributions.
