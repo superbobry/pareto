@@ -9,7 +9,7 @@ let bootstrap_mean () =
   let vs = sample ~size:100 standard in
   let open Resampling.Bootstrap in
   let { point; upper_bound; lower_bound; confidence_level } =
-    bca ~estimator:Sample.mean ~n:10000 vs
+    bca ~estimator:Sample.mean ~n_iter:10000 vs
   in begin
     print_endline "Sample:";
     print_float_array vs;

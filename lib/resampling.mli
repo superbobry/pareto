@@ -7,7 +7,7 @@ open Internal
 val resample
   :  ?rng:Gsl.Rng.t
   -> estimator:('a array -> 'b)
-  -> n:int
+  -> n_iter:int
   -> 'a array
   -> 'b array
 
@@ -32,7 +32,7 @@ module Bootstrap : sig
     :  ?rng:Gsl.Rng.t
     -> ?confidence_level:float
     -> estimator:(float array -> float)
-    -> n:int
+    -> n_iter:int
     -> float array
     -> estimate
 end

@@ -77,7 +77,7 @@ module ChiSquared = struct
           (* TODO(superbobry): make sure we have wellformed frequencies. *)
           expected
       | None ->
-        Array.make n (Array.sum observed /. float_of_int n)
+        Array.make n (Array.fold_left (+.) 0. observed /. float_of_int n)
     and chisq = ref 0. in begin
       for i = 0 to n - 1 do
         chisq := !chisq +. sqr (observed.(i) -. expected.(i)) /. expected.(i)
@@ -334,8 +334,9 @@ module MannWhitneyU = struct
 
     let n  = n1 +. n2 in
     let (t, ranks) = Sample.rank (Array.append v1 v2) in
-    let w1 = Array.sum (Array.sub ranks 0 (int_of_float n1)) in
-    let w2 = Array.sum (Array.sub ranks (int_of_float n1) (int_of_float n2)) in
+    let w1 = Array.fold_left (+.) 0. (Array.sub ranks 0 (int_of_float n1)) in
+    let w2 = Array.fold_left (+.) 0.
+        (Array.sub ranks (int_of_float n1) (int_of_float n2)) in
     let u1 = w1 -. n1 *. (n1 +. 1.) /. 2. in
     let u2 = w2 -. n2 *. (n2 +. 1.) /. 2. in
     let u  = min u1 u2 in
@@ -378,9 +379,9 @@ module MannWhitneyU = struct
       let ge = ref 0 in
       begin
         for _i = 0 to int_of_float c_n_k - 1 do
-          let cu =
-            Array.sum_with (Array.unsafe_get ranks) (Combi.to_array c) -.
-              float_of_int (k * (k + 1)) /. 2.
+          let cu = Array.fold_left
+              (fun acc i -> acc +. Array.unsafe_get ranks i) 0.
+              (Combi.to_array c) -. float_of_int (k * (k + 1)) /. 2.
           in begin
             if cu <= u then incr le;
             if cu >= u then incr ge;
@@ -409,7 +410,7 @@ module WilcoxonT = struct
     let nz = float_of_int (Array.length non_zeros) in
     let (t, ranks) = Sample.rank non_zeros
         ~cmp:(fun d1 d2 -> compare (abs_float d1) (abs_float d2)) in
-    let w_plus  = Array.sum
+    let w_plus  = Array.fold_left (+.) 0.
         (Array.mapi (fun i v -> if v > 0. then ranks.(i) else 0.) non_zeros) in
     let w_minus = nz *. (nz +. 1.) /. 2. -. w_plus in
 

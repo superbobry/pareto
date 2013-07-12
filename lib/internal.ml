@@ -37,6 +37,7 @@ module Combi = struct
     with Error.Gsl_exn (Error.FAILURE, _) -> false
 end
 
+let ident x = x
 
 let sqr x = x *. x
 let cube x = x *. x *. x
@@ -95,11 +96,6 @@ module Array = struct
         ([], [])
         vs
     in (Array.of_list l, Array.of_list r)
-
-  let sum = fold_left (+.) 0.
-
-  (* Note(superbobry): remove this, not generic enough. *)
-  let sum_with f = fold_left (fun acc x -> acc +. f x) 0.
 end
 
 
