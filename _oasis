@@ -33,10 +33,29 @@ Flag benchmarks
   Description: Build benchmarks
   Default:     false
 
+Executable bench_histogram
+  Path:               benchmarks
+  MainIs:             bench_histogram.ml
+  Build$:             flag(benchmarks)
+  CompiledObject:     best
+  Install:            false
+  BuildDepends:       pareto
+                    , core_bench (= 109.32.00)
+                    , threads
 
 Executable bench_kde
   Path:               benchmarks
   MainIs:             bench_kde.ml
+  Build$:             flag(benchmarks)
+  CompiledObject:     best
+  Install:            false
+  BuildDepends:       pareto
+                    , core_bench (= 109.32.00)
+                    , threads
+
+Executable bench_quantile
+  Path:               benchmarks
+  MainIs:             bench_quantile.ml
   Build$:             flag(benchmarks)
   CompiledObject:     best
   Install:            false

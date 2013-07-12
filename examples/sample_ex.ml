@@ -29,7 +29,7 @@ and print_density (points, pdf) =
 let sample_histogram () =
   let open Distributions.Normal in
   let vs = sample ~size:100 standard in
-  let (points, counts) = Sample.histogram ~bins:10 vs in begin
+  let (points, counts) = Sample.histogram ~n_bins:10 vs in begin
     print_endline "Normal sample histogram";
     print_float_array counts;
     print_histogram (points, counts);
@@ -41,7 +41,7 @@ let sample_kde () =
   let vs = sample ~size:100 standard in
   let (points, pdf) =
     let open Sample.KDE in
-    estimate_pdf ~kernel:Gaussian ~bandwidth:Silverman ~points:10 vs
+    estimate_pdf ~kernel:Gaussian ~bandwidth:Silverman ~n_points:10 vs
   in begin
     print_endline "Normal sample (Gaussian) KDE";
     print_float_array pdf;

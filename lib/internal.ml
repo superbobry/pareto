@@ -102,11 +102,6 @@ module Array = struct
   let sum_with f = fold_left (fun acc x -> acc +. f x) 0.
 end
 
-module Vector = struct
-  include Gsl.Vector_flat
-
-  let partial_sort = Gsl.Gsl_sort.vector_flat_smallest
-end
 
 module Matrix = struct
   include Gsl.Matrix_flat

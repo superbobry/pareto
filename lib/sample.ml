@@ -100,41 +100,48 @@ let rank ?(ties_strategy=`Average) ?(cmp=compare) vs =
   end; (_correct_ties ranks, ranks)
 
 
-let histogram ?(bins=10) ?range ?weights ?(density=false) vs =
-  if bins <= 0
-  then invalid_arg "Sample.histogram: bins must be a positive integer";
-  if vs = [||] then invalid_arg "Sample.histogram: empty sample";
-
-  let h = Histo.make bins in
-  begin match range with
-    | None ->
-      let (min, max) = minmax vs in
-      let d =
-        if bins = 1
-        then 0.
-        else (max -. min) /. float_of_int ((bins - 1) * 2)
-      in Histo.set_ranges_uniform h ~xmin:(min -. d) ~xmax:(max +. d)
-    | Some (min, max) when min < max ->
-      Histo.set_ranges_uniform h ~xmin:min ~xmax:max
-    | Some (_min, _max) ->
-      invalid_arg ("Sample.histogram: max must be larger than min " ^
-                   " in range paramter")
+let histogram ?(n_bins=10) ?range ?weights ?(density=false) vs =
+  if n_bins <= 0
+  then invalid_arg "Sample.histogram: n_bins must be a positive integer"
+  else if vs = [||] then invalid_arg "Sample.histogram: no data"
+  else begin
+    match weights with
+      | Some weights when Array.length weights <> Array.length vs ->
+        invalid_arg "Sample.histogram: expected one weight per value"
+      | _ -> ()
   end;
 
-  Array.iteri (fun i v ->
-    let weight = match weights with
+  let h = Histo.make n_bins in begin
+    match range with
+      | None ->
+        let (min, max) = minmax vs in
+        let d =
+          if n_bins = 1
+          then 0.
+          else (max -. min) /. float_of_int ((n_bins - 1) * 2)
+        in Histo.set_ranges_uniform h ~xmin:(min -. d) ~xmax:(max +. d)
+      | Some (min, max) when min < max ->
+        Histo.set_ranges_uniform h ~xmin:min ~xmax:max
+      | Some (_min, _max) ->
+        invalid_arg ("Sample.histogram: max must be larger than min " ^
+                       " in range paramter")
+  end;
+
+  for i = 0 to Array.length vs - 1 do
+    let w = match weights with
       | None -> 1.
-      | Some weights -> weights.(i)  (* Note(superbobry): possibly unsafe. *)
-    in Histo.accumulate h ~w:weight v) vs;
+      | Some weights -> Array.unsafe_get weights i
+    in Histo.accumulate h ~w (Array.unsafe_get vs i)
+  done;
 
-  if density then Histo.scale h (1. /. Histo.sum h);
-
-  let counts = Array.make bins 0. in
-  let points = Array.make bins 0. in
-  for i = 0 to bins - 1 do
-    counts.(i) <- Histo.get h i;
-    points.(i) <- fst (Histo.get_range h i)
-  done; (points, counts)
+  let counts = Array.make n_bins 0. in
+  let points = Array.make n_bins 0. in begin
+    if density then Histo.scale h (1. /. Histo.sum h);
+    for i = 0 to n_bins - 1 do
+      Array.unsafe_set counts i (Histo.get h i);
+      Array.unsafe_set points i (fst (Histo.get_range h i))
+    done; (points, counts)
+  end
 
 
 module Quantile = struct
@@ -180,8 +187,9 @@ module Quantile = struct
     end;
 
     let bound ?(a=0) ~b i = Pervasives.(min (max i a) b) in
-    let svs = Vector.partial_sort
-        (bound ~b:n (int_of_float (max js) + 1)) (Vector.of_array vs) in
+    let svs = Gsl.Gsl_sort.vector_flat_smallest
+        (bound ~b:n (int_of_float (max js) + 1))
+        (Gsl.Vector_flat.of_array vs) in
     let item = fun i -> svs.(bound ~b:(n - 1) i)
     and qs  = Array.make (Array.length ps) 0. in begin
       for i = 0 to Array.length ps - 1 do
@@ -195,7 +203,7 @@ module Quantile = struct
   let iqr ?param vs =
     match continuous_by ?param ~ps:[|0.25; 0.75|] vs with
       | [|q25; q75|] -> q75 -. q25
-      | vs            -> assert false  (* Impossible. *)
+      | _            -> assert false  (* Impossible. *)
 end
 
 let quantile ~ps vs = Quantile.continuous_by ~ps vs
@@ -218,15 +226,20 @@ module KDE = struct
         let open Gsl.Math in
         (1. /. (sqrt2 *. sqrtpi)) *. exp (-. sqr u /. 2.)
 
-  let build_points points h kernel vs =
+  let build_points n_points h kernel vs =
     let (min, max) = minmax vs in
-    let (a, b) = match kernel with
-      | Gaussian     -> (min -. 3. *. h, max +. 3. *. h)
+    let (a, b)     = match kernel with
+      | Gaussian -> (min -. 3. *. h, max +. 3. *. h)
     in
-    let step = (b -. a) /. float_of_int points in
-    Array.init points (fun i -> a +. (float_of_int i) *. step)
 
-  let estimate_pdf ?(kernel=Gaussian) ?(bandwidth=Scott) ?(points=512) vs =
+    let points = Array.make n_points 0.
+    and step   = (b -. a) /. float_of_int n_points in begin
+      for i = 0 to n_points - 1 do
+        Array.unsafe_set points i (a +. (float_of_int i) *. step)
+      done; points
+    end
+
+  let estimate_pdf ?(kernel=Gaussian) ?(bandwidth=Scott) ?(n_points=512) vs =
     if Array.length vs < 2
     then invalid_arg "KDE.estimate_pdf: sample should have multiple elements";
 
@@ -237,11 +250,16 @@ module KDE = struct
       | Scott      -> 1.06 *. s *. (n ** -0.2)
     in
 
-    let points = build_points points h kernel vs in
+    let points = build_points n_points h kernel vs in
     let k      = build_kernel kernel in
     let f      = 1. /. (h *. n) in
-    let pdf    = Array.map (fun p -> f *. Array.sum_with (k h p) vs) points in
-    (points, pdf)
+    let pdf    = Array.make n_points 0. in begin
+      for i = 0 to n_points - 1 do
+        let p = Array.unsafe_get points i in
+        Array.unsafe_set pdf i
+          (f *. Array.fold_left (fun acc v -> acc +. k h p v) 0. vs)
+      done; (points, pdf)
+    end
 end
 
 

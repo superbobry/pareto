@@ -61,7 +61,7 @@ val rank
     {{: http://github.com/bos/statistics} statistics} library by
     Brian O'Sullivan. *)
 val histogram
-  :  ?bins:int
+  :  ?n_bins:int
   -> ?range:(float * float)
   -> ?weights:float array
   -> ?density:bool
@@ -125,7 +125,7 @@ module KDE : sig
   val estimate_pdf
     :  ?kernel:kernel
     -> ?bandwidth:bandwidth
-    -> ?points:int
+    -> ?n_points:int
     -> float array
     -> (float array * float array)
 
