@@ -378,6 +378,21 @@ module Gamma = struct
     let mean     = Sample.mean vs in
     let variance = Sample.variance ~mean vs in
     create ~shape:(sqr mean /. variance) ~scale:(mean /. variance)
+
+  let mle ~n_iter ~epsilon vs =
+    let log_mean = log (Sample.mean vs)
+    and mean_log = Sample.mean (Array.map ~f:log vs) in
+    let s        = log_mean -. mean_log in
+
+    let rec f logk = logk -. Gsl.Sf.psi (exp logk) -. s
+    and df logk    = 1. -. exp logk *. Gsl.Sf.psi_1 (exp logk) in
+
+    let logk = find_root_newton
+        ~n_iter ~epsilon
+        ~init:(log (3. -. s +. sqrt (sqr (s -. 3.) +. 24. *. s)) -.
+                 log 12. -. log s)
+        Gsl.Root.Polish.({ f; df; fdf = fun logk -> (f logk, df logk) })
+    in create ~shape:(exp logk) ~scale:(Sample.mean vs /. exp logk)
 end
 
 module Cauchy = struct
@@ -700,10 +715,12 @@ module NegativeBinomial = struct
     else { nbinomial_failures = failures; nbinomial_p = p }
 
   let cumulative_probability { nbinomial_failures; nbinomial_p } ~n =
-    Cdf.negative_binomial_P ~n:nbinomial_failures ~p:(1. -. nbinomial_p) ~k:n
+    Cdf.negative_binomial_P
+      ~n:nbinomial_failures ~p:(1. -. nbinomial_p) ~k:n
 
   let probability { nbinomial_failures; nbinomial_p } ~n =
-    Randist.negative_binomial_pdf ~n:nbinomial_failures ~p:(1. -. nbinomial_p) n
+    Randist.negative_binomial_pdf
+      ~n:nbinomial_failures ~p:(1. -. nbinomial_p) n
 
   let mean { nbinomial_failures = r; nbinomial_p = p } =
     r *. p /. (1. -. p)
@@ -730,13 +747,13 @@ module NegativeBinomial = struct
     if n_iter <= 0
     then invalid_arg ("NegativeBinomial.mle: number of iterations " ^
                         "should be positive");
-    let sum = float_of_int (Array.fold_left ~f:(+) ~init:0 vs) in
-    let n   = float_of_int (Array.length vs) in
+    let sum = float_of_int (Array.fold_left ~f:(+) ~init:0 vs)
+    and len = float_of_int (Array.length vs) in
     let rec fdf r =
-      let p   = sum /. (n *. r +. sum) in
-      let df0 = ref (n *. (-. Gsl.Sf.psi r +. log (1. -. p)))
-      and df1 = ref (n *. (-. Gsl.Sf.psi_1 r +. p /. r)) in begin
-        for i = 0 to Array.length vs - 1 do
+      let p   = sum /. (len *. r +. sum) in
+      let df0 = ref (len *. (-. Gsl.Sf.psi r +. log (1. -. p)))
+      and df1 = ref (len *. (-. Gsl.Sf.psi_1 r +. p /. r)) in begin
+        for i = 0 to int_of_float len - 1 do
           let v = float_of_int (Array.unsafe_get vs i) in
           df0 := !df0 +. Gsl.Sf.psi (v +. r);
           df1 := !df1 +. Gsl.Sf.psi_1 (v +. r)
@@ -745,24 +762,12 @@ module NegativeBinomial = struct
     and f r  = fst (fdf r)
     and df r = snd (fdf r) in
 
-    let { nbinomial_failures = initial; _ } = mme vs in
-    let open Gsl.Root.Polish in
-    let solver = make NEWTON { f; df; fdf } initial in begin
-      let counter = ref n_iter
-      and r0 = ref nan
-      and r1 = ref initial in begin
-        while !counter > 0 &&
-              (!r0 <> !r0 || abs_float (!r0 -. !r1) > epsilon)
-        do
-          iterate solver;
-          decr counter;
-          r0 := !r1;
-          r1 := root solver
-        done
-      end;
-
-      create ~failures:!r1 ~p:(sum /. (n *. !r1 +. sum))
-    end
+    let { nbinomial_failures; _ } = mme vs in
+    let r = find_root_newton
+        ~n_iter ~epsilon
+        ~init:nbinomial_failures
+        Gsl.Root.Polish.({ f; df; fdf })
+    in create ~failures:r ~p:(sum /. (len *. r +. sum))
 end
 
 module Categorical = struct

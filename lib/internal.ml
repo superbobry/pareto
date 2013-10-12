@@ -39,6 +39,23 @@ module Combi = struct
     with Error.Gsl_exn (Error.FAILURE, _) -> false
 end
 
+let find_root_newton ~n_iter ~epsilon ~init gsl_fun =
+  let open Gsl.Root.Polish in
+  let solver = make NEWTON gsl_fun init in begin
+    let counter = ref n_iter
+    and r0 = ref nan
+    and r1 = ref init in begin
+      while !counter > 0 &&
+            (!r0 <> !r0 || abs_float (!r0 -. !r1) > epsilon)
+      do
+        iterate solver;
+        decr counter;
+        r0 := !r1;
+        r1 := root solver
+        done
+      end; !r1
+  end
+
 let sqr x = x *. x
 let cube x = x *. x *. x
 

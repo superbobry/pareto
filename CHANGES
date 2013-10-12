@@ -6,7 +6,7 @@ Here you can see the full list of changes between each pareto release.
 Version 0.3
 -----------
 
-- Added MLE for 'NegativeBinomial'.
+- Added MLE for 'NegativeBinomial' and 'Gamma'.
 - Added a method for sampling a single value from a distribution, see
   'BaseDistribution.random'.
 

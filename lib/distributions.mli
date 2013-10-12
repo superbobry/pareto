@@ -220,6 +220,10 @@ module Gamma : sig
   (** Creates gamma distribution with parameters, estimated with method
       of moments. *)
   val mme : float array -> t
+
+  (** Creates gamma distribution with a MLE of parameters, estimated
+      from given data. *)
+  val mle : n_iter:int -> epsilon:float -> float array -> t
 end
 
 (** The Cauchy-Lorentz distribution.
@@ -397,7 +401,7 @@ module NegativeBinomial : sig
       with method of moments. *)
   val mme : int array -> t
 
-  (** Creates negative Binomial distribution a MLE of parameters,
+  (** Creates negative Binomial distribution with a MLE of parameters,
       estimated from given data. *)
   val mle : n_iter:int -> epsilon:float -> int array -> t
 end

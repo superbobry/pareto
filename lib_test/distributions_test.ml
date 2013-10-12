@@ -24,11 +24,23 @@ let test_categorical () =
       (Strings.cumulative_probability d "$") 0.
   end
 
-let test_nb_mle () =
+
+let test_gamma_mle () =
+  let shape = Uniform.(random (create ~lower:0. ~upper:42.))
+  and scale = Uniform.(random (create ~lower:0. ~upper:42.)) in
+  let open Gamma in
+  let vs = sample ~size:(1 lsl 16) (create ~shape ~scale) in
+  let { gamma_shape; gamma_scale } = mle ~n_iter:100 ~epsilon:1e-6 vs in
+  begin
+    assert_almost_equal ~msg:"shape" ~epsilon:0.01 shape gamma_shape;
+    assert_almost_equal ~msg:"scale" ~epsilon:0.01 scale gamma_scale
+  end
+
+and test_nb_mle () =
   let r = Uniform.(random (create ~lower:0. ~upper:42.))
   and p = Uniform.(random (create ~lower:0. ~upper:1.)) in
   let open NegativeBinomial in
-  let vs = sample ~size:8092 (create ~failures:r ~p) in
+  let vs = sample ~size:(1 lsl 16) (create ~failures:r ~p) in
   let { nbinomial_failures; nbinomial_p } =
     mle ~n_iter:100 ~epsilon:1e-6 vs
   in begin
@@ -38,12 +50,13 @@ let test_nb_mle () =
     assert_almost_equal
       ~msg:"number of failures" ~epsilon:1. r nbinomial_failures;
     assert_almost_equal
-      ~msg:"probability of success" ~epsilon:0.1 p nbinomial_p
+      ~msg:"probability of success" ~epsilon:0.01 p nbinomial_p
   end
 
 
 let test = "Distributions" >::: [
     "categorical" >:: test_categorical;
 
+    "Gamma MLE" >:: test_gamma_mle;
     "Negative-Binomial MLE" >:: test_nb_mle
   ]
