@@ -37,7 +37,7 @@ Executable test_runner
   CompiledObject:     best
   Install:            false
   BuildDepends:       pareto
-                    , oUnit (>= 1.0.2)
+                    , oUnit (>= 2.0.0)
 
 Test lib_test
   Run$:               flag(tests)
