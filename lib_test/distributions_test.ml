@@ -24,7 +24,26 @@ let test_categorical () =
       (Strings.cumulative_probability d "$") 0.
   end
 
+let test_nb_mle () =
+  let r = Uniform.(random (create ~lower:0. ~upper:42.))
+  and p = Uniform.(random (create ~lower:0. ~upper:1.)) in
+  let open NegativeBinomial in
+  let vs = sample ~size:8092 (create ~failures:r ~p) in
+  let { nbinomial_failures; nbinomial_p } =
+    mle ~n_iter:100 ~epsilon:1e-6 vs
+  in begin
+    (* TODO(superbobry): this is a VERY rough test. I'm not sure if we can
+       do significantly better, because 'r' is challenging to estimate
+       accurately over a small sample. *)
+    assert_almost_equal
+      ~msg:"number of failures" ~epsilon:1. r nbinomial_failures;
+    assert_almost_equal
+      ~msg:"probability of success" ~epsilon:0.1 p nbinomial_p
+  end
+
 
 let test = "Distributions" >::: [
-    "categorical" >:: test_categorical
+    "categorical" >:: test_categorical;
+
+    "Negative-Binomial MLE" >:: test_nb_mle
   ]

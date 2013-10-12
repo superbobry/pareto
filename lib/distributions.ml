@@ -30,6 +30,7 @@ module type BaseDistribution = sig
   type elt
   type t
 
+  val random : ?rng:Rng.t -> t -> elt
   val sample : ?rng:Rng.t -> size:int -> t -> elt array
 end
 
@@ -49,11 +50,11 @@ module type ContinuousDistribution = sig
 end
 
 
-let make_sampler generate ?rng ~size d =
-  let init = generate ?rng d in
+let make_sampler random ?rng ~size d =
+  let init = random ?rng d in
   let vs   = Array.make size init in begin
     for i = 1 to size - 1 do
-      Array.unsafe_set vs i (generate ?rng d)
+      Array.unsafe_set vs i (random ?rng d)
     done; vs
   end
 
@@ -87,9 +88,9 @@ module Normal = struct
   and skewness _d = 0.
   and kurtosis _d = 0.
 
-  let generate ?(rng=default_rng) { normal_mean; normal_sd } =
+  let random ?(rng=default_rng) { normal_mean; normal_sd } =
     Randist.gaussian ~sigma:normal_sd rng +. normal_mean
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mle vs =
     let mean = Sample.mean vs in
@@ -130,9 +131,9 @@ module LogNormal = struct
     let sd2 = sqr lognormal_sd in
     exp (4. *. sd2) +. 2. *. exp (3. *. sd2) +. 3. *. exp (2. *. sd2) -. 6.
 
-  let generate ?(rng=default_rng) { lognormal_mean; lognormal_sd } =
+  let random ?(rng=default_rng) { lognormal_mean; lognormal_sd } =
     Randist.lognormal ~zeta:lognormal_mean ~sigma:lognormal_sd rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mle vs =
     let log_vs = Array.map ~f:log vs in
@@ -170,9 +171,9 @@ module Uniform = struct
   and skewness _d = 0.
   and kurtosis _d = -6. /. 5.
 
-  let generate ?(rng=default_rng) { uniform_lower; uniform_upper } =
+  let random ?(rng=default_rng) { uniform_lower; uniform_upper } =
     Randist.flat ~a:uniform_lower ~b:uniform_upper rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mle vs = create ~lower:(Sample.min vs) ~upper:(Sample.max vs)
 end
@@ -200,9 +201,9 @@ module Exponential = struct
   and skewness _d = 2.
   and kurtosis _d = 6.
 
-  let generate ?(rng=default_rng) { exp_rate } =
+  let random ?(rng=default_rng) { exp_rate } =
     Randist.exponential ~mu:exp_rate rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mle vs = create ~rate:(1. /. Sample.mean vs)
 end
@@ -229,9 +230,9 @@ module ChiSquared = struct
   and skewness { chisq_df } = sqrt (8. /. chisq_df)
   and kurtosis { chisq_df } = 12. /. chisq_df
 
-  let generate ?(rng=default_rng) { chisq_df } =
+  let random ?(rng=default_rng) { chisq_df } =
     Randist.chisq ~nu:chisq_df rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mme vs = create ~df:(round (Sample.mean vs))
 end
@@ -281,9 +282,9 @@ module F = struct
                  (f_df1 *. (f_df2 -. 6.) *. (f_df2 -. 8.) *.
                     (f_df1 +. f_df2 -. 2.)))
 
-  let generate ?(rng=default_rng) { f_df1; f_df2 } =
+  let random ?(rng=default_rng) { f_df1; f_df2 } =
     Randist.fdist ~nu1:f_df1 ~nu2:f_df2 rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mme vs =
     let mean     = Sample.mean vs in
@@ -330,8 +331,8 @@ module T = struct
     then Some infinity
     else None
 
-  let generate ?(rng=default_rng) { t_df } = Randist.tdist ~nu:t_df rng
-  let sample = make_sampler generate
+  let random ?(rng=default_rng) { t_df } = Randist.tdist ~nu:t_df rng
+  let sample = make_sampler random
 
   let mme vs =
     let variance = Sample.variance vs in
@@ -369,9 +370,9 @@ module Gamma = struct
   and skewness { gamma_shape; _ } = 2. /. sqrt gamma_shape
   and kurtosis { gamma_shape; _ } = 6. /. gamma_shape
 
-  let generate ?(rng=default_rng) { gamma_shape; gamma_scale } =
+  let random ?(rng=default_rng) { gamma_shape; gamma_scale } =
     Randist.gamma ~a:gamma_shape ~b:gamma_scale rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mme vs =
     let mean     = Sample.mean vs in
@@ -403,9 +404,9 @@ module Cauchy = struct
     then invalid_arg "Cauchy.quantile: p must be in range [0, 1]"
     else Cdf.cauchy_Pinv ~a:cauchy_scale ~p +. cauchy_location
 
-  let generate ?(rng=default_rng) { cauchy_location; cauchy_scale } =
+  let random ?(rng=default_rng) { cauchy_location; cauchy_scale } =
     Randist.cauchy ~a:cauchy_scale rng +. cauchy_location
-  let sample = make_sampler generate
+  let sample = make_sampler random
 end
 
 module Beta = struct
@@ -439,9 +440,9 @@ module Beta = struct
     6. *. (sqr (a -. b) *. (a +. b +. 1.) -. a *. b *. (a +. b +. 2.)) /.
       (a *. b *. (a +. b +. 2.) *. (a +. b +. 3.))
 
-  let generate ?(rng=default_rng) { beta_alpha; beta_beta } =
+  let random ?(rng=default_rng) { beta_alpha; beta_beta } =
     Randist.beta ~a:beta_alpha ~b:beta_beta rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mme vs =
     let mean     = Sample.mean vs in
@@ -478,9 +479,9 @@ module Logistic = struct
   and skewness _d = 0.
   and kurtosis _d = 1.2
 
-  let generate ?(rng=default_rng) { logistic_location; logistic_scale } =
+  let random ?(rng=default_rng) { logistic_location; logistic_scale } =
     Randist.logistic ~a:logistic_scale rng +. logistic_location
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mme vs =
     let mean     = Sample.mean vs in
@@ -510,9 +511,9 @@ module Poisson = struct
   and skewness { poisson_rate } = 1. /. sqrt poisson_rate
   and kurtosis { poisson_rate } = 1. /. poisson_rate
 
-  let generate ?(rng=default_rng) { poisson_rate } =
+  let random ?(rng=default_rng) { poisson_rate } =
     Randist.poisson ~mu:poisson_rate rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mle vs = create ~rate:(Sample.mean (Array.map ~f:float_of_int vs))
 end
@@ -547,9 +548,9 @@ module Bernoulli = struct
   and kurtosis { bernoulli_p = p } =
     (1. -. 6. *. p *. (1. -. p)) /. (p *. (1. -. p))
 
-  let generate ?(rng=default_rng) { bernoulli_p } =
+  let random ?(rng=default_rng) { bernoulli_p } =
     Randist.bernoulli ~p:bernoulli_p rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mle vs =
     let n = Array.length vs
@@ -585,9 +586,9 @@ module Binomial = struct
   and kurtosis { binomial_trials = n; binomial_p = p } =
     (1. -. 6. *. p *. (1. -. p)) /. (float_of_int n *. p *. (1. -. p))
 
-  let generate ?(rng=default_rng) { binomial_trials; binomial_p } =
+  let random ?(rng=default_rng) { binomial_trials; binomial_p } =
     Randist.binomial ~n:binomial_trials ~p:binomial_p rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mme vs =
     let vs   = Array.map ~f:float_of_int vs in
@@ -620,9 +621,9 @@ module Geometric = struct
   and kurtosis { geometric_p } =
     6. +. sqr geometric_p /. (1. -. geometric_p)
 
-  let generate ?(rng=default_rng) { geometric_p } =
+  let random ?(rng=default_rng) { geometric_p } =
     Randist.geometric ~p:geometric_p rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 
   let mme vs =
     let n = Array.length vs in
@@ -678,20 +679,20 @@ module Hypergeometric = struct
           6. *. k *. m *. (t -. m) *. (t -. k) *. (5. *. t -. 6.)) /.
          (k *. m *. (t -. m) *. (t -. k) *. (t -. 2.) *. (t -. 3.))
 
-  let generate ?(rng=default_rng) { hyper_m; hyper_t; hyper_k } =
+  let random ?(rng=default_rng) { hyper_m; hyper_t; hyper_k } =
     Randist.hypergeometric ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k rng
-  let sample = make_sampler generate
+  let sample = make_sampler random
 end
 
 module NegativeBinomial = struct
   type elt = int
   type t   = {
-    nbinomial_failures : int;
+    nbinomial_failures : float;
     nbinomial_p        : float
   }
 
   let create ~failures ~p =
-    if failures < 0
+    if failures < 0.
     then invalid_arg ("NegativeBinomial.create: number of failures must " ^
                       "be non negative")
     else if p >= 1.0 || p <= 0.
@@ -699,33 +700,69 @@ module NegativeBinomial = struct
     else { nbinomial_failures = failures; nbinomial_p = p }
 
   let cumulative_probability { nbinomial_failures; nbinomial_p } ~n =
-    Cdf.negative_binomial_P
-      ~n:(float_of_int nbinomial_failures) ~p:nbinomial_p ~k:n
+    Cdf.negative_binomial_P ~n:nbinomial_failures ~p:(1. -. nbinomial_p) ~k:n
 
   let probability { nbinomial_failures; nbinomial_p } ~n =
-    Randist.negative_binomial_pdf
-      ~n:(float_of_int nbinomial_failures) ~p:nbinomial_p n
+    Randist.negative_binomial_pdf ~n:nbinomial_failures ~p:(1. -. nbinomial_p) n
 
   let mean { nbinomial_failures = r; nbinomial_p = p } =
-    float_of_int r *. p /. (1. -. p)
+    r *. p /. (1. -. p)
   and variance { nbinomial_failures = r; nbinomial_p = p } =
-    float_of_int r *. p *. sqr (1. -. p)
+    r *. p *. sqr (1. -. p)
   and skewness { nbinomial_failures = r; nbinomial_p = p } =
-    (1. +. p) /. sqrt (float_of_int r *. p)
+    (1. +. p) /. sqrt (r *. p)
   and kurtosis { nbinomial_failures = r; nbinomial_p = p } =
-    6. /. float_of_int r +. sqr (1. +. p) /. (float_of_int r *. p)
+    6. /. r +. sqr (1. +. p) /. (r *. p)
 
-  let generate ?(rng=default_rng) { nbinomial_failures; nbinomial_p } =
-    Randist.negative_binomial
-      ~n:(float_of_int nbinomial_failures) ~p:nbinomial_p rng
-  let sample = make_sampler generate
+  let random ?(rng=default_rng) { nbinomial_failures; nbinomial_p } =
+    Randist.negative_binomial ~n:nbinomial_failures ~p:(1. -. nbinomial_p) rng
+  let sample = make_sampler random
 
   let mme vs =
     let vs       = Array.map ~f:float_of_int vs in
     let mean     = Sample.mean vs in
     let variance = Sample.variance ~mean vs in
-    create ~failures:(round (sqr mean /. (variance -. mean)))
+    create
+      ~failures:(sqr mean /. (variance -. mean))
       ~p:(1. -. mean /. variance)
+
+  let mle ~n_iter ~epsilon vs =
+    if n_iter <= 0
+    then invalid_arg ("NegativeBinomial.mle: number of iterations " ^
+                        "should be positive");
+    let sum = float_of_int (Array.fold_left ~f:(+) ~init:0 vs) in
+    let n   = float_of_int (Array.length vs) in
+    let rec fdf r =
+      let p   = sum /. (n *. r +. sum) in
+      let df0 = ref (n *. (-. Gsl.Sf.psi r +. log (1. -. p)))
+      and df1 = ref (n *. (-. Gsl.Sf.psi_1 r +. p /. r)) in begin
+        for i = 0 to Array.length vs - 1 do
+          let v = float_of_int (Array.unsafe_get vs i) in
+          df0 := !df0 +. Gsl.Sf.psi (v +. r);
+          df1 := !df1 +. Gsl.Sf.psi_1 (v +. r)
+        done; (!df0, !df1)
+      end
+    and f r  = fst (fdf r)
+    and df r = snd (fdf r) in
+
+    let { nbinomial_failures = initial; _ } = mme vs in
+    let open Gsl.Root.Polish in
+    let solver = make NEWTON { f; df; fdf } initial in begin
+      let counter = ref n_iter
+      and r0 = ref nan
+      and r1 = ref initial in begin
+        while !counter > 0 &&
+              (!r0 <> !r0 || abs_float (!r0 -. !r1) > epsilon)
+        do
+          iterate solver;
+          decr counter;
+          r0 := !r1;
+          r1 := root solver
+        done
+      end;
+
+      create ~failures:!r1 ~p:(sum /. (n *. !r1 +. sum))
+    end
 end
 
 module Categorical = struct
@@ -793,11 +830,11 @@ module Categorical = struct
         | Some pos -> Array.unsafe_get categorical_probs pos
         | None     -> 0.
 
-    let generate ?(rng=default_rng)
+    let random ?(rng=default_rng)
         { categorical_values; categorical_cumsum; _ } =
       let pos = Randist.discrete rng categorical_cumsum in
       Array.unsafe_get categorical_values pos
-    let sample = make_sampler generate
+    let sample = make_sampler random
 
     let mle vs =
       let n = Array.length vs in

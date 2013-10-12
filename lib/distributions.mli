@@ -29,6 +29,9 @@ module type DiscreteDistribution = sig
   type elt
   type t
 
+  (** Samples a single point from the distribution. *)
+  val random : ?rng:Gsl.Rng.t -> t -> elt
+
   (** Samples [size] data points from the distribution. *)
   val sample : ?rng:Gsl.Rng.t -> size:int -> t -> elt array
 
@@ -46,6 +49,9 @@ end
 module type ContinuousDistribution = sig
   type elt
   type t
+
+  (** Samples a single point from the distribution. *)
+  val random : ?rng:Gsl.Rng.t -> t -> elt
 
   (** Samples [size] data points from the distribution. *)
   val sample : ?rng:Gsl.Rng.t -> size:int -> t -> elt array
@@ -372,11 +378,11 @@ end
 
 (** Negative Binomial distribution.
 
-    The probability distribution of the number of successes in a sequence
-    of Bernoulli trials before a specified  number of [failures] occur. *)
+    The probability distribution of the number of succeses in a sequence
+    of Bernoulli trials before a specified  number of [failures] occurs. *)
 module NegativeBinomial : sig
   type t = {
-    nbinomial_failures : int;
+    nbinomial_failures : float;
     nbinomial_p        : float
   }
 
@@ -385,11 +391,15 @@ module NegativeBinomial : sig
 
   (** Creates negative Binomial distribution with a given number of
       failures and success probability. *)
-  val create : failures:int -> p:float -> t
+  val create : failures:float -> p:float -> t
 
   (** Creates negative Binomial distribution with parameters, estimated
       with method of moments. *)
   val mme : int array -> t
+
+  (** Creates negative Binomial distribution a MLE of parameters,
+      estimated from given data. *)
+  val mle : n_iter:int -> epsilon:float -> int array -> t
 end
 
 module Categorical : sig
@@ -436,4 +446,4 @@ val bernoulli : p:float -> Bernoulli.t
 val binomial : trials:int -> p:float -> Binomial.t
 val geometric : p:float -> Geometric.t
 val hypergeometric : m:int -> t:int -> k:int -> Hypergeometric.t
-val negative_binomial : failures:int -> p:float -> NegativeBinomial.t
+val negative_binomial : failures:float -> p:float -> NegativeBinomial.t
