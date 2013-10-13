@@ -186,7 +186,7 @@ module Quantile = struct
       done
     end;
 
-    let bound ?(a=0) ~b i = Pervasives.(min (max i a) b) in
+    let bound ?(a=0) ~b i = Pervasives.min (Pervasives.max i a) b in
     let svs = Gsl.Gsl_sort.vector_flat_smallest
         (bound ~b:n (int_of_float (max js) + 1))
         (Gsl.Vector_flat.of_array vs) in

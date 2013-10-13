@@ -1,7 +1,5 @@
 (** Commonly used sample statistics. *)
 
-open Internal
-
 val min    : float array -> float
 val max    : float array -> float
 val minmax : float array -> (float * float)

@@ -64,8 +64,6 @@ let is_not_nan (x : float) = x = x
 
 let round x = int_of_float (floor (x +. 0.5))
 
-let invalid_arg s = raise (Invalid_argument s)
-
 
 module Array = struct
   include Array

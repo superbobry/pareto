@@ -1,7 +1,5 @@
 (** Statistical testing. *)
 
-open Internal
-
 type test_alternative = Less | Greater | TwoSided
 
 type test_result = {

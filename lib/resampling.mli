@@ -1,7 +1,5 @@
 (** Resampling statistics. *)
 
-open Internal
-
 (** Repeatidly resamples a given data set with replacement, computing a
     statistical estimate over the resampled data. *)
 val resample

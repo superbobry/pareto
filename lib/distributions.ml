@@ -384,14 +384,14 @@ module Gamma = struct
     and mean_log = Sample.mean (Array.map ~f:log vs) in
     let s        = log_mean -. mean_log in
 
-    let rec f logk = logk -. Gsl.Sf.psi (exp logk) -. s
-    and df logk    = 1. -. exp logk *. Gsl.Sf.psi_1 (exp logk) in
+    let f logk  = logk -. Gsl.Sf.psi (exp logk) -. s
+    and df logk = 1. -. exp logk *. Gsl.Sf.psi_1 (exp logk) in
 
     let logk = find_root_newton
         ~n_iter ~epsilon
         ~init:(log (3. -. s +. sqrt (sqr (s -. 3.) +. 24. *. s)) -.
                  log 12. -. log s)
-        Gsl.Root.Polish.({ f; df; fdf = fun logk -> (f logk, df logk) })
+        Gsl.Fun.({ f; df; fdf = fun logk -> (f logk, df logk) })
     in create ~shape:(exp logk) ~scale:(Sample.mean vs /. exp logk)
 end
 
@@ -744,6 +744,7 @@ module NegativeBinomial = struct
       ~p:(1. -. mean /. variance)
 
   let mle ~n_iter ~epsilon vs =
+    (* TODO(superbobry): try exp-trick for 'failures'. *)
     if n_iter <= 0
     then invalid_arg ("NegativeBinomial.mle: number of iterations " ^
                         "should be positive");
@@ -766,7 +767,7 @@ module NegativeBinomial = struct
     let r = find_root_newton
         ~n_iter ~epsilon
         ~init:nbinomial_failures
-        Gsl.Root.Polish.({ f; df; fdf })
+        Gsl.Fun.({ f; df; fdf })
     in create ~failures:r ~p:(sum /. (len *. r +. sum))
 end
 
