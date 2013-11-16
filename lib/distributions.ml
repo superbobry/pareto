@@ -180,32 +180,32 @@ end
 
 module Exponential = struct
   type elt = float
-  type t   = { exp_rate : float }
+  type t   = { exp_scale : float }
 
-  let create ~rate =
-    if rate > 0.
-    then { exp_rate = rate }
-    else invalid_arg "Exponential.create: rate must be positive"
+  let create ~scale =
+    if scale > 0.
+    then { exp_scale = scale }
+    else invalid_arg "Exponential.create: scale must be positive"
 
-  let cumulative_probability { exp_rate } = Cdf.exponential_P ~mu:exp_rate
+  let cumulative_probability { exp_scale } = Cdf.exponential_P ~mu:exp_scale
 
-  let density { exp_rate } ~x =
-    Randist.exponential_pdf ~mu:exp_rate x
-  and quantile { exp_rate } ~p =
+  let density { exp_scale } ~x =
+    Randist.exponential_pdf ~mu:exp_scale x
+  and quantile { exp_scale } ~p =
     if p < 0. || p > 1.
     then invalid_arg "Exponential.quantile: p must be in range [0, 1]"
-    else Cdf.exponential_Pinv ~mu:exp_rate ~p
+    else Cdf.exponential_Pinv ~mu:exp_scale ~p
 
-  let mean { exp_rate } = 1. /. exp_rate
-  and variance { exp_rate } = 1. /. sqrt exp_rate
+  let mean { exp_scale } = exp_scale
+  and variance { exp_scale } = sqrt exp_scale
   and skewness _d = 2.
   and kurtosis _d = 6.
 
-  let random ?(rng=default_rng) { exp_rate } =
-    Randist.exponential ~mu:exp_rate rng
+  let random ?(rng=default_rng) { exp_scale } =
+    Randist.exponential ~mu:exp_scale rng
   let sample = make_sampler random
 
-  let mle vs = create ~rate:(1. /. Sample.mean vs)
+  let mle vs = create ~scale:(Sample.mean vs)
 end
 
 module ChiSquared = struct

@@ -137,13 +137,13 @@ end
     process, in which events occur continuously and independently at a
     constant average [rate]. *)
 module Exponential : sig
-  type t = { exp_rate : float }
+  type t = { exp_scale : float }
 
   include ContinuousDistribution with type t := t and type elt = float
   include Features.S with type t := t and type elt := float
 
-  (** Creates exponential distribution. [rate] must be positive. *)
-  val create : rate:float -> t
+  (** Creates exponential distribution. [scale] must be positive. *)
+  val create : scale:float -> t
 
   (** Creates exponential distribution with a MLE of parameters, estimated
       from given data. *)
@@ -436,7 +436,7 @@ end
 val normal : mean:float -> sd:float -> Normal.t
 val log_normal : mean:float -> sd:float -> LogNormal.t
 val uniform  : lower:float -> upper:float -> Uniform.t
-val exponential : rate:float -> Exponential.t
+val exponential : scale:float -> Exponential.t
 val chi_squared : df:int -> ChiSquared.t
 val f : df1:int -> df2:int -> F.t
 val t : df:float -> T.t
