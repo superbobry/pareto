@@ -19,7 +19,6 @@ Library pareto
   Path:              lib
   Pack:              true
   Modules:           Base
-                   , Algebra
                    , Distributions
                    , Resampling
                    , Sample
