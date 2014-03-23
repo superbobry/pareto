@@ -195,6 +195,9 @@ module Summary : sig
   (** Empty data set. *)
   val empty : t
 
+  (** Combines statistics from two data sets. *)
+  val combine : t -> t -> t
+
   (** Adds a value to the data set. *)
   val add : t -> float -> t
 
@@ -232,6 +235,4 @@ module Summary : sig
       {b Note}: for small sample sizes estimated value might be inaccurate,
       See issue #20. *)
   val kurtosis : t -> float
-
-  module Monoid : Algebra.Monoid.S with type t := t
 end

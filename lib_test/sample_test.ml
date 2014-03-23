@@ -31,7 +31,7 @@ and test_combined_summary ~size () =
   and v2  = Array.sub vs mid (size - mid) in
   let s1  = Array.fold_left Summary.add Summary.empty v1
   and s2  = Array.fold_left Summary.add Summary.empty v2 in
-  let s12 = Summary.Monoid.mappend s1 s2
+  let s12 = Summary.combine s1 s2
   and s   = Array.fold_left Summary.add Summary.empty vs in begin
     assert_almost_equal ~msg:"min" (Summary.min s) (Summary.min s12);
     assert_almost_equal ~msg:"max" (Summary.max s) (Summary.max s12);

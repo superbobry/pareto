@@ -336,6 +336,35 @@ module Summary = struct
     min_k = max_float;
   }
 
+  let combine t1 t2 =
+    if t1.k = 0
+    then t2
+    else if t2.k = 0
+    then t1
+    else
+      (* Note(superbobry): we can optimize it later, but right now I'd
+         rather have these formulas match Wikipedia _directly_. *)
+      let delta = t2.m_1 -. t1.m_1
+      and t1k   = float_of_int t1.k
+      and t2k   = float_of_int t2.k
+      and tnk   = float_of_int (t1.k + t2.k)
+      in {
+        m_1 = (t1k *. t1.m_1 +. t2k *. t2.m_1) /. tnk;
+        m_2 = t1.m_2 +. t2.m_2 +. sqr delta *. t1k *. t2k /. tnk;
+        m_3 = t1.m_3 +. t2.m_3
+              +. cube delta *. t1k *. t2k *. (t1k -. t2k) /. sqr tnk
+              +. 3. *. delta *. (t1k *. t2.m_2 -. t2k *. t1.m_2) /. tnk;
+        m_4 = t1.m_4 +. t2.m_4
+              +. ((delta ** 4.) *. t1k *. t2k *.
+                  (sqr t1k -. t1k *. t2k +. sqr t2k) /. cube tnk)
+              +. (6. *. sqr delta *.
+                  (sqr t1k *. t2.m_2 +. sqr t2k *.  t1.m_2) /. sqr tnk)
+              +. (4. *. delta *. (t1k *. t2.m_3 -. t2k *. t1.m_3) /. tnk);
+        k = t1.k + t2.k;
+        max_k = Pervasives.max t1.max_k t2.max_k;
+        min_k = Pervasives.min t1.min_k t2.min_k
+      }
+
   let add t x_k =
     let n_k       = float_of_int (succ t.k) in
     let delta     = x_k -. t.m_1 in
@@ -378,36 +407,4 @@ module Summary = struct
     if t.k = 0
     then nan
     else float_of_int t.k *. t.m_4 /. (t.m_2 *.  t.m_2) -. 3.
-
-  module Monoid = struct
-    let mempty = empty
-    and mappend t1 t2 =
-      if t1.k = 0
-      then t2
-      else if t2.k = 0
-      then t1
-      else
-        (* Note(superbobry): we can optimize it later, but right now I'd
-           rather have these formulas match Wikipedia _directly_. *)
-        let delta = t2.m_1 -. t1.m_1
-        and t1k   = float_of_int t1.k
-        and t2k   = float_of_int t2.k
-        and tnk   = float_of_int (t1.k + t2.k)
-        in {
-          m_1 = (t1k *. t1.m_1 +. t2k *. t2.m_1) /. tnk;
-          m_2 = t1.m_2 +. t2.m_2 +. sqr delta *. t1k *. t2k /. tnk;
-          m_3 = t1.m_3 +. t2.m_3
-                +. cube delta *. t1k *. t2k *. (t1k -. t2k) /. sqr tnk
-                +. 3. *. delta *. (t1k *. t2.m_2 -. t2k *. t1.m_2) /. tnk;
-          m_4 = t1.m_4 +. t2.m_4
-                +. ((delta ** 4.) *. t1k *. t2k *.
-                      (sqr t1k -. t1k *. t2k +. sqr t2k) /. cube tnk)
-                +. (6. *. sqr delta *.
-                      (sqr t1k *. t2.m_2 +. sqr t2k *.  t1.m_2) /. sqr tnk)
-                +. (4. *. delta *. (t1k *. t2.m_3 -. t2k *. t1.m_3) /. tnk);
-          k = t1.k + t2.k;
-          max_k = Pervasives.max t1.max_k t2.max_k;
-          min_k = Pervasives.min t1.min_k t2.min_k
-        }
-  end
 end
