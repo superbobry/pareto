@@ -29,7 +29,7 @@ let test_log_density () =
   end
 
 and test_log_probability () =
-  let go ~msg
+  let go msg
       (type t)
       (module D : DiscreteDistribution with type t = t and type elt = int)
       (d : t) =
@@ -43,6 +43,8 @@ and test_log_probability () =
     go "Bernoulli" (module Bernoulli) (bernoulli ~p:0.42);
     go "Binomial" (module Binomial) (binomial ~trials:42 ~p:0.42);
     go "Geometric" (module Geometric) (geometric ~p:0.42);
+    go "Hypergeometric" (module Hypergeometric)
+      (hypergeometric ~m:4 ~t:42 ~k:2);
     go "NegativeBinomial" (module NegativeBinomial)
       (negative_binomial ~failures:42. ~p:0.42);
   end

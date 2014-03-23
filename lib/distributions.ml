@@ -756,10 +756,12 @@ module Hypergeometric = struct
   let probability { hyper_m; hyper_t; hyper_k } ~n =
     Randist.hypergeometric_pdf ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k n
   and log_probability { hyper_m; hyper_t; hyper_k } ~n =
-    (* FIXME(superbobry): check this and handle edge cases! *)
-    Gsl.Sf.(lnchoose hyper_m n +.
-            lnchoose (hyper_t - hyper_m) (hyper_k - n) -.
-            lnchoose hyper_t hyper_k)
+    if n < max 0 (hyper_k - hyper_t + hyper_m) || n > min hyper_m hyper_k
+    then neg_infinity
+    else
+      Gsl.Sf.(lnchoose hyper_m n +.
+              lnchoose (hyper_t - hyper_m) (hyper_k - n) -.
+              lnchoose hyper_t hyper_k)
 
   let mean { hyper_m; hyper_t; hyper_k } =
     float_of_int (hyper_k * hyper_m) /. float_of_int hyper_t
