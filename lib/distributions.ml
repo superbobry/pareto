@@ -840,33 +840,6 @@ module NegativeBinomial = struct
     create
       ~failures:(sqr mean /. (variance -. mean))
       ~p:(1. -. mean /. variance)
-
-  let mle ~n_iter ~epsilon vs =
-    (* TODO(superbobry): try exp-trick for 'failures'. *)
-    if n_iter <= 0
-    then invalid_arg ("NegativeBinomial.mle: number of iterations " ^
-                        "should be positive");
-    let sum = float_of_int (Array.fold_left ~f:(+) ~init:0 vs)
-    and len = float_of_int (Array.length vs) in
-    let rec fdf r =
-      let p   = sum /. (len *. r +. sum) in
-      let df0 = ref (len *. (-. Gsl.Sf.psi r +. log (1. -. p)))
-      and df1 = ref (len *. (-. Gsl.Sf.psi_1 r +. p /. r)) in begin
-        for i = 0 to int_of_float len - 1 do
-          let v = float_of_int (Array.unsafe_get vs i) in
-          df0 := !df0 +. Gsl.Sf.psi (v +. r);
-          df1 := !df1 +. Gsl.Sf.psi_1 (v +. r)
-        done; (!df0, !df1)
-      end
-    and f r  = fst (fdf r)
-    and df r = snd (fdf r) in
-
-    let { nbinomial_failures; _ } = mme vs in
-    let r = find_root_newton
-        ~n_iter ~epsilon
-        ~init:nbinomial_failures
-        Gsl.Fun.({ f; df; fdf })
-    in create ~failures:r ~p:(sum /. (len *. r +. sum))
 end
 
 module Categorical = struct

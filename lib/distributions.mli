@@ -408,10 +408,6 @@ module NegativeBinomial : sig
   (** Creates negative Binomial distribution with parameters, estimated
       with method of moments. *)
   val mme : int array -> t
-
-  (** Creates negative Binomial distribution with a MLE of parameters,
-      estimated from given data. *)
-  val mle : n_iter:int -> epsilon:float -> int array -> t
 end
 
 module Categorical : sig
