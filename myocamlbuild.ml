@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 3329f614f5badba6beff1fac5bc1dc27) *)
+(* DO NOT EDIT (digest: 770190170848c7208a3e38d789113c8a) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -581,31 +581,9 @@ open Ocamlbuild_plugin;;
 let package_default =
   {
      MyOCamlbuildBase.lib_ocaml = [("pareto", ["lib"], [])];
-     lib_c = [("pareto", "lib", [])];
+     lib_c = [];
      flags =
        [
-          (["oasis_library_pareto_ccopt"; "compile"],
-            [
-               (OASISExpr.EBool true, S [A "-ccopt"; A "-O2"]);
-               (OASISExpr.EAnd
-                  (OASISExpr.EFlag "strict",
-                    OASISExpr.ETest ("ccomp_type", "cc")),
-                 S
-                   [
-                      A "-ccopt";
-                      A "-O2";
-                      A "-ccopt";
-                      A "-Wall";
-                      A "-ccopt";
-                      A "-pedantic";
-                      A "-ccopt";
-                      A "-Wextra";
-                      A "-ccopt";
-                      A "-Wunused";
-                      A "-ccopt";
-                      A "-Wno-long-long"
-                   ])
-            ]);
           (["oasis_library_pareto_byte"; "ocaml"; "link"; "byte"],
             [
                (OASISExpr.EBool true, S []);
@@ -763,6 +741,6 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 767 "myocamlbuild.ml"
+# 745 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

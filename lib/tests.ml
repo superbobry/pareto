@@ -378,19 +378,19 @@ module MannWhitneyU = struct
     else
       (* Exact critical value. *)
       let k  = int_of_float (min n1 n2) in
-      let c  = Combi.make (int_of_float n) k in
+      let c  = Gsl.Combi.make (int_of_float n) k in
       let c_n_k = Gsl.Sf.choose (int_of_float n) k in
       let le = ref 0 in
       let ge = ref 0 in
       begin
         for _i = 0 to int_of_float c_n_k - 1 do
-          let cu = Array.fold_left (Combi.to_array c) ~init:0.
+          let cu = Array.fold_left (Gsl.Combi.to_array c) ~init:0.
               ~f:(fun acc i -> acc +. Array.unsafe_get ranks i) -.
                      float_of_int (k * (k + 1)) /. 2.
           in begin
             if cu <= u then incr le;
             if cu >= u then incr ge;
-            Combi.next c
+            Gsl.Combi.next c
           end
         done;
 

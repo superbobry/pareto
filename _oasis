@@ -24,14 +24,10 @@ Library pareto
                    , Sample
                    , Tests
   InternalModules:   Internal
-  CSources:          mlgsl_extra.c
-  CCOpt:             -O2
-  if flag(strict) && ccomp_type(cc)
-    CCOpt+:          -Wall -pedantic -Wextra -Wunused -Wno-long-long
   if flag(strict)
     NativeOpt:       -w @a -warn-error -a
     ByteOpt:         -w @a -warn-error -a
-  BuildDepends:      gsl (>= 1.13.0)
+  BuildDepends:      gsl (>= 1.14.0)
 
 # Tests
 

@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: d67846ae6c1a12992ebb87843e5a2de0)
+# DO NOT EDIT (digest: 95172d124cd2eb0a07e45b8950563f3b)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -21,17 +21,11 @@
 "lib/sample.cmx": for-pack(Pareto)
 "lib/tests.cmx": for-pack(Pareto)
 "lib/internal.cmx": for-pack(Pareto)
-<lib/*.ml{,i}>: oasis_library_pareto_ccopt
-"lib/mlgsl_extra.c": oasis_library_pareto_ccopt
 <lib/pareto.{cma,cmxa}>: oasis_library_pareto_byte
 <lib/*.ml{,i}>: oasis_library_pareto_byte
-"lib/mlgsl_extra.c": oasis_library_pareto_byte
 <lib/pareto.{cma,cmxa}>: oasis_library_pareto_native
 <lib/*.ml{,i}>: oasis_library_pareto_native
-"lib/mlgsl_extra.c": oasis_library_pareto_native
-<lib/pareto.{cma,cmxa}>: use_libpareto_stubs
 <lib/*.ml{,i}>: package(gsl)
-"lib/mlgsl_extra.c": package(gsl)
 # Executable test_runner
 <lib_test/test_runner.{native,byte}>: package(gsl)
 <lib_test/test_runner.{native,byte}>: package(oUnit)
