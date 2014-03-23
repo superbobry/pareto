@@ -5,6 +5,49 @@ open Pareto.Distributions
 open Common
 
 
+let test_log_density () =
+  let go ~msg
+      (type t)
+      (module D : ContinuousDistribution with type t = t and type elt = float)
+      (d : t) =
+    for i = 0 to 100 do
+      let x = Uniform.(random (create ~lower:0. ~upper:42.)) in
+      assert_almost_equal ~msg (log (D.density d ~x)) (D.log_density d ~x)
+    done
+  in begin
+    go "Normal" (module Normal) (normal ~mean:4. ~sd:2.);
+    go "LogNormal" (module LogNormal) (log_normal ~mean:4. ~sd:2.);
+    go "Uniform" (module Uniform) (uniform ~lower:2. ~upper:4.);
+    go "Exponential" (module Exponential) (exponential ~scale:42.);
+    go "ChiSquared" (module ChiSquared) (chi_squared ~df:42);
+    go "F" (module F) (f ~df1:4 ~df2:2);
+    go "T" (module T) (t ~df:42.);
+    go "Gamma" (module Gamma) (gamma ~shape:4. ~scale:2.);
+    go "Cauchy" (module Cauchy) (cauchy ~location:4. ~scale:2.);
+    go "Beta" (module Beta) (beta ~alpha:4. ~beta:2.);
+    go "Logistic" (module Logistic) (logistic ~location:4. ~scale:2.)
+  end
+
+and test_log_probability () =
+  let go ~msg
+      (type t)
+      (module D : DiscreteDistribution with type t = t and type elt = int)
+      (d : t) =
+    for i = 0 to 100 do
+      let n = int_of_float (Uniform.(random (create ~lower:0. ~upper:42.))) in
+      assert_almost_equal ~msg:msg
+        (log (D.probability d ~n)) (D.log_probability d ~n)
+    done
+  in begin
+    go "Poisson" (module Poisson) (poisson ~rate:42.);
+    go "Bernoulli" (module Bernoulli) (bernoulli ~p:0.42);
+    go "Binomial" (module Binomial) (binomial ~trials:42 ~p:0.42);
+    go "Geometric" (module Geometric) (geometric ~p:0.42);
+    go "NegativeBinomial" (module NegativeBinomial)
+      (negative_binomial ~failures:42. ~p:0.42);
+  end
+
+
 let test_categorical () =
   let module Strings = Categorical.Make(String) in
   let d =
@@ -56,6 +99,8 @@ and test_nb_mle () =
 
 let test = "Distributions" >::: [
     "categorical" >:: test_categorical;
+    "density vs. log_density" >:: test_log_density;
+    "probability vs. log_probability" >:: test_log_probability;
 
     "Gamma MLE" >:: test_gamma_mle;
     "Negative-Binomial MLE" >:: test_nb_mle

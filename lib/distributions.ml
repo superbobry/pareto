@@ -1,6 +1,5 @@
 open Internal
 
-module Cdf = Gsl.Cdf
 module Randist = Gsl.Randist
 module Rng = Gsl.Rng
 
@@ -38,14 +37,19 @@ module type DiscreteDistribution = sig
   include BaseDistribution
 
   val cumulative_probability : t -> n:elt -> float
-  val probability : t -> n:elt -> float
+
+  val probability     : t -> n:elt -> float
+  val log_probability : t -> n:elt -> float
 end
 
 module type ContinuousDistribution = sig
   include BaseDistribution
 
   val cumulative_probability : t -> x:elt -> float
-  val density  : t -> x:elt -> float
+
+  val density     : t -> x:elt -> float
+  val log_density : t -> x:elt -> float
+
   val quantile : t -> p:float -> elt
 end
 
@@ -74,14 +78,18 @@ module Normal = struct
   let standard = create ~mean:0. ~sd:1.
 
   let cumulative_probability { normal_mean; normal_sd } ~x =
-    Cdf.gaussian_P ~sigma:normal_sd ~x:(x -. normal_mean)
+    Gsl.Cdf.gaussian_P ~sigma:normal_sd ~x:(x -. normal_mean)
 
   let density { normal_mean; normal_sd } ~x =
     Randist.gaussian_pdf ~sigma:normal_sd (x -. normal_mean)
-  and quantile { normal_mean; normal_sd } ~p =
+  and log_density { normal_mean; normal_sd } ~x =
+    let z = (x -. normal_mean) /. normal_sd in
+    -0.5 *. z *. z -. (log normal_sd +. 0.5 *. Gsl.Math.(ln2 +. lnpi))
+
+  let quantile { normal_mean; normal_sd } ~p =
     if p < 0. || p > 1.
     then invalid_arg "Normal.quantile: p must be in range [0, 1]"
-    else Cdf.gaussian_Pinv ~sigma:normal_sd ~p +. normal_mean
+    else Gsl.Cdf.gaussian_Pinv ~sigma:normal_sd ~p +. normal_mean
 
   let mean { normal_mean; _ } = normal_mean
   and variance { normal_sd; _ } = sqr normal_sd
@@ -111,14 +119,22 @@ module LogNormal = struct
     else invalid_arg "LogNormal.create: standard deviation must be positive"
 
   let cumulative_probability { lognormal_mean; lognormal_sd } ~x =
-    Cdf.lognormal_P ~zeta:lognormal_mean ~sigma:lognormal_sd ~x
+    Gsl.Cdf.lognormal_P ~zeta:lognormal_mean ~sigma:lognormal_sd ~x
 
   let density { lognormal_mean; lognormal_sd } ~x =
     Randist.lognormal_pdf ~zeta:lognormal_mean ~sigma:lognormal_sd x
-  and quantile { lognormal_mean; lognormal_sd } ~p =
+  and log_density { lognormal_mean; lognormal_sd } ~x =
+    if x <= 0.
+    then neg_infinity
+    else
+      let z = (log x -. lognormal_mean) /. lognormal_sd in
+      -. log x -. Gsl.Math.(ln2 +. lnpi) /. 2. -.
+      log lognormal_sd -. z *. z /. 2.
+
+  let quantile { lognormal_mean; lognormal_sd } ~p =
     if p < 0. || p > 1.
     then invalid_arg "LogNormal.quantile: p must be in range [0, 1]"
-    else Cdf.lognormal_Pinv ~zeta:lognormal_mean ~sigma:lognormal_sd ~p
+    else Gsl.Cdf.lognormal_Pinv ~zeta:lognormal_mean ~sigma:lognormal_sd ~p
 
   let mean { lognormal_mean; lognormal_sd } =
     exp (lognormal_mean +. sqr lognormal_sd)
@@ -155,14 +171,19 @@ module Uniform = struct
     else { uniform_lower = lower; uniform_upper = upper }
 
   let cumulative_probability { uniform_lower; uniform_upper } =
-    Cdf.flat_P ~a:uniform_lower ~b:uniform_upper
+    Gsl.Cdf.flat_P ~a:uniform_lower ~b:uniform_upper
 
   let density { uniform_lower; uniform_upper } ~x =
     Randist.flat_pdf ~a:uniform_lower ~b:uniform_upper x
-  and quantile { uniform_lower; uniform_upper } ~p =
+  and log_density { uniform_lower; uniform_upper } ~x =
+    if x < uniform_lower || x > uniform_upper
+    then neg_infinity
+    else -. log (uniform_upper -. uniform_lower)
+
+  let quantile { uniform_lower; uniform_upper } ~p =
     if p < 0. || p > 1.
     then invalid_arg "Uniform.quantile: p must be in range [0, 1]"
-    else Cdf.flat_Pinv ~a:uniform_lower ~b:uniform_upper ~p
+    else Gsl.Cdf.flat_Pinv ~a:uniform_lower ~b:uniform_upper ~p
 
   let mean { uniform_lower; uniform_upper } =
     0.5 *. (uniform_lower +. uniform_upper)
@@ -187,14 +208,19 @@ module Exponential = struct
     then { exp_scale = scale }
     else invalid_arg "Exponential.create: scale must be positive"
 
-  let cumulative_probability { exp_scale } = Cdf.exponential_P ~mu:exp_scale
+  let cumulative_probability { exp_scale } = Gsl.Cdf.exponential_P ~mu:exp_scale
 
   let density { exp_scale } ~x =
     Randist.exponential_pdf ~mu:exp_scale x
-  and quantile { exp_scale } ~p =
+  and log_density { exp_scale } ~x =
+    if x < 0.
+    then neg_infinity
+    else -. x /. exp_scale -. log exp_scale
+
+  let quantile { exp_scale } ~p =
     if p < 0. || p > 1.
     then invalid_arg "Exponential.quantile: p must be in range [0, 1]"
-    else Cdf.exponential_Pinv ~mu:exp_scale ~p
+    else Gsl.Cdf.exponential_Pinv ~mu:exp_scale ~p
 
   let mean { exp_scale } = exp_scale
   and variance { exp_scale } = sqrt exp_scale
@@ -217,13 +243,21 @@ module ChiSquared = struct
     then invalid_arg "ChiSquared.create: degrees of freedom must be non negative"
     else { chisq_df = float_of_int df }
 
-  let cumulative_probability { chisq_df } = Cdf.chisq_P ~nu:chisq_df
+  let cumulative_probability { chisq_df } = Gsl.Cdf.chisq_P ~nu:chisq_df
 
   let density { chisq_df } ~x = Randist.chisq_pdf ~nu:chisq_df x
-  and quantile { chisq_df } ~p =
+  and log_density { chisq_df } ~x =
+    if x < 0.
+    then neg_infinity
+    else
+      let k2 = chisq_df /. 2. in
+      -. k2 *. Gsl.Math.ln2 -. Gsl.Sf.lngamma k2 +.
+      (k2 -. 1.) *. log x -. x /. 2.
+
+  let quantile { chisq_df } ~p =
     if p < 0. || p > 1.
     then invalid_arg "ChiSquared.quantile: p must be in range [0, 1]"
-    else Cdf.chisq_Pinv ~nu:chisq_df ~p
+    else Gsl.Cdf.chisq_Pinv ~nu:chisq_df ~p
 
   let mean { chisq_df } = chisq_df
   and variance { chisq_df } = 2. *. chisq_df
@@ -250,14 +284,21 @@ module F = struct
     else { f_df1 = float_of_int df1; f_df2 = float_of_int df2 }
 
   let cumulative_probability { f_df1; f_df2 } =
-    Cdf.fdist_P ~nu1:f_df1 ~nu2:f_df2
+    Gsl.Cdf.fdist_P ~nu1:f_df1 ~nu2:f_df2
 
   let density { f_df1; f_df2 } ~x =
     Randist.fdist_pdf ~nu1:f_df1 ~nu2:f_df2 x
-  and quantile { f_df1; f_df2 } ~p =
+  and log_density { f_df1; f_df2; } ~x =
+    let f_df12 = f_df1 /. 2.
+    and f_df22 = f_df2 /. 2.
+    in f_df12 *. (log f_df1 +. log x) +. f_df22 *. log f_df2 -.
+       (f_df12 +. f_df22) *. log (f_df1 *. x +. f_df2) -.
+       log x -. Gsl.Sf.lnbeta f_df12 f_df22
+
+  let quantile { f_df1; f_df2 } ~p =
     if p < 0. || p > 1.
     then invalid_arg "F.quantile: p must be in range [0, 1]"
-    else Cdf.fdist_Pinv ~nu1:f_df1 ~nu2:f_df2 ~p
+    else Gsl.Cdf.fdist_Pinv ~nu1:f_df1 ~nu2:f_df2 ~p
 
   let mean_opt { f_df2; _ } =
     if f_df2 <= 2.
@@ -305,13 +346,19 @@ module T = struct
     then invalid_arg "T.create: degrees of freedom must be non negative"
     else { t_df = df }
 
-  let cumulative_probability { t_df } = Cdf.tdist_P ~nu:t_df
+  let cumulative_probability { t_df } = Gsl.Cdf.tdist_P ~nu:t_df
 
   let density { t_df } ~x = Randist.tdist_pdf ~nu:t_df x
-  and quantile { t_df } ~p =
+  and log_density { t_df } ~x =
+    Gsl.Sf.lngamma ((t_df +. 1.) /. 2.) -.
+    (log t_df +. Gsl.Math.lnpi) /. 2. -.
+    Gsl.Sf.lngamma (t_df /. 2.) -.
+    (t_df +. 1.) /. 2. *. Gsl.Sf.log_1plusx (x *. x /. t_df)
+
+  let quantile { t_df } ~p =
     if p < 0. || p > 1.
     then invalid_arg "T.quantile: p must be in range [0, 1]"
-    else Cdf.tdist_Pinv ~nu:t_df ~p
+    else Gsl.Cdf.tdist_Pinv ~nu:t_df ~p
 
   let mean_opt { t_df } = if t_df > 0. then Some 0. else None
   and variance_opt { t_df } =
@@ -356,14 +403,21 @@ module Gamma = struct
     else { gamma_shape = shape; gamma_scale = scale }
 
   let cumulative_probability { gamma_shape; gamma_scale } =
-    Cdf.gamma_P ~a:gamma_shape ~b:gamma_scale
+    Gsl.Cdf.gamma_P ~a:gamma_shape ~b:gamma_scale
 
   let density { gamma_shape; gamma_scale } ~x =
     Randist.gamma_pdf ~a:gamma_shape ~b:gamma_scale x
-  and quantile { gamma_shape; gamma_scale } ~p =
+  and log_density { gamma_shape; gamma_scale } ~ x =
+    if x <= 0.
+    then neg_infinity
+    else
+      -. Gsl.Sf.lngamma gamma_shape -. gamma_shape *. log gamma_scale +.
+      (gamma_shape -. 1.) *. log x -. x /. gamma_scale
+
+  let quantile { gamma_shape; gamma_scale } ~p =
     if p < 0. || p > 1.
     then invalid_arg "Gamma.quantile: p must be in range [0, 1]"
-    else Cdf.gamma_Pinv ~a:gamma_shape ~b:gamma_scale ~p
+    else Gsl.Cdf.gamma_Pinv ~a:gamma_shape ~b:gamma_scale ~p
 
   let mean { gamma_shape; gamma_scale } = gamma_shape *. gamma_scale
   and variance { gamma_shape; gamma_scale } = gamma_shape *. sqr gamma_scale
@@ -410,14 +464,18 @@ module Cauchy = struct
   let standard = create ~location:0. ~scale:1.
 
   let cumulative_probability { cauchy_location; cauchy_scale } ~x =
-    Cdf.cauchy_P ~a:cauchy_scale ~x:(x -. cauchy_location)
+    Gsl.Cdf.cauchy_P ~a:cauchy_scale ~x:(x -. cauchy_location)
 
   let density { cauchy_location; cauchy_scale } ~x =
     Randist.cauchy_pdf ~a:cauchy_scale (x -. cauchy_location)
-  and quantile { cauchy_location; cauchy_scale } ~p =
+  and log_density { cauchy_location; cauchy_scale } ~x =
+    let z = (x -. cauchy_location) /. cauchy_scale in
+    -. (Gsl.Math.lnpi +. log cauchy_scale +. Gsl.Sf.log_1plusx (z *. z))
+
+  let quantile { cauchy_location; cauchy_scale } ~p =
     if p < 0. || p > 1.
     then invalid_arg "Cauchy.quantile: p must be in range [0, 1]"
-    else Cdf.cauchy_Pinv ~a:cauchy_scale ~p +. cauchy_location
+    else Gsl.Cdf.cauchy_Pinv ~a:cauchy_scale ~p +. cauchy_location
 
   let random ?(rng=default_rng) { cauchy_location; cauchy_scale } =
     Randist.cauchy ~a:cauchy_scale rng +. cauchy_location
@@ -437,14 +495,21 @@ module Beta = struct
     else { beta_alpha = alpha; beta_beta = beta }
 
   let cumulative_probability { beta_alpha; beta_beta } =
-    Cdf.beta_P ~a:beta_alpha ~b:beta_beta
+    Gsl.Cdf.beta_P ~a:beta_alpha ~b:beta_beta
 
   let density { beta_alpha; beta_beta } ~x =
     Randist.beta_pdf ~a:beta_alpha ~b:beta_beta x
-  and quantile { beta_alpha; beta_beta } ~p =
+  and log_density { beta_alpha; beta_beta } ~x =
+    if x < 0. || x > 1.
+    then neg_infinity
+    else
+      (beta_alpha -. 1.) *. log x +. (beta_beta -. 1.) *. log (1. -. x) -.
+      Gsl.Sf.lnbeta beta_alpha beta_beta
+
+  let quantile { beta_alpha; beta_beta } ~p =
     if p < 0. || p > 1.
     then invalid_arg "Beta.quantile: p must be in range [0, 1]"
-    else Cdf.beta_Pinv ~a:beta_alpha ~b:beta_beta ~p
+    else Gsl.Cdf.beta_Pinv ~a:beta_alpha ~b:beta_beta ~p
 
   let mean { beta_alpha = a; beta_beta = b } = a /. (a +. b)
   and variance { beta_alpha = a; beta_beta = b} =
@@ -479,14 +544,18 @@ module Logistic = struct
     else { logistic_location = location; logistic_scale = scale }
 
   let cumulative_probability { logistic_location; logistic_scale } ~x =
-    Cdf.logistic_P ~a:logistic_scale ~x:(x -. logistic_location)
+    Gsl.Cdf.logistic_P ~a:logistic_scale ~x:(x -. logistic_location)
 
   let density { logistic_location; logistic_scale } ~x =
     Randist.logistic_pdf ~a:logistic_scale (x -. logistic_location)
-  and quantile { logistic_location; logistic_scale } ~p =
+  and log_density { logistic_location; logistic_scale } ~x =
+    let z = (x -. logistic_location) /. logistic_scale in
+    -. z -. log logistic_scale -. 2. *. (Gsl.Sf.log_1plusx (exp (-. z)))
+
+  let quantile { logistic_location; logistic_scale } ~p =
     if p < 0. || p > 1.
     then invalid_arg "Logistic.quantile: p must be in range [0, 1]"
-    else Cdf.logistic_Pinv ~a:logistic_scale ~p +. logistic_location
+    else Gsl.Cdf.logistic_Pinv ~a:logistic_scale ~p +. logistic_location
 
   let mean { logistic_location; _ } = logistic_location
   and variance { logistic_scale; _ } =
@@ -516,10 +585,16 @@ module Poisson = struct
     else invalid_arg "Poisson.create: rate must be positive"
 
   let cumulative_probability { poisson_rate } ~n =
-    Cdf.poisson_P ~mu:poisson_rate ~k:n
+    Gsl.Cdf.poisson_P ~mu:poisson_rate ~k:n
 
   let probability { poisson_rate } ~n =
     Randist.poisson_pdf ~mu:poisson_rate n
+  and log_probability { poisson_rate } ~n =
+    if n < 0
+    then neg_infinity
+    else
+      float n *. log poisson_rate -.
+      Gsl.Sf.lngamma (float (n + 1)) -. poisson_rate
 
   let mean { poisson_rate } = poisson_rate
   and variance { poisson_rate } = poisson_rate
@@ -555,6 +630,7 @@ module Bernoulli = struct
     else if n = 1
     then p
     else 0.
+  let log_probability d ~n = log (probability d ~n)
 
   let mean { bernoulli_p = p } = p
   and variance { bernoulli_p = p } = p *. (1. -. p)
@@ -588,10 +664,16 @@ module Binomial = struct
     else { binomial_trials = trials; binomial_p = p }
 
   let cumulative_probability { binomial_trials; binomial_p } ~n =
-    Cdf.binomial_P ~n:binomial_trials ~p:binomial_p ~k:n
+    Gsl.Cdf.binomial_P ~n:binomial_trials ~p:binomial_p ~k:n
 
   let probability { binomial_trials; binomial_p } ~n =
     Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p n
+  and log_probability { binomial_trials; binomial_p } ~n =
+    if n < 0 || n > binomial_trials
+    then neg_infinity
+    else
+      Gsl.Sf.lnchoose binomial_trials n +. float n *. log binomial_p +.
+      float (binomial_trials - n) *. log (1. -. binomial_p)
 
   let mean { binomial_trials = n; binomial_p = p } = float_of_int n *. p
   and variance { binomial_trials = n; binomial_p = p } =
@@ -623,10 +705,14 @@ module Geometric = struct
     else { geometric_p = p }
 
   let cumulative_probability { geometric_p } ~n =
-    Cdf.geometric_P ~p:geometric_p ~k:n
+    Gsl.Cdf.geometric_P ~p:geometric_p ~k:n
 
   let probability { geometric_p } ~n =
     Randist.geometric_pdf ~p:geometric_p n
+  and log_probability { geometric_p } ~n =
+    if n <= 0
+    then neg_infinity
+    else float (n - 1) *. log (1. -. geometric_p) +. log geometric_p
 
   let mean { geometric_p } = 1. /. geometric_p
   and variance { geometric_p } =
@@ -665,10 +751,15 @@ module Hypergeometric = struct
     else { hyper_m = m; hyper_t = t; hyper_k = k }
 
   let cumulative_probability { hyper_m; hyper_t; hyper_k } ~n =
-    Cdf.hypergeometric_P ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k ~k:n
+    Gsl.Cdf.hypergeometric_P ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k ~k:n
 
   let probability { hyper_m; hyper_t; hyper_k } ~n =
     Randist.hypergeometric_pdf ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k n
+  and log_probability { hyper_m; hyper_t; hyper_k } ~n =
+    (* FIXME(superbobry): check this and handle edge cases! *)
+    Gsl.Sf.(lnchoose hyper_m n +.
+            lnchoose (hyper_t - hyper_m) (hyper_k - n) -.
+            lnchoose hyper_t hyper_k)
 
   let mean { hyper_m; hyper_t; hyper_k } =
     float_of_int (hyper_k * hyper_m) /. float_of_int hyper_t
@@ -715,12 +806,19 @@ module NegativeBinomial = struct
     else { nbinomial_failures = failures; nbinomial_p = p }
 
   let cumulative_probability { nbinomial_failures; nbinomial_p } ~n =
-    Cdf.negative_binomial_P
+    Gsl.Cdf.negative_binomial_P
       ~n:nbinomial_failures ~p:(1. -. nbinomial_p) ~k:n
 
   let probability { nbinomial_failures; nbinomial_p } ~n =
     Randist.negative_binomial_pdf
       ~n:nbinomial_failures ~p:(1. -. nbinomial_p) n
+  and log_probability { nbinomial_failures = r; nbinomial_p = p } ~n =
+    if n < 0
+    then neg_infinity
+    else
+      Gsl.Sf.lngamma (float n +. r) -.
+      Gsl.Sf.lngamma (float (n + 1)) -.
+      Gsl.Sf.lngamma r +. float n *. log p +. r *. log (1. -. p)
 
   let mean { nbinomial_failures = r; nbinomial_p = p } =
     r *. p /. (1. -. p)
@@ -835,6 +933,7 @@ module Categorical = struct
       match Base.search_sorted ~cmp:Elt.compare categorical_values n with
         | Some pos -> Array.unsafe_get categorical_probs pos
         | None     -> 0.
+    let log_probability d ~n = log (probability d ~n)
 
     let random ?(rng=default_rng)
         { categorical_values; categorical_cumsum; _ } =

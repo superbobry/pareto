@@ -1,7 +1,7 @@
 # OASIS_START
-# DO NOT EDIT (digest: 72fc256e4a1166326970ff1b3fe6d0ba)
-# Ignore VCS directories, you can use the same kind of rule outside 
-# OASIS_START/STOP if you want to exclude directories that contains 
+# DO NOT EDIT (digest: 3c51da9805bb938efc8589f58321f3c4)
+# Ignore VCS directories, you can use the same kind of rule outside
+# OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
 <**/.svn>: -traverse
 <**/.svn>: not_hygienic
@@ -31,51 +31,53 @@
 <lib/*.ml{,i}>: oasis_library_pareto_native
 "lib/mlgsl_extra.c": oasis_library_pareto_native
 <lib/pareto.{cma,cmxa}>: use_libpareto_stubs
-<lib/*.ml{,i}>: pkg_gsl
-"lib/mlgsl_extra.c": pkg_gsl
+<lib/*.ml{,i}>: package(gsl)
+"lib/mlgsl_extra.c": package(gsl)
 # Executable test_runner
+<lib_test/test_runner.{native,byte}>: package(gsl)
+<lib_test/test_runner.{native,byte}>: package(oUnit)
 <lib_test/test_runner.{native,byte}>: use_pareto
-<lib_test/test_runner.{native,byte}>: pkg_gsl
-<lib_test/test_runner.{native,byte}>: pkg_oUnit
+<lib_test/*.ml{,i}>: package(gsl)
+<lib_test/*.ml{,i}>: package(oUnit)
 <lib_test/*.ml{,i}>: use_pareto
-<lib_test/*.ml{,i}>: pkg_gsl
-<lib_test/*.ml{,i}>: pkg_oUnit
 <lib_test/test_runner.{native,byte}>: custom
 # Executable base_ex
 <examples/base_ex.{native,byte}>: oasis_executable_base_ex_byte
 <examples/*.ml{,i}>: oasis_executable_base_ex_byte
 <examples/base_ex.{native,byte}>: oasis_executable_base_ex_native
 <examples/*.ml{,i}>: oasis_executable_base_ex_native
+<examples/base_ex.{native,byte}>: package(gsl)
 <examples/base_ex.{native,byte}>: use_pareto
-<examples/base_ex.{native,byte}>: pkg_gsl
 # Executable distributions_ex
 <examples/distributions_ex.{native,byte}>: oasis_executable_distributions_ex_byte
 <examples/*.ml{,i}>: oasis_executable_distributions_ex_byte
 <examples/distributions_ex.{native,byte}>: oasis_executable_distributions_ex_native
 <examples/*.ml{,i}>: oasis_executable_distributions_ex_native
+<examples/distributions_ex.{native,byte}>: package(gsl)
 <examples/distributions_ex.{native,byte}>: use_pareto
-<examples/distributions_ex.{native,byte}>: pkg_gsl
 # Executable tests_ex
 <examples/tests_ex.{native,byte}>: oasis_executable_tests_ex_byte
 <examples/*.ml{,i}>: oasis_executable_tests_ex_byte
 <examples/tests_ex.{native,byte}>: oasis_executable_tests_ex_native
 <examples/*.ml{,i}>: oasis_executable_tests_ex_native
+<examples/tests_ex.{native,byte}>: package(gsl)
 <examples/tests_ex.{native,byte}>: use_pareto
-<examples/tests_ex.{native,byte}>: pkg_gsl
 # Executable sample_ex
 <examples/sample_ex.{native,byte}>: oasis_executable_sample_ex_byte
 <examples/*.ml{,i}>: oasis_executable_sample_ex_byte
 <examples/sample_ex.{native,byte}>: oasis_executable_sample_ex_native
 <examples/*.ml{,i}>: oasis_executable_sample_ex_native
+<examples/sample_ex.{native,byte}>: package(gsl)
 <examples/sample_ex.{native,byte}>: use_pareto
-<examples/sample_ex.{native,byte}>: pkg_gsl
 # Executable resampling_ex
 <examples/resampling_ex.{native,byte}>: oasis_executable_resampling_ex_byte
 <examples/*.ml{,i}>: oasis_executable_resampling_ex_byte
 <examples/resampling_ex.{native,byte}>: oasis_executable_resampling_ex_native
 <examples/*.ml{,i}>: oasis_executable_resampling_ex_native
+<examples/resampling_ex.{native,byte}>: package(gsl)
 <examples/resampling_ex.{native,byte}>: use_pareto
-<examples/resampling_ex.{native,byte}>: pkg_gsl
+<examples/*.ml{,i}>: package(gsl)
 <examples/*.ml{,i}>: use_pareto
-<examples/*.ml{,i}>: pkg_gsl
 # OASIS_STOP
+
+<lib_top/*>: use_toploop

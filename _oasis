@@ -11,6 +11,10 @@ Homepage:       https://github.com/superbobry/pareto
 BuildTools:     ocamlbuild, ocamldoc
 Plugins:        META (0.3), DevFiles (0.3)
 
+Flag strict
+  Description:    Strict compile-time checks
+  Default:        true
+
 Library pareto
   Path:              lib
   Pack:              true
@@ -22,9 +26,12 @@ Library pareto
                    , Tests
   InternalModules:   Internal
   CSources:          mlgsl_extra.c
-  CCOpt:             -O2 -Wall -pedantic -Wextra
-  NativeOpt:         -w @a -warn-error -a
-  ByteOpt:           -w @a -warn-error -a
+  CCOpt:             -O2
+  if flag(strict) && ccomp_type(cc)
+    CCOpt+:          -Wall -pedantic -Wextra -Wunused -Wno-long-long
+  if flag(strict)
+    NativeOpt:       -w @a -warn-error -a
+    ByteOpt:         -w @a -warn-error -a
   BuildDepends:      gsl (>= 1.13.0)
 
 # Tests

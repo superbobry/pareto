@@ -44,6 +44,10 @@ module type DiscreteDistribution = sig
       [P(X = n)], the probability that a random variable [X] is
       {b exactly} equal to [n] *)
   val probability : t -> n:elt -> float
+
+  (** Computes natural logarithm of the probability mass function for
+       a given value [n]. *)
+  val log_probability : t -> n:elt -> float
 end
 
 module type ContinuousDistribution = sig
@@ -64,7 +68,11 @@ module type ContinuousDistribution = sig
   (** Computes probability density function for a given value [n], i. e.
       [P(X = n)], the probability that a random variable [X] is
       {b exactly} equal to [n] *)
-  val density  : t -> x:elt -> float
+  val density : t -> x:elt -> float
+
+  (** Computes natural logarithm of the probability density function for
+      a given value [n]. *)
+  val log_density  : t -> x:elt -> float
 
   (** Computes inverse cumulative probability function for a given
       probability [p]. *)
