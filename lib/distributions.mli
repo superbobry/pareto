@@ -35,19 +35,19 @@ module type DiscreteDistribution = sig
   (** Samples [size] data points from the distribution. *)
   val sample : ?rng:Gsl.Rng.t -> size:int -> t -> elt array
 
-  (** Computes cumulative probability function for a given value [n],
-      i. e. [P(X <= n)], the probability that a random variable [X] will
-      be found at a value less than or equal to [n]. *)
-  val cumulative_probability : t -> n:elt -> float
+  (** Computes cumulative probability function for a given value [k],
+      i. e. [P(X <= k)], the probability that a random variable [X] will
+      be found at a value less than or equal to [k]. *)
+  val cumulative_probability : t -> k:elt -> float
 
-  (** Computes probability mass function for a given value [n], i. e.
-      [P(X = n)], the probability that a random variable [X] is
-      {b exactly} equal to [n] *)
-  val probability : t -> n:elt -> float
+  (** Computes probability mass function for a given value [k], i. e.
+      [P(X = k)], the probability that a random variable [X] is
+      {b exactly} equal to [k] *)
+  val probability : t -> k:elt -> float
 
   (** Computes natural logarithm of the probability mass function for
-       a given value [n]. *)
-  val log_probability : t -> n:elt -> float
+       a given value [k]. *)
+  val log_probability : t -> k:elt -> float
 end
 
 module type ContinuousDistribution = sig

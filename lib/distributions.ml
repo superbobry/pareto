@@ -36,10 +36,10 @@ end
 module type DiscreteDistribution = sig
   include BaseDistribution
 
-  val cumulative_probability : t -> n:elt -> float
+  val cumulative_probability : t -> k:elt -> float
 
-  val probability     : t -> n:elt -> float
-  val log_probability : t -> n:elt -> float
+  val probability     : t -> k:elt -> float
+  val log_probability : t -> k:elt -> float
 end
 
 module type ContinuousDistribution = sig
@@ -584,17 +584,17 @@ module Poisson = struct
     then { poisson_rate = rate }
     else invalid_arg "Poisson.create: rate must be positive"
 
-  let cumulative_probability { poisson_rate } ~n =
-    Gsl.Cdf.poisson_P ~mu:poisson_rate ~k:n
+  let cumulative_probability { poisson_rate } ~k =
+    Gsl.Cdf.poisson_P ~mu:poisson_rate ~k
 
-  let probability { poisson_rate } ~n =
-    Randist.poisson_pdf ~mu:poisson_rate n
-  and log_probability { poisson_rate } ~n =
-    if n < 0
+  let probability { poisson_rate } ~k =
+    Randist.poisson_pdf ~mu:poisson_rate k
+  and log_probability { poisson_rate } ~k =
+    if k < 0
     then neg_infinity
     else
-      float n *. log poisson_rate -.
-      Gsl.Sf.lngamma (float (n + 1)) -. poisson_rate
+      float k *. log poisson_rate -.
+      Gsl.Sf.lngamma (float (k + 1)) -. poisson_rate
 
   let mean { poisson_rate } = poisson_rate
   and variance { poisson_rate } = poisson_rate
@@ -617,20 +617,20 @@ module Bernoulli = struct
     then invalid_arg "Bernoulli.create: probability must be in range [0, 1]"
     else { bernoulli_p = p }
 
-  let cumulative_probability { bernoulli_p = p } ~n =
-    if n < 0
+  let cumulative_probability { bernoulli_p = p } ~k =
+    if k < 0
     then 0.
-    else if n < 1
+    else if k < 1
     then 1. -. p
     else 1.
 
-  let probability { bernoulli_p = p } ~n =
-    if n = 0
+  let probability { bernoulli_p = p } ~k =
+    if k = 0
     then 1. -. p
-    else if n = 1
+    else if k = 1
     then p
     else 0.
-  let log_probability d ~n = log (probability d ~n)
+  let log_probability d ~k = log (probability d ~k)
 
   let mean { bernoulli_p = p } = p
   and variance { bernoulli_p = p } = p *. (1. -. p)
@@ -663,17 +663,16 @@ module Binomial = struct
     then invalid_arg "Binomial.create: probability must be in range [0, 1]"
     else { binomial_trials = trials; binomial_p = p }
 
-  let cumulative_probability { binomial_trials; binomial_p } ~n =
-    Gsl.Cdf.binomial_P ~n:binomial_trials ~p:binomial_p ~k:n
+  let cumulative_probability { binomial_trials = n; binomial_p = p } ~k =
+    Gsl.Cdf.binomial_P ~n ~p ~k
 
-  let probability { binomial_trials; binomial_p } ~n =
-    Randist.binomial_pdf ~n:binomial_trials ~p:binomial_p n
-  and log_probability { binomial_trials; binomial_p } ~n =
-    if n < 0 || n > binomial_trials
+  let probability { binomial_trials = n; binomial_p = p } ~k =
+    Randist.binomial_pdf ~n ~p k
+  and log_probability { binomial_trials = n; binomial_p = p } ~k =
+    if k < 0 || k > n
     then neg_infinity
     else
-      Gsl.Sf.lnchoose binomial_trials n +. float n *. log binomial_p +.
-      float (binomial_trials - n) *. log (1. -. binomial_p)
+      Gsl.Sf.lnchoose n k +. float k *. log p +. float (n - k) *. log (1. -. p)
 
   let mean { binomial_trials = n; binomial_p = p } = float_of_int n *. p
   and variance { binomial_trials = n; binomial_p = p } =
@@ -704,15 +703,14 @@ module Geometric = struct
     then invalid_arg "Geometric.create: probability must be in range (0, 1]"
     else { geometric_p = p }
 
-  let cumulative_probability { geometric_p } ~n =
-    Gsl.Cdf.geometric_P ~p:geometric_p ~k:n
+  let cumulative_probability { geometric_p = p } ~k =
+    Gsl.Cdf.geometric_P ~p ~k
 
-  let probability { geometric_p } ~n =
-    Randist.geometric_pdf ~p:geometric_p n
-  and log_probability { geometric_p } ~n =
-    if n <= 0
+  let probability { geometric_p = p } ~k = Randist.geometric_pdf ~p k
+  and log_probability { geometric_p = p } ~k =
+    if k <= 0
     then neg_infinity
-    else float (n - 1) *. log (1. -. geometric_p) +. log geometric_p
+    else float (k - 1) *. log (1. -. p) +. log p
 
   let mean { geometric_p } = 1. /. geometric_p
   and variance { geometric_p } =
@@ -729,7 +727,7 @@ module Geometric = struct
   let mme vs =
     let n = Array.length vs in
     let p = float_of_int n /.
-              float_of_int (Array.fold_left ~f:(+) ~init:0 vs)
+            float_of_int (Array.fold_left ~f:(+) ~init:0 vs)
     in create ~p
 end
 
@@ -750,17 +748,17 @@ module Hypergeometric = struct
     then invalid_arg "Hypergeometric.create: k must be in range (0, t]"
     else { hyper_m = m; hyper_t = t; hyper_k = k }
 
-  let cumulative_probability { hyper_m; hyper_t; hyper_k } ~n =
-    Gsl.Cdf.hypergeometric_P ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k ~k:n
+  let cumulative_probability { hyper_m; hyper_t; hyper_k } ~k =
+    Gsl.Cdf.hypergeometric_P ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k ~k
 
-  let probability { hyper_m; hyper_t; hyper_k } ~n =
-    Randist.hypergeometric_pdf ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k n
-  and log_probability { hyper_m; hyper_t; hyper_k } ~n =
-    if n < max 0 (hyper_k - hyper_t + hyper_m) || n > min hyper_m hyper_k
+  let probability { hyper_m; hyper_t; hyper_k } ~k =
+    Randist.hypergeometric_pdf ~n1:hyper_m ~n2:(hyper_t - hyper_m) ~t:hyper_k k
+  and log_probability { hyper_m; hyper_t; hyper_k } ~k =
+    if k < max 0 (hyper_k - hyper_t + hyper_m) || k > min hyper_m hyper_k
     then neg_infinity
     else
-      Gsl.Sf.(lnchoose hyper_m n +.
-              lnchoose (hyper_t - hyper_m) (hyper_k - n) -.
+      Gsl.Sf.(lnchoose hyper_m k +.
+              lnchoose (hyper_t - hyper_m) (hyper_k - k) -.
               lnchoose hyper_t hyper_k)
 
   let mean { hyper_m; hyper_t; hyper_k } =
@@ -807,20 +805,18 @@ module NegativeBinomial = struct
     then invalid_arg "NegativeBinomial.create: probability must be in range (0, 1)"
     else { nbinomial_failures = failures; nbinomial_p = p }
 
-  let cumulative_probability { nbinomial_failures; nbinomial_p } ~n =
-    Gsl.Cdf.negative_binomial_P
-      ~n:nbinomial_failures ~p:(1. -. nbinomial_p) ~k:n
+  let cumulative_probability { nbinomial_failures = r; nbinomial_p = p } ~k =
+    Gsl.Cdf.negative_binomial_P ~n:r ~p:(1. -. p) ~k
 
-  let probability { nbinomial_failures; nbinomial_p } ~n =
-    Randist.negative_binomial_pdf
-      ~n:nbinomial_failures ~p:(1. -. nbinomial_p) n
-  and log_probability { nbinomial_failures = r; nbinomial_p = p } ~n =
-    if n < 0
+  let probability { nbinomial_failures = r; nbinomial_p = p } ~k =
+    Randist.negative_binomial_pdf ~n:r ~p:(1. -. p) k
+  and log_probability { nbinomial_failures = r; nbinomial_p = p } ~k =
+    if k < 0
     then neg_infinity
     else
-      Gsl.Sf.lngamma (float n +. r) -.
-      Gsl.Sf.lngamma (float (n + 1)) -.
-      Gsl.Sf.lngamma r +. float n *. log p +. r *. log (1. -. p)
+      Gsl.Sf.lngamma (float k +. r) -.
+      Gsl.Sf.lngamma (float (k + 1)) -.
+      Gsl.Sf.lngamma r +. float k *. log p +. r *. log (1. -. p)
 
   let mean { nbinomial_failures = r; nbinomial_p = p } =
     r *. p /. (1. -. p)
@@ -889,8 +885,8 @@ module Categorical = struct
         }
       end
 
-    let cumulative_probability { categorical_values; categorical_probs; _ } ~n =
-      match Base.search_sorted ~cmp:Elt.compare categorical_values n with
+    let cumulative_probability { categorical_values; categorical_probs; _ } ~k =
+      match Base.search_sorted ~cmp:Elt.compare categorical_values k with
         | Some pos ->
           let acc = ref 0. in begin
             for i = 0 to pos do
@@ -898,17 +894,17 @@ module Categorical = struct
             done
           end; !acc
         | None ->
-          if Elt.compare n (Array.unsafe_get categorical_values 0) < 0
+          if Elt.compare k (Array.unsafe_get categorical_values 0) < 0
           then 0.
           else
             (* Then it must be the case that forall vs : v > n. *)
             1.
 
-    let probability { categorical_values; categorical_probs; _ } ~n =
-      match Base.search_sorted ~cmp:Elt.compare categorical_values n with
+    let probability { categorical_values; categorical_probs; _ } ~k =
+      match Base.search_sorted ~cmp:Elt.compare categorical_values k with
         | Some pos -> Array.unsafe_get categorical_probs pos
         | None     -> 0.
-    let log_probability d ~n = log (probability d ~n)
+    let log_probability d ~k = log (probability d ~k)
 
     let random ?(rng=default_rng)
         { categorical_values; categorical_cumsum; _ } =

@@ -34,9 +34,9 @@ and test_log_probability () =
       (module D : DiscreteDistribution with type t = t and type elt = int)
       (d : t) =
     for i = 0 to 100 do
-      let n = int_of_float (Uniform.(random (create ~lower:0. ~upper:42.))) in
+      let k = int_of_float (Uniform.(random (create ~lower:0. ~upper:42.))) in
       assert_almost_equal ~msg:msg
-        (log (D.probability d ~n)) (D.log_probability d ~n)
+        (log (D.probability d ~k)) (D.log_probability d ~k)
     done
   in begin
     go "Poisson" (module Poisson) (poisson ~rate:42.);

@@ -496,11 +496,11 @@ module Sign = struct
     let open Distributions.Binomial in
     let d = create ~trials:(pi_plus + pi_minus) ~p:0.5 in
     let pvalue = match alternative with
-      | Less     -> cumulative_probability d ~n:pi_plus
-      | Greater  -> 1. -. cumulative_probability d ~n:(pi_plus - 1)
+      | Less     -> cumulative_probability d ~k:pi_plus
+      | Greater  -> 1. -. cumulative_probability d ~k:(pi_plus - 1)
       | TwoSided ->
-        2. *. (min (cumulative_probability d ~n:pi_plus)
-                 (1. -. cumulative_probability d ~n:(pi_plus - 1)))
+        2. *. (min (cumulative_probability d ~k:pi_plus)
+                 (1. -. cumulative_probability d ~k:(pi_plus - 1)))
     in { test_statistic = float_of_int pi_plus; test_pvalue = min 1. pvalue }
 
   let one_sample vs ?(shift=0.) =
