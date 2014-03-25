@@ -10,6 +10,7 @@ Version 0.3
 - Added log-probability and log-density to all distributions.
 - Added a method for sampling a single value from a distribution, see
   'BaseDistribution.random'.
+- Changed the observation label in 'DiscreteDistribution' from ~n to ~k.
 
 Version 0.2
 -----------
