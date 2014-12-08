@@ -1,4 +1,4 @@
-OASISFormat:    0.3
+OASISFormat:    0.4
 Name:           pareto
 Version:        0.3
 Synopsis:       GSL powered OCaml statistics library
