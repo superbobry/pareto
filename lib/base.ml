@@ -63,7 +63,7 @@ and sample ?(rng=default_rng) ?(replace=false) ?size vs =
     | Some n ->
       if vs = [||] || not replace && Array.length vs < n
       then invalid_arg "Base.sample: not enough elements to sample from"
-      else Array.create n vs.(0)
+      else Array.make n vs.(0)
     | None   -> Array.copy vs
   in begin
     if replace
