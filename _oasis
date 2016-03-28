@@ -13,7 +13,7 @@ Plugins:        META (0.3), DevFiles (0.3)
 
 Flag strict
   Description:    Strict compile-time checks
-  Default:        true
+  Default:        false
 
 Library pareto
   Path:              lib
