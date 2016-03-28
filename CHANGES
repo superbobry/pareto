@@ -6,11 +6,15 @@ Here you can see the full list of changes between each pareto release.
 Version 0.3
 -----------
 
+Released on March 29th, 2016
+
 - Added MLE for 'Gamma' distribution.
 - Added log-probability and log-density to all distributions.
 - Added a method for sampling a single value from a distribution, see
   'BaseDistribution.random'.
 - Changed the observation label in 'DiscreteDistribution' from ~n to ~k.
+- Bumped minimum required ocaml-gsl version to 1.14.0 and dropped custom
+  'Combi' stubs.
 
 Version 0.2
 -----------
@@ -28,7 +32,7 @@ Released on July 13th, 2013
 - Added Kolmogorov-Smirnov test for goodness of fit and two-sample test.
 - Added function, which adjusts P-values for multiple comparisons. Currently,
   two procedures are supported: Benjamini-Hochberg, which controls for FDR and
-  Holm-Bonferroni, which controls for FWER.
+  Holm-Bonferroni, which controls FWER.
 - Abstracted RV type into '*Distribution.elt'.
 - Added GSL wrappers for computing sample skewness and kurtosis.
 - Added more distribution features: skewness and kurtosis, see
