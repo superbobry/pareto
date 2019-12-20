@@ -1,4 +1,4 @@
-open Pareto
+open! Pareto
 
 open Common
 
