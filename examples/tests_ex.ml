@@ -1,6 +1,6 @@
 open Printf
 
-open Pareto
+open! Pareto
 open Pareto.Tests
 
 open Common

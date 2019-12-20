@@ -42,10 +42,10 @@ module Bootstrap = struct
 
       let jack        = jackknife ~estimator vs in
       let jack_mean   = Sample.mean jack in
-      let z_2s        = Array.map jack ~f:(fun v -> sqr (jack_mean -. v)) in
-      let sum_cubes   = Array.fold_left z_2s ~init:0.
-          ~f:(fun acc z_2 -> acc +. sqr z_2)
-      and sum_squares = Array.fold_left z_2s ~f:(+.) ~init:0. in
+      let z_s        = Array.map jack ~f:(fun v -> jack_mean -. v) in
+      let sum_cubes   = Array.fold_left z_s ~init:0.
+          ~f:(fun acc z -> acc +. z *. z *. z)
+      and sum_squares = Array.fold_left z_s ~f:(fun acc z -> acc +. z *. z) ~init:0. in
       let accel = sum_cubes /. (6. *. (sum_squares ** 1.5)) in
       let p     = float_of_int (Array.count ~f:(fun v -> v < point) rvs) /.
                     float_of_int n_iter
